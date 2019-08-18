@@ -6,7 +6,7 @@
 
 int main(int argc, char const *argv[]) {
   char comando[200];
-  while (fgets(comando, 200, stdin) != NULL) {
+  while (fgets(comando, sizeof(comando), stdin) != NULL) {
     std::cout << comando << '\n';
   }
 
