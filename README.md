@@ -17,3 +17,9 @@ nossoQL é um Sistema Gerenciador de Banco de Dados (SGBD) feito para o trabalho
 5. **11/10** -- Implementação da indexação com árvores.
 6. **05/11** -- Implementação da indexação com hash.
 7. **19/11** -- Testes de larga escala. 
+
+***
+
+### Como contribuir
+
+Dê uma olhada no [CONTRIBUTE.md](CONTRIBUTE.md) para saber como contribuir com o projeto.
