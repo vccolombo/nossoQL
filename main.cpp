@@ -72,6 +72,7 @@ void interpretadorDeComandos (Comandos &comando) {
 int main() {
     Comandos comando;
     while (comando.keyword != "EB") {
+		cout << ">>> ";
         cin >> comando.keyword;
 		transform(comando.keyword.begin(), comando.keyword.end(), comando.keyword.begin(), ::toupper);
         interpretadorDeComandos(comando);
