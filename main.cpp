@@ -1,6 +1,7 @@
 #include "Comandos.h"
 #include <iostream>
 #include <string>
+#include <algorithm>
 using namespace std;
 
 
@@ -71,7 +72,9 @@ void interpretadorDeComandos (Comandos &comando) {
 int main() {
     Comandos comando;
     while (comando.keyword != "EB") {
+		cout << ">>> ";
         cin >> comando.keyword;
+		transform(comando.keyword.begin(), comando.keyword.end(), comando.keyword.begin(), ::toupper);
         interpretadorDeComandos(comando);
     }
 
