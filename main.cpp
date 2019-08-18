@@ -8,7 +8,8 @@ using namespace std;
 void interpretadorDeComandos (Comandos &comando) {
     if (comando.keyword == "CT") {
         cin >> comando.keyword;
-        comando.criarArquivoComNomeTabela();
+		string campos; cin >> campos;
+        comando.criarArquivoComNomeTabela(campos);
     }
 
     else if (comando.keyword == "RT") {
