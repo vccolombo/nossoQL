@@ -68,6 +68,9 @@ void interpretadorDeComandos (Comandos &comando) {
     else if (comando.keyword == "EB") {
         return;
     }
+	else {
+		cout << "Comando não reconhecido." << "\n";
+	}
 }
 
 int main() {
