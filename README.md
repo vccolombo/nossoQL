@@ -8,6 +8,8 @@ nossoQL é um Sistema Gerenciador de Banco de Dados (SGBD) feito para o trabalho
 
 [**Marco Antonio B. Grivol**](https://github.com/marcogrivol) -- 758619
 
+[**Sergio Ricardo Hideki Nisikava**](https://github.com/hidekisrn) -- 551848
+
 [**Víctor Cora Colombo**](https://github.com/vccolombo) -- 727356
 
 ### Etapas
