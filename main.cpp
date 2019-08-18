@@ -1,14 +1,79 @@
-#include <cstdio>
+#include "Comandos.h"
 #include <iostream>
-#include <stdlib.h>
-#include <string.h>
 #include <string>
+using namespace std;
 
-int main(int argc, char const *argv[]) {
-  char comando[200];
-  while (fgets(comando, sizeof(comando), stdin) != NULL) {
-    std::cout << comando << '\n';
-  }
 
-  return 0;
+void interpretadorDeComandos (Comandos &comando) {
+    if (comando.keyword == "CT") {
+        cin >> comando.keyword;
+        comando.criarArquivoComNomeTabela();
+    }
+
+    else if (comando.keyword == "RT") {
+        cin >> comando.keyword;
+        comando.apagaArquivoComNomeTabela();
+    }
+
+    else if (comando.keyword == "AT") {
+
+    }
+
+    else if (comando.keyword == "LT") {
+        
+    }
+
+    else if (comando.keyword == "IR") {
+
+    }
+
+    else if (comando.keyword == "BR") {
+        cin >> comando.keyword;
+        if (comando.keyword == "N") {
+
+        }
+        else if (comando.keyword == "U") {
+
+        }
+    }
+
+    else if (comando.keyword == "AR") {
+
+    }
+
+    else if (comando.keyword == "RR") {
+
+    }
+
+    else if (comando.keyword == "CI") {
+        cin >> comando.keyword;
+        if (comando.keyword == "A") {
+
+        }
+        else if (comando.keyword == "H") {
+            
+        }
+    }
+
+    else if (comando.keyword == "RI") {
+
+    }
+
+    else if (comando.keyword == "GI") {
+
+    }
+
+    else if (comando.keyword == "EB") {
+        return;
+    }
+}
+
+int main() {
+    Comandos comando;
+    while (comando.keyword != "EB") {
+        cin >> comando.keyword;
+        interpretadorDeComandos(comando);
+    }
+
+    return 0;
 }
