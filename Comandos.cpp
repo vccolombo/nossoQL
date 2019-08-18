@@ -4,7 +4,7 @@ Comandos::Comandos() {
 
 }
 
-void Comandos::criarArquivoComNomeTabela() {
+void Comandos::criarArquivoComNomeTabela(string campos) {
     cout << "Criando tabela com nome: " << Comandos::keyword << "\n";
 }
 

@@ -9,7 +9,7 @@ class Comandos {
 public: 
     Comandos();
     string keyword;
-    void criarArquivoComNomeTabela();
+    void criarArquivoComNomeTabela(string campos);
     void apagaArquivoComNomeTabela();
 };
 
