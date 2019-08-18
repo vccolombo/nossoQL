@@ -1,84 +1,78 @@
+#include "Comandos.h"
 #include <iostream>
 #include <string>
 using namespace std;
 
-void criaArquivoComNomeTabela(string nome_tabela) {
-    cout << "Criando tabela com nome" << nome_tabela;
-}
 
-void apagaArquivoComNomeTabela(string nome_tabela) {
-    cout << "Apagando arquivo relativo a tabela: " << nome_tabela;
-}
-
-void interpretadorDeComandos(string comando) {
-    if (comando == "CT") {
-        cin >> comando;
-        criaArquivoComNomeTabela(comando);
-        return;
-    }
-    else if (comando == "RT") {
-        cin >> comando;
-        apagaArquivoComNomeTabela(comando);
+void interpretadorDeComandos (Comandos *comando) {
+    if (comando->keyword == "CT") {
+        cin >> comando->keyword;
+        comando->criarArquivoComNomeTabela();
     }
 
-    else if (comando == "AT") {
+    else if (comando->keyword == "RT") {
+        cin >> comando->keyword;
+        comando->apagaArquivoComNomeTabela();
+    }
+
+    else if (comando->keyword == "AT") {
 
     }
 
-    else if (comando == "LT") {
+    else if (comando->keyword == "LT") {
         
     }
 
-    else if (comando == "IR") {
+    else if (comando->keyword == "IR") {
 
     }
 
-    else if (comando == "BR") {
-        cin >> comando;
-        if (comando == "N") {
+    else if (comando->keyword == "BR") {
+        cin >> comando->keyword;
+        if (comando->keyword == "N") {
 
         }
-        else if (comando == "U") {
+        else if (comando->keyword == "U") {
 
         }
     }
 
-    else if (comando == "AR") {
+    else if (comando->keyword == "AR") {
 
     }
 
-    else if (comando == "RR") {
+    else if (comando->keyword == "RR") {
 
     }
 
-    else if (comando == "CI") {
-        cin >> comando;
-        if (comando == "A") {
+    else if (comando->keyword == "CI") {
+        cin >> comando->keyword;
+        if (comando->keyword == "A") {
 
         }
-        else if (comando == "H") {
+        else if (comando->keyword == "H") {
             
         }
     }
 
-    else if (comando == "RI") {
+    else if (comando->keyword == "RI") {
 
     }
 
-    else if (comando == "GI") {
+    else if (comando->keyword == "GI") {
 
     }
 
-    else if (comando == "EB") {
+    else if (comando->keyword == "EB") {
         return;
     }
 }
 
 int main() {
-    string comando;
-    while (comando != "EB") {
-        cin >> comando;
-        interpretadorDeComandos(comando);
+    Comandos comando;
+    while (comando.keyword != "EB") {
+        cin >> comando.keyword;
+        interpretadorDeComandos(&comando);
     }
 
     return 0;
