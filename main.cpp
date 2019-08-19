@@ -89,7 +89,7 @@ void interpretadorDeComandos(Comandos &comando, string input) {
 
 int main() {
   Comandos comando;
-  string input = NULL;
+  string input = "";
   while (input != "EB") {
     cout << ">>> ";
     cin >> input;
