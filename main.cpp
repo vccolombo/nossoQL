@@ -1,86 +1,102 @@
 #include "Comandos.h"
+#include <algorithm>
 #include <iostream>
 #include <string>
-#include <algorithm>
 using namespace std;
 
+void interpretadorDeComandos(Comandos &comando, string input) {
 
-void interpretadorDeComandos (Comandos &comando) {
-    if (comando.keyword == "CT") {
-        cin >> comando.keyword;
-		string campos; cin >> campos;
-        comando.criarArquivoComNomeTabela(campos);
-    }
+  if (input == "CT") {
+    string tabela, campos;
+    cin >> tabela >> campos;
+    comando.criarArquivoComNomeTabela(tabela, campos);
+  }
 
-    else if (comando.keyword == "RT") {
-        cin >> comando.keyword;
-        comando.apagaArquivoComNomeTabela();
-    }
+  else if (input == "RT") {
+    string tabela;
+    cin >> tabela;
+    comando.apagaArquivoComNomeTabela(tabela);
+  }
 
-    else if (comando.keyword == "AT") {
+  else if (input == "AT") {
+    string tabela;
+    cin >> tabela;
+    comando.resumoDaTabela(tabela);
 
-    }
+  }
 
-    else if (comando.keyword == "LT") {
-        
-    }
+  else if (input == "LT") {
+    comando.listarTabelas();
 
-    else if (comando.keyword == "IR") {
+  }
 
-    }
+  else if (input == "IR") {
+    string tabela, registro;
+    cin >> tabela >> registro;
+    comando.inserirRegistro(tabela, registro);
+  }
 
-    else if (comando.keyword == "BR") {
-        cin >> comando.keyword;
-        if (comando.keyword == "N") {
+  else if (input == "BR") {
+    string modifier, tabela, busca;
+    cin >> modifier >> tabela >> busca;
+    comando.buscaEmTabela(modifier, tabela, busca);
+  }
 
-        }
-        else if (comando.keyword == "U") {
+  else if (input == "AR") {
+    string tabela;
+    cin >> tabela;
+    comando.apresentarRegistrosUltimaBusca(tabela);
+  }
 
-        }
-    }
+  else if (input == "RR") {
+    string tabela;
+    cin >> tabela;
+    comando.removeRegistrosUltimaBusca(tabela);
 
-    else if (comando.keyword == "AR") {
+  }
 
-    }
+  else if (input == "CI") {
+    string modifier, tabela, chave;
+    cin >> modifier >> tabela >> chave;
+    comando.criaIndice(modifier, tabela, chave);
+  }
 
-    else if (comando.keyword == "RR") {
+  else if (input == "RI") {
+    string tabela, chave;
+    cin >> tabela >> chave;
 
-    }
+    comando.removeIndiceChave(tabela, chave);
 
-    else if (comando.keyword == "CI") {
-        cin >> comando.keyword;
-        if (comando.keyword == "A") {
+  }
 
-        }
-        else if (comando.keyword == "H") {
-            
-        }
-    }
+  else if (input == "GI") {
+    string tabela, chave;
+    cin >> tabela >> chave;
 
-    else if (comando.keyword == "RI") {
+    comando.geraNovoIndiceDeTabelaChave(tabela, chave);
 
-    }
+  }
 
-    else if (comando.keyword == "GI") {
+  else if (input == "EB") {
+    cout << "Finalizando a execução... Tenha um ótimo dia." << '\n';
+  }
 
-    }
-
-    else if (comando.keyword == "EB") {
-        return;
-    }
-	else {
-		cout << "Comando não reconhecido." << "\n";
-	}
+  else {
+    cout << "Comando não reconhecido."
+         << "\n";
+  }
 }
 
 int main() {
-    Comandos comando;
-    while (comando.keyword != "EB") {
-		cout << ">>> ";
-        cin >> comando.keyword;
-		transform(comando.keyword.begin(), comando.keyword.end(), comando.keyword.begin(), ::toupper);
-        interpretadorDeComandos(comando);
-    }
+  Comandos comando;
+  string input = "";
+  while (input != "EB") {
+    cout << ">>> ";
+    cin >> input;
+    // Transformar comando para UPPER (retirar case sensitiviness)
+    transform(input.begin(), input.end(), input.begin(), ::toupper);
+    interpretadorDeComandos(comando, input);
+  }
 
-    return 0;
+  return 0;
 }
