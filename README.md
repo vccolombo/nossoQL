@@ -12,6 +12,9 @@ nossoQL é um Sistema Gerenciador de Banco de Dados (SGBD) feito para o trabalho
 
 [**Víctor Cora Colombo**](https://github.com/vccolombo) -- 727356
 
+[**Mayk Tulio Bezerra**](https://github.com/mayktu) -- 727953
+
+
 ### Etapas
 
 1. **20/08** -- [Criação do interpretador de comandos e definição dos metadados da base.](https://drive.ufscar.br/d/e0f30c670f/files/?p=/2019.08.20-__projeto__-comandos_e_metadados.pdf)
