@@ -20,7 +20,7 @@ nossoQL é um Sistema Gerenciador de Banco de Dados (SGBD) feito para o trabalho
 
 ### Etapas
 0. [Especificações geral do projeto.](https://drive.ufscar.br/d/e0f30c670f/files/?p=/2019.08.09-__projeto__-especificacao_projeto.pdf)
-1. **20/08** -- [Criação do interpretador de comandos e definição dos metadados da base.](https://drive.ufscar.br/d/e0f30c670f/files/?p=/2019.08.20-__projeto__-comandos_e_metadados.pdf)
+1. **~~20/08~~ 23/08** -- [Criação do interpretador de comandos e definição dos metadados da base.](https://drive.ufscar.br/d/e0f30c670f/files/?p=/2019.08.20-__projeto__-comandos_e_metadados.pdf)
 2. **03/09** -- [Implementação da manipulação de tabelas e das operações de inserção e busca de registros.](https://bit.ly/2ZaRJ2W)
 3. **17/09** -- Implementação da operação de remoção de registros e estratégia de reutilização de espaço.
 4. **24/09** -- Acréscimo de controle sobre indexação de metadados.
