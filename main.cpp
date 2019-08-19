@@ -93,6 +93,7 @@ int main() {
   while (input != "EB") {
     cout << ">>> ";
     cin >> input;
+    // Transformar comando para UPPER (retirar case sensitiviness)
     transform(input.begin(), input.end(), input.begin(), ::toupper);
     interpretadorDeComandos(comando, input);
   }
