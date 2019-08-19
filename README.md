@@ -15,6 +15,9 @@ nossoQL é um Sistema Gerenciador de Banco de Dados (SGBD) feito para o trabalho
 [**Mayk Tulio Bezerra**](https://github.com/mayktu) -- 727953
 
 
+[**Jean Araujo**](https://github.com/jeanufscar) -- 620394
+
+
 ### Etapas
 0. [Especificações geral do projeto.](https://drive.ufscar.br/d/e0f30c670f/files/?p=/2019.08.09-__projeto__-especificacao_projeto.pdf)
 1. **20/08** -- [Criação do interpretador de comandos e definição dos metadados da base.](https://drive.ufscar.br/d/e0f30c670f/files/?p=/2019.08.20-__projeto__-comandos_e_metadados.pdf)
