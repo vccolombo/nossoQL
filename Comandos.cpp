@@ -29,7 +29,7 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
     cout << "Busca em " << tabela << " primeiro com critério " << busca
               << '\n';
   } else {
-    cout << "Modificador não reconhecido: " << modifier << '\n';
+    cout << "Modificador não reconhecido: " << modifier << ". Utilize N para fazer a busca, na tabela, de todos os registros que satisfaçam o critério de busca e U para fazer a busca, na tabela, do primeiro registro que satisfaça o critério. \n";
   }
 }
 
@@ -49,7 +49,7 @@ void Comandos::criaIndice(string modifier, string tabela, string chave) {
     cout << "Cria um índice usando hash para " << tabela
               << " usando a chave " << chave << '\n';
   } else {
-    cout << "Modificador não reconhecido: " << modifier << '\n';
+    cout << "Modificador não reconhecido: " << modifier << ". Utilize A para criar um índice estruturado como árvore de múltiplos caminhos para a tabela, usando chave como chave de busca, atualizando os metadados e  H para criar um índice usando hashing para a tabela, usando chave como chave de busca, atualizando os metadados. \n";
   }
 }
 
