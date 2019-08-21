@@ -4,6 +4,9 @@
 #include <string>
 using namespace std;
 
+#define SUCCESS 0
+#define FINISH_PROGRAM 1
+
 // encontra o indice do delimitador na string input e retorna a palavra antes dele
 // remove a palavra antes do delimitador da string input
 string retornaPalavraDeInput (string &input, string delimitador) {
@@ -77,7 +80,7 @@ int interpretadorDeComandos (Comandos &comando, string &input) {
   }
   else if (palavra_chave == "EB") {
     cout << "Finalizando a execução... Tenha um ótimo dia." << '\n';
-    return 1;
+    return FINISH_PROGRAM;
   }
   else {
     cout << "Comando não reconhecido." << "\n"
@@ -85,17 +88,18 @@ int interpretadorDeComandos (Comandos &comando, string &input) {
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
   }
 
-  return 0;
+  return SUCCESS;
 }
 
 int main() {
   Comandos comando;
   string input = "";
-  while (input != "EB") {
+  while (true) {
     cout << ">>> ";
     getline(cin, input);
     int codeResult = interpretadorDeComandos(comando, input);
-    if (codeResult == 1) {
+    // codeResult 1 significa que o programa foi terminado
+    if (codeResult == FINISH_PROGRAM) {
       return 0;
     }
   }
