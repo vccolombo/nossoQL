@@ -94,14 +94,11 @@ int interpretadorDeComandos (Comandos &comando, string &input) {
 int main() {
   Comandos comando;
   string input = "";
-  while (true) {
+  int codeResult = SUCCESS;
+  while (codeResult != FINISH_PROGRAM) {
     cout << ">>> ";
     getline(cin, input);
-    int codeResult = interpretadorDeComandos(comando, input);
-    // codeResult 1 significa que o programa foi terminado
-    if (codeResult == FINISH_PROGRAM) {
-      return 0;
-    }
+    codeResult = interpretadorDeComandos(comando, input);
   }
 
   return 0;
