@@ -21,6 +21,8 @@ void interpretadorDeComandos (Comandos &comando, string &input) {
   string delimitador = "\n";
   string palavra_chave;
   palavra_chave = retornaPalavraDeInput(input, " ");
+  // Transformar comando para UPPER (retirar case sensitiviness)
+  transform(palavra_chave.begin(), palavra_chave.end(), palavra_chave.begin(), ::toupper);
 
   if (palavra_chave == "CT") {
     string tabela = retornaPalavraDeInput(input, " ");
@@ -89,8 +91,6 @@ int main() {
   while (input != "EB") {
     cout << ">>> ";
     getline(cin, input);
-    // Transformar comando para UPPER (retirar case sensitiviness)
-    transform(input.begin(), input.end(), input.begin(), ::toupper);
     interpretadorDeComandos(comando, input);
   }
 
