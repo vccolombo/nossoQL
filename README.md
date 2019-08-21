@@ -31,6 +31,17 @@ nossoQL é um Sistema Gerenciador de Banco de Dados (SGBD) feito para o trabalho
 
 ***
 
+### Como instalar e usar
+
+```
+git clone https://github.com/vccolombo/nossoQL.git
+cd nossoQL
+make
+./main.exe
+```
+
+***
+
 ### Como contribuir
 
 Dê uma olhada no [CONTRIBUTE.md](CONTRIBUTE.md) para saber como contribuir com o projeto.
