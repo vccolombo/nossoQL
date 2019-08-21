@@ -7,13 +7,13 @@ using namespace std;
 // encontra o indice do delimitador na string input e retorna a palavra antes dele
 // remove a palavra antes do delimitador da string input
 string retornaPalavraDeInput (string &input, string delimitador) {
-  string palavra = "";
+  string palavra;
   int i = 0;
   while (input[i] == ' ')
     i++;
   input.erase(0, i);
   palavra = input.substr(0, input.find(delimitador));
-  input.erase(0, input.find(delimitador) + delimitador.length());
+  input.erase(0, palavra.length());
   return palavra;
 }
 
@@ -77,7 +77,8 @@ void interpretadorDeComandos (Comandos &comando, string &input) {
     cout << "Finalizando a execução... Tenha um ótimo dia." << '\n';
   } 
   else {
-    cout << "Comando não reconhecido." << "\n";
+    cout << "Comando não reconhecido." << "\n" 
+          << "Aperte ENTER para nova entrada." << "\n";
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
   }
 }
