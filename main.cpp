@@ -17,7 +17,7 @@ string retornaPalavraDeInput (string &input, string delimitador) {
   return palavra;
 }
 
-void interpretadorDeComandos (Comandos &comando, string &input) {
+int interpretadorDeComandos (Comandos &comando, string &input) {
   string delimitador = "\n";
   string palavra_chave;
   palavra_chave = retornaPalavraDeInput(input, " ");
@@ -77,12 +77,15 @@ void interpretadorDeComandos (Comandos &comando, string &input) {
   }
   else if (palavra_chave == "EB") {
     cout << "Finalizando a execução... Tenha um ótimo dia." << '\n';
-  } 
+    return 1;
+  }
   else {
-    cout << "Comando não reconhecido." << "\n" 
+    cout << "Comando não reconhecido." << "\n"
           << "Aperte ENTER para nova entrada." << "\n";
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
   }
+
+  return 0;
 }
 
 int main() {
@@ -91,7 +94,10 @@ int main() {
   while (input != "EB") {
     cout << ">>> ";
     getline(cin, input);
-    interpretadorDeComandos(comando, input);
+    int codeResult = interpretadorDeComandos(comando, input);
+    if (codeResult == 1) {
+      return 0;
+    }
   }
 
   return 0;
