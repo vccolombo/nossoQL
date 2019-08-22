@@ -8,7 +8,7 @@ using namespace std;
 class Comandos {
 public:
   Comandos();
-  void criarArquivoComNomeTabela(string tabela, string campos);
+  void criarArquivoComNomeTabela(string tabela, string* campos);
   void apagaArquivoComNomeTabela(string tabela);
   void resumoDaTabela(string tabela);
   void listarTabelas();
@@ -20,6 +20,7 @@ public:
   void removeIndiceChave(string tabela, string chave);
   void geraNovoIndiceDeTabelaChave(string tabela, string chave);
   string retornaPalavraDeInput (string &input, char delimitador, bool removerEspacosAfrente = true);
+  string* parseCampoCT(string input);
 
 private:
   void parseInsercao(string registro);
