@@ -6,17 +6,17 @@ nossoQL é um Sistema Gerenciador de Banco de Dados (SGBD) feito para o trabalho
 
 ### Integrantes
 
+[**Jean Araujo**](https://github.com/jeanufscar) -- 620394
+
 [**Marco Antonio B. Grivol**](https://github.com/marcogrivol) -- 758619
+
+[**Mayk Tulio Bezerra**](https://github.com/mayktu) -- 727953
+
+[**Renan Dantas Pasquantonio**](https://github.com/renandantasp) -- 760549
 
 [**Sergio Ricardo Hideki Nisikava**](https://github.com/hidekisrn) -- 551848
 
 [**Víctor Cora Colombo**](https://github.com/vccolombo) -- 727356
-
-[**Mayk Tulio Bezerra**](https://github.com/mayktu) -- 727953
-
-[**Jean Araujo**](https://github.com/jeanufscar) -- 620394
-
-[**Renan Dantas Pasquantonio**](https://github.com/renandantasp) -- 760549
 
 
 ### Etapas
