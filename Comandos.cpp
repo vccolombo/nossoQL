@@ -19,6 +19,7 @@ void Comandos::listarTabelas() { cout << "Listar tabelas" << '\n'; }
 
 void Comandos::inserirRegistro(string tabela, string registro) {
   cout << "Inserir registro " << registro << " na tabela " << tabela << '\n';
+  parseInsercao(registro);
 }
 
 void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
@@ -61,4 +62,36 @@ void Comandos::removeIndiceChave(string tabela, string chave) {
 void Comandos::geraNovoIndiceDeTabelaChave(string tabela, string chave) {
   cout << "Gera novamente o indice de " << tabela << " referente a chave "
             << chave << '\n';
+}
+
+// encontra o indice do delimitador na string input e retorna a palavra antes dele
+// remove a palavra antes do delimitador da string input
+string Comandos::retornaPalavraDeInput (string &input, char delimitador, bool removerEspacosAfrente) {
+  string palavra;
+
+  if (removerEspacosAfrente) {
+    int i = 0;
+    while (input[i] == ' ')
+      i++;
+    input.erase(0, i);
+  }
+
+  int i = 0;
+  while (input[i] == delimitador)
+    i++;
+  input.erase(0, i);
+  palavra = input.substr(0, input.find(delimitador));
+  input.erase(0, palavra.length());
+  return palavra;
+}
+
+void Comandos::parseInsercao(string registro) {
+  std::cout << "Registros a serem inseridos: " << '\n';
+  int campo = 0;
+  while (registro.length() > 0) {
+    std::cout << "Campo " << ++campo << ": ";
+    std::cout << retornaPalavraDeInput(registro, ';') << '\n';
+  }
+  std::cout << '\n';
+
 }

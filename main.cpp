@@ -7,82 +7,61 @@ using namespace std;
 #define SUCCESS 0
 #define FINISH_PROGRAM 1
 
-// encontra o indice do delimitador na string input e retorna a palavra antes dele
-// remove a palavra antes do delimitador da string input
-string retornaPalavraDeInput (string &input, char delimitador, bool removerEspacosAfrente = true) {
-  string palavra;
-
-  if (removerEspacosAfrente) {
-    int i = 0;
-    while (input[i] == ' ')
-      i++;
-    input.erase(0, i);
-  }
-
-  int i = 0;
-  while (input[i] == delimitador)
-    i++;
-  input.erase(0, i);
-  palavra = input.substr(0, input.find(delimitador));
-  input.erase(0, palavra.length());
-  return palavra;
-}
-
 int interpretadorDeComandos (Comandos &comando, string &input) {
   string palavra_chave;
-  palavra_chave = retornaPalavraDeInput(input, ' ');
+  palavra_chave = comando.retornaPalavraDeInput(input, ' ');
   // Transformar comando para UPPER (retirar case sensitiviness)
   transform(palavra_chave.begin(), palavra_chave.end(), palavra_chave.begin(), ::toupper);
 
   if (palavra_chave == "CT") {
-    string tabela = retornaPalavraDeInput(input, ' ');
-    string campos = retornaPalavraDeInput(input, ' ');
+    string tabela = comando.retornaPalavraDeInput(input, ' ');
+    string campos = comando.retornaPalavraDeInput(input, ' ');
     comando.criarArquivoComNomeTabela(tabela, campos);
   }
   else if (palavra_chave == "RT") {
-    string tabela = retornaPalavraDeInput(input, ' ');
+    string tabela = comando.retornaPalavraDeInput(input, ' ');
     comando.apagaArquivoComNomeTabela(tabela);
   }
   else if (palavra_chave == "AT") {
-    string tabela = retornaPalavraDeInput(input, ' ');
+    string tabela = comando.retornaPalavraDeInput(input, ' ');
     comando.resumoDaTabela(tabela);
   }
   else if (palavra_chave == "LT") {
     comando.listarTabelas();
   }
   else if (palavra_chave == "IR") {
-    string tabela = retornaPalavraDeInput(input, ' ');
-    string registro = retornaPalavraDeInput(input, '\n');
+    string tabela = comando.retornaPalavraDeInput(input, ' ');
+    string registro = comando.retornaPalavraDeInput(input, '\n');
     comando.inserirRegistro(tabela, registro);
   }
   else if (palavra_chave == "BR") {
-    string modifier = retornaPalavraDeInput(input, ' ');
-    string tabela = retornaPalavraDeInput(input, ' ');
-    string busca = retornaPalavraDeInput(input, ' ');
+    string modifier = comando.retornaPalavraDeInput(input, ' ');
+    string tabela = comando.retornaPalavraDeInput(input, ' ');
+    string busca = comando.retornaPalavraDeInput(input, ' ');
     comando.buscaEmTabela(modifier, tabela, busca);
   }
   else if (palavra_chave == "AR") {
-    string tabela = retornaPalavraDeInput(input, ' ');
+    string tabela = comando.retornaPalavraDeInput(input, ' ');
     comando.apresentarRegistrosUltimaBusca(tabela);
   }
   else if (palavra_chave == "RR") {
-    string tabela = retornaPalavraDeInput(input, ' ');
+    string tabela = comando.retornaPalavraDeInput(input, ' ');
     comando.removeRegistrosUltimaBusca(tabela);
   }
   else if (palavra_chave == "CI") {
-    string modifier = retornaPalavraDeInput(input, ' ');
-    string tabela = retornaPalavraDeInput(input, ' ');
-    string chave = retornaPalavraDeInput(input, ' ');
+    string modifier = comando.retornaPalavraDeInput(input, ' ');
+    string tabela = comando.retornaPalavraDeInput(input, ' ');
+    string chave = comando.retornaPalavraDeInput(input, ' ');
     comando.criaIndice(modifier, tabela, chave);
   }
   else if (palavra_chave == "RI") {
-    string tabela = retornaPalavraDeInput(input, ' ');
-    string chave = retornaPalavraDeInput(input, ' ');
+    string tabela = comando.retornaPalavraDeInput(input, ' ');
+    string chave = comando.retornaPalavraDeInput(input, ' ');
     comando.removeIndiceChave(tabela, chave);
   }
   else if (palavra_chave == "GI") {
-    string tabela = retornaPalavraDeInput(input, ' ');
-    string chave = retornaPalavraDeInput(input, ' ');
+    string tabela = comando.retornaPalavraDeInput(input, ' ');
+    string chave = comando.retornaPalavraDeInput(input, ' ');
     comando.geraNovoIndiceDeTabelaChave(tabela, chave);
   }
   else if (palavra_chave == "EB") {
