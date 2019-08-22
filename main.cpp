@@ -91,7 +91,7 @@ int interpretadorDeComandos (Comandos &comando, string &input) {
 		 << "Use o comando RI para remover o índice relativo à chave indicada." << "\n"
 		 << "Use o comando GI para gerar novamente um novo índice de tabela referente à chave indicada." << "\n"
 		 << "Use o comando EB para encerrar a execução do programa." << "\n"
-     << "Aperte ENTER para nova entrada." << "\n"
+     		 << "Aperte ENTER para nova entrada." << "\n";
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
   }
 
