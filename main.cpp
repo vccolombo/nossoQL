@@ -9,8 +9,16 @@ using namespace std;
 
 // encontra o indice do delimitador na string input e retorna a palavra antes dele
 // remove a palavra antes do delimitador da string input
-string retornaPalavraDeInput (string &input, char delimitador) {
+string retornaPalavraDeInput (string &input, char delimitador, bool removerEspacosAfrente = true) {
   string palavra;
+
+  if (removerEspacosAfrente) {
+    int i = 0;
+    while (input[i] == ' ')
+      i++;
+    input.erase(0, i);
+  }
+
   int i = 0;
   while (input[i] == delimitador)
     i++;
@@ -44,7 +52,7 @@ int interpretadorDeComandos (Comandos &comando, string &input) {
   }
   else if (palavra_chave == "IR") {
     string tabela = retornaPalavraDeInput(input, ' ');
-    string registro = retornaPalavraDeInput(input, ' ');
+    string registro = retornaPalavraDeInput(input, '\n');
     comando.inserirRegistro(tabela, registro);
   }
   else if (palavra_chave == "BR") {
