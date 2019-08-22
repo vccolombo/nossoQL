@@ -9,10 +9,10 @@ using namespace std;
 
 // encontra o indice do delimitador na string input e retorna a palavra antes dele
 // remove a palavra antes do delimitador da string input
-string retornaPalavraDeInput (string &input, string delimitador) {
+string retornaPalavraDeInput (string &input, char delimitador) {
   string palavra;
   int i = 0;
-  while (input[i] == ' ')
+  while (input[i] == delimitador)
     i++;
   input.erase(0, i);
   palavra = input.substr(0, input.find(delimitador));
@@ -21,61 +21,60 @@ string retornaPalavraDeInput (string &input, string delimitador) {
 }
 
 int interpretadorDeComandos (Comandos &comando, string &input) {
-  string delimitador = "\n";
   string palavra_chave;
-  palavra_chave = retornaPalavraDeInput(input, " ");
+  palavra_chave = retornaPalavraDeInput(input, ' ');
   // Transformar comando para UPPER (retirar case sensitiviness)
   transform(palavra_chave.begin(), palavra_chave.end(), palavra_chave.begin(), ::toupper);
 
   if (palavra_chave == "CT") {
-    string tabela = retornaPalavraDeInput(input, " ");
-    string campos = retornaPalavraDeInput(input, delimitador);
+    string tabela = retornaPalavraDeInput(input, ' ');
+    string campos = retornaPalavraDeInput(input, ' ');
     comando.criarArquivoComNomeTabela(tabela, campos);
   }
   else if (palavra_chave == "RT") {
-    string tabela = retornaPalavraDeInput(input, delimitador);
+    string tabela = retornaPalavraDeInput(input, ' ');
     comando.apagaArquivoComNomeTabela(tabela);
   }
   else if (palavra_chave == "AT") {
-    string tabela = retornaPalavraDeInput(input, delimitador);
+    string tabela = retornaPalavraDeInput(input, ' ');
     comando.resumoDaTabela(tabela);
   }
   else if (palavra_chave == "LT") {
     comando.listarTabelas();
   }
   else if (palavra_chave == "IR") {
-    string tabela = retornaPalavraDeInput(input, " ");
-    string registro = retornaPalavraDeInput(input, delimitador);
+    string tabela = retornaPalavraDeInput(input, ' ');
+    string registro = retornaPalavraDeInput(input, ' ');
     comando.inserirRegistro(tabela, registro);
   }
   else if (palavra_chave == "BR") {
-    string modifier = retornaPalavraDeInput(input, " ");
-    string tabela = retornaPalavraDeInput(input, " ");
-    string busca = retornaPalavraDeInput(input, delimitador);
+    string modifier = retornaPalavraDeInput(input, ' ');
+    string tabela = retornaPalavraDeInput(input, ' ');
+    string busca = retornaPalavraDeInput(input, ' ');
     comando.buscaEmTabela(modifier, tabela, busca);
   }
   else if (palavra_chave == "AR") {
-    string tabela = retornaPalavraDeInput(input, delimitador);
+    string tabela = retornaPalavraDeInput(input, ' ');
     comando.apresentarRegistrosUltimaBusca(tabela);
   }
   else if (palavra_chave == "RR") {
-    string tabela = retornaPalavraDeInput(input, delimitador);
+    string tabela = retornaPalavraDeInput(input, ' ');
     comando.removeRegistrosUltimaBusca(tabela);
   }
   else if (palavra_chave == "CI") {
-    string modifier = retornaPalavraDeInput(input, " ");
-    string tabela = retornaPalavraDeInput(input, " ");
-    string chave = retornaPalavraDeInput(input, delimitador);
+    string modifier = retornaPalavraDeInput(input, ' ');
+    string tabela = retornaPalavraDeInput(input, ' ');
+    string chave = retornaPalavraDeInput(input, ' ');
     comando.criaIndice(modifier, tabela, chave);
   }
   else if (palavra_chave == "RI") {
-    string tabela = retornaPalavraDeInput(input, " ");
-    string chave = retornaPalavraDeInput(input, delimitador);
+    string tabela = retornaPalavraDeInput(input, ' ');
+    string chave = retornaPalavraDeInput(input, ' ');
     comando.removeIndiceChave(tabela, chave);
   }
   else if (palavra_chave == "GI") {
-    string tabela = retornaPalavraDeInput(input, " ");
-    string chave = retornaPalavraDeInput(input, delimitador);
+    string tabela = retornaPalavraDeInput(input, ' ');
+    string chave = retornaPalavraDeInput(input, ' ');
     comando.geraNovoIndiceDeTabelaChave(tabela, chave);
   }
   else if (palavra_chave == "EB") {
