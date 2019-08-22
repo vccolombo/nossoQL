@@ -21,7 +21,7 @@ string retornaPalavraDeInput (string &input, string delimitador) {
 }
 
 //separa o tipo e o nome de cada um dos campos da tabela
-string * parserCampo(string input) {
+string * parserCampoCT(string input) {
   
   int i = 0, campo_correto = 0, quant_campo = 0;
   int idx_ini = 0,idx_fim;
@@ -30,6 +30,7 @@ string * parserCampo(string input) {
 
   //varredura para encontrar problemas na string como
   //Existencia de ' ' e separção incorreta de campos 
+  //contagem de campos
   while(input[i] != '\0'){
     if (input[i] == ' ')
       return NULL;
@@ -50,6 +51,8 @@ string * parserCampo(string input) {
   campo = new string[1+quant_campo*2];
   campo[0] = quant_campo;
   i=1;
+
+  //separação de TIPO e NOME de cada campo
   for(int j=0;j<quant_campo;j++){
 
     idx_fim = input.find(':',idx_ini);
@@ -85,7 +88,7 @@ int interpretadorDeComandos (Comandos &comando, string &input) {
 
   if (palavra_chave == "CT") {
     string tabela = retornaPalavraDeInput(input, " ");
-    string *campos = parserCampo(input);
+    string *campos = parserCampoCT(input);
     if (campos != NULL)
       comando.criarArquivoComNomeTabela(tabela, campos);
     else
