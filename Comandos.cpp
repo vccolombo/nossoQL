@@ -2,9 +2,16 @@
 
 Comandos::Comandos() {}
 
-void Comandos::criarArquivoComNomeTabela(string tabela, string campos) {
+
+void Comandos::criarArquivoComNomeTabela(string tabela, string * campos) {
+  int j=1;
   cout << "Criando tabela com nome: " << tabela << "\n";
-  cout << "Campos: " << campos << '\n';
+  cout << "Campos:" << endl;
+  for(int i = 0; i < int(campos[0][0]); i++){
+    cout << "TIPO: "   << campos[j] << ", NOME: " << campos[j+1] << endl;
+    j+=2;
+  }
+  
 }
 
 void Comandos::apagaArquivoComNomeTabela(string tabela) {

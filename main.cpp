@@ -20,6 +20,62 @@ string retornaPalavraDeInput (string &input, string delimitador) {
   return palavra;
 }
 
+//separa o tipo e o nome de cada um dos campos da tabela
+string * parserCampo(string input) {
+  
+  int i = 0, campo_correto = 0, quant_campo = 0;
+  int idx_ini = 0,idx_fim;
+  string palavra, *campo;
+  input.erase(0, 1);
+
+  //varredura para encontrar problemas na string como
+  //Existencia de ' ' e separção incorreta de campos 
+  while(input[i] != '\0'){
+    if (input[i] == ' ')
+      return NULL;
+    if (input[i] == ':')
+      campo_correto++;
+    if (input[i] == ';'){
+      quant_campo++;
+      campo_correto--;  
+    }
+    if (campo_correto > 1 || campo_correto < 0){
+      return NULL;
+    }
+    i++;
+  }
+  if (campo_correto != 0){
+    return NULL;
+  }
+  campo = new string[1+quant_campo*2];
+  campo[0] = quant_campo;
+  i=1;
+  for(int j=0;j<quant_campo;j++){
+
+    idx_fim = input.find(':',idx_ini);
+    palavra = input.substr(idx_ini, idx_fim-idx_ini);
+    transform(palavra.begin(), palavra.end(), palavra.begin(), ::toupper);
+
+  
+    if (palavra.compare("INT") == 0 || palavra.compare("STR") == 0)
+      campo[i++] = palavra;
+    else if (palavra.compare("FLT") == 0 || palavra.compare("BIN") == 0)
+      campo[i++] = palavra;
+    else{
+      delete[] campo;  
+      return NULL;
+    }
+
+
+    idx_ini = idx_fim+1;
+    idx_fim = input.find(';',idx_ini);
+    palavra = input.substr(idx_ini, idx_fim-idx_ini);
+    campo[i++] = palavra;
+    idx_ini = idx_fim+1;
+  }
+  return campo;
+}
+
 int interpretadorDeComandos (Comandos &comando, string &input) {
   string delimitador = "\n";
   string palavra_chave;
@@ -29,8 +85,11 @@ int interpretadorDeComandos (Comandos &comando, string &input) {
 
   if (palavra_chave == "CT") {
     string tabela = retornaPalavraDeInput(input, " ");
-    string campos = retornaPalavraDeInput(input, delimitador);
-    comando.criarArquivoComNomeTabela(tabela, campos);
+    string *campos = parserCampo(input);
+    if (campos != NULL)
+      comando.criarArquivoComNomeTabela(tabela, campos);
+    else
+      cout << "Campo Invalido" << endl;
   }
   else if (palavra_chave == "RT") {
     string tabela = retornaPalavraDeInput(input, delimitador);

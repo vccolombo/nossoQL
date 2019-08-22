@@ -8,7 +8,7 @@ using namespace std;
 class Comandos {
 public:
   Comandos();
-  void criarArquivoComNomeTabela(string tabela, string campos);
+  void criarArquivoComNomeTabela(string tabela, string * campos);
   void apagaArquivoComNomeTabela(string tabela);
   void resumoDaTabela(string tabela);
   void listarTabelas();
