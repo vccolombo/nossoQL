@@ -3,3 +3,14 @@
 *.exe
 *.vscode
 
+/.vs/VSWorkspaceState.json
+/.vs/slnx.sqlite
+/.vs/ProjectSettings.json
+/.vs/nossoQL/v16/ipch/AutoPCH/d6d780328d26adc0/COMANDOS.ipch
+/.vs/nossoQL/v16/ipch/AutoPCH/a362c5d44c66e6cd/MAIN.ipch
+/.vs/nossoQL/v16/ipch/AutoPCH/8c866e46fb0787f8/COMANDOS.ipch
+/.vs/nossoQL/v16/ipch/AutoPCH/53b39af11dde6595/MAIN.ipch
+/.vs/nossoQL/v16/Browse.VC.opendb
+/.vs/nossoQL/v16/Browse.VC.db
+/.vs/nossoQL/v16/.suo
+/CppProperties.json

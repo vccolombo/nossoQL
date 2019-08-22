@@ -82,7 +82,20 @@ void interpretadorDeComandos(Comandos &comando, string input) {
   }
 
   else {
-    cout << "Comando não reconhecido." << "\n";
+    cout << "Comando não reconhecido." << "\n"
+		 << "Use o comando CT para criar um arquivo vazio associado à tabela indicada " << "\n"
+		 << "Use o comando RT para apagar o arquivo relativo à tabela indicada." << "\n"
+		 << "Use o comando AT para apresentar um resumo dos metadados da tabela indicada." << "\n"
+		 << "Use o comando LT para listar o nome de todas as tabelas existentes." << "\n"
+		 << "Use o comando IR para inserir o registro no arquivo da tabela indicada." << "\n"
+		 << "Use o comando BR para buscar na tabela todos os registros que satisfaçam o critério da busca." << "\n"
+		 << "Use o comando AR para apresentar na tela os valores dos registros retornado pela última busca." << "\n"
+		 << "Use o comando RR para remover todos os registros da última busca realizada." << "\n"
+		 << "Use o comando CI para criar um indice usando a chave indicada como chave de busca." << "\n"
+		 << "Use o comando RI para remover o índice relativo à chave indicada." << "\n"
+		 << "Use o comando GI para gerar novamente um novo índice de tabela referente à chave indicada." << "\n"
+		 << "Use o comando EB para encerrar a execução do programa." << "\n"
+		 << "Aperte ENTER para nova entrada." << "\n";
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
   }
 }
