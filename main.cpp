@@ -36,6 +36,7 @@ int interpretadorDeComandos (Comandos &comando, string &input) {
   }
   else if (palavra_chave == "BR") {
     string modifier = comando.retornaPalavraDeInput(input, ' ');
+    transform(modifier.begin(), modifier.end(), modifier.begin(), ::toupper);
     string tabela = comando.retornaPalavraDeInput(input, ' ');
     string busca = comando.retornaPalavraDeInput(input, ' ');
     comando.buscaEmTabela(modifier, tabela, busca);
@@ -50,6 +51,7 @@ int interpretadorDeComandos (Comandos &comando, string &input) {
   }
   else if (palavra_chave == "CI") {
     string modifier = comando.retornaPalavraDeInput(input, ' ');
+    transform(modifier.begin(), modifier.end(), modifier.begin(), ::toupper);
     string tabela = comando.retornaPalavraDeInput(input, ' ');
     string chave = comando.retornaPalavraDeInput(input, ' ');
     comando.criaIndice(modifier, tabela, chave);
