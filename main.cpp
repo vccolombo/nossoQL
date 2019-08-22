@@ -15,8 +15,14 @@ int interpretadorDeComandos (Comandos &comando, string &input) {
 
   if (palavra_chave == "CT") {
     string tabela = comando.retornaPalavraDeInput(input, ' ');
-    string campos = comando.retornaPalavraDeInput(input, ' ');
-    comando.criarArquivoComNomeTabela(tabela, campos);
+    string *campos = comando.parseCampoCT(input);
+    if (campos != NULL){
+      comando.criarArquivoComNomeTabela(tabela, campos);
+    }
+    else
+      cout << "Campos Invalidos, tente novamente!" << endl;
+    
+    
   }
   else if (palavra_chave == "RT") {
     string tabela = comando.retornaPalavraDeInput(input, ' ');

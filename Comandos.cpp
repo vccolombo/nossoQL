@@ -1,10 +1,17 @@
+#include <algorithm>
 #include "Comandos.h"
+
 
 Comandos::Comandos() {}
 
-void Comandos::criarArquivoComNomeTabela(string tabela, string campos) {
+void Comandos::criarArquivoComNomeTabela(string tabela, string* campos) {
+  int j=1;
   cout << "Criando tabela com nome: " << tabela << "\n";
-  cout << "Campos: " << campos << '\n';
+  cout << "Campos:" << endl;
+  for(int i = 0; i < int(campos[0][0]); i++){
+    cout << "TIPO: "   << campos[j] << ", NOME: " << campos[j+1] << endl;
+    j+=2;
+  }
 }
 
 void Comandos::apagaArquivoComNomeTabela(string tabela) {
@@ -84,6 +91,67 @@ string Comandos::retornaPalavraDeInput (string &input, char delimitador, bool re
   input.erase(0, palavra.length());
   return palavra;
 }
+
+//separa o tipo e o nome de cada um dos campos da tabela
+string* Comandos::parseCampoCT(string input) {
+  
+  int i = 0, campo_correto = 0, quant_campo = 0;
+  int idx_ini = 0,idx_fim;
+  string palavra, *campo;
+  input.erase(0, 1);
+
+  //varredura para encontrar problemas na string como
+  //Existencia de ' ' e separção incorreta de campos 
+  //contagem de campos
+  while(input[i] != '\0'){
+    if (input[i] == ' ')
+      return NULL;
+    if (input[i] == ':')
+      campo_correto++;
+    if (input[i] == ';'){
+      quant_campo++;
+      campo_correto--;  
+    }
+    if (campo_correto > 1 || campo_correto < 0){
+      return NULL;
+    }
+    i++;
+  }
+  if (campo_correto != 0){
+    return NULL;
+  }
+  campo = new string[1+quant_campo*2];
+  campo[0] = quant_campo;
+  i=1;
+
+  //separação de TIPO e NOME de cada campo
+  for(int j=0;j<quant_campo;j++){
+
+    idx_fim = input.find(':',idx_ini);
+    palavra = input.substr(idx_ini, idx_fim-idx_ini);
+    transform(palavra.begin(), palavra.end(), palavra.begin(), ::toupper);
+
+    
+    if (palavra.compare("INT") == 0 || palavra.compare("STR") == 0)
+      campo[i++] = palavra;
+    else if (palavra.compare("FLT") == 0 || palavra.compare("BIN") == 0)
+      campo[i++] = palavra;
+    else{
+      delete[] campo;  
+      return NULL;
+    }
+
+
+    idx_ini = idx_fim+1;
+    idx_fim = input.find(';',idx_ini);
+    palavra = input.substr(idx_ini, idx_fim-idx_ini);
+    campo[i++] = palavra;
+    idx_ini = idx_fim+1;
+  }
+  return campo;
+}
+
+
 
 void Comandos::parseInsercao(string registro) {
   std::cout << "Registros a serem inseridos: " << '\n';
