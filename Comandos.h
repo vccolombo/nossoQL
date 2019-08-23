@@ -2,7 +2,8 @@
 #define COMANDOS_H
 
 #include <iostream>
-#include <string>
+#include <algorithm>
+#include <string.h>
 using namespace std;
 
 class Comandos {
