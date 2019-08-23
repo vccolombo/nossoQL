@@ -45,3 +45,21 @@ make
 ### Como contribuir
 
 Dê uma olhada no [CONTRIBUTE.md](CONTRIBUTE.md) para saber como contribuir com o projeto.
+
+***
+
+### Metadados
+
+Decidimos por modelar nossa base de forma que cada tabela tenha seu próprio arquivo de metadados. Esse arquivo vai conter as seguintes entradas (metadados):
+
+1. Nome da tabela;
+2. Número de campos;
+3. Nomes dos campos;
+4. Tipos dos campos;
+5. Número de entradas;
+6. Última edição feita;
+7. Data da última edição feita;
+8. Data de criação da tabela;
+9. Path para o arquivo com os dados;
+
+O arquivo com os dados conterá os valores inseridos na tabela, separados provavelmente por ;
