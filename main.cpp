@@ -4,94 +4,108 @@
 #include <string>
 using namespace std;
 
-// encontra o indice do delimitador na string input e retorna a palavra antes dele
-// remove a palavra antes do delimitador da string input
-string retornaPalavraDeInput (string &input, string delimitador) {
-  string palavra;
-  int i = 0;
-  while (input[i] == ' ')
-    i++;
-  input.erase(0, i);
-  palavra = input.substr(0, input.find(delimitador));
-  input.erase(0, palavra.length());
-  return palavra;
-}
+#define SUCCESS 0
+#define FINISH_PROGRAM 1
 
-void interpretadorDeComandos (Comandos &comando, string &input) {
-  string delimitador = "\n";
+int interpretadorDeComandos (Comandos &comando, string &input) {
   string palavra_chave;
-  palavra_chave = retornaPalavraDeInput(input, " ");
+  palavra_chave = comando.retornaPalavraDeInput(input, ' ');
   // Transformar comando para UPPER (retirar case sensitiviness)
   transform(palavra_chave.begin(), palavra_chave.end(), palavra_chave.begin(), ::toupper);
 
   if (palavra_chave == "CT") {
-    string tabela = retornaPalavraDeInput(input, " ");
-    string campos = retornaPalavraDeInput(input, delimitador);
-    comando.criarArquivoComNomeTabela(tabela, campos);
+    string tabela = comando.retornaPalavraDeInput(input, ' ');
+    string *campos = comando.parseCampoCT(input);
+    if (campos != NULL){
+      comando.criarArquivoComNomeTabela(tabela, campos);
+    }
+    else
+      cout << "Campos Invalidos, tente novamente!" << endl;
+    
+    
   }
   else if (palavra_chave == "RT") {
-    string tabela = retornaPalavraDeInput(input, delimitador);
+    string tabela = comando.retornaPalavraDeInput(input, ' ');
     comando.apagaArquivoComNomeTabela(tabela);
   }
   else if (palavra_chave == "AT") {
-    string tabela = retornaPalavraDeInput(input, delimitador);
+    string tabela = comando.retornaPalavraDeInput(input, ' ');
     comando.resumoDaTabela(tabela);
   }
   else if (palavra_chave == "LT") {
     comando.listarTabelas();
   }
   else if (palavra_chave == "IR") {
-    string tabela = retornaPalavraDeInput(input, " ");
-    string registro = retornaPalavraDeInput(input, delimitador);
+    string tabela = comando.retornaPalavraDeInput(input, ' ');
+    string registro = comando.retornaPalavraDeInput(input, '\n');
     comando.inserirRegistro(tabela, registro);
   }
   else if (palavra_chave == "BR") {
-    string modifier = retornaPalavraDeInput(input, " ");
-    string tabela = retornaPalavraDeInput(input, " ");
-    string busca = retornaPalavraDeInput(input, delimitador);
+    string modifier = comando.retornaPalavraDeInput(input, ' ');
+    transform(modifier.begin(), modifier.end(), modifier.begin(), ::toupper);
+    string tabela = comando.retornaPalavraDeInput(input, ' ');
+    string busca = comando.retornaPalavraDeInput(input, ' ');
     comando.buscaEmTabela(modifier, tabela, busca);
   }
   else if (palavra_chave == "AR") {
-    string tabela = retornaPalavraDeInput(input, delimitador);
+    string tabela = comando.retornaPalavraDeInput(input, ' ');
     comando.apresentarRegistrosUltimaBusca(tabela);
   }
   else if (palavra_chave == "RR") {
-    string tabela = retornaPalavraDeInput(input, delimitador);
+    string tabela = comando.retornaPalavraDeInput(input, ' ');
     comando.removeRegistrosUltimaBusca(tabela);
   }
   else if (palavra_chave == "CI") {
-    string modifier = retornaPalavraDeInput(input, " ");
-    string tabela = retornaPalavraDeInput(input, " ");
-    string chave = retornaPalavraDeInput(input, delimitador);
+    string modifier = comando.retornaPalavraDeInput(input, ' ');
+    transform(modifier.begin(), modifier.end(), modifier.begin(), ::toupper);
+    string tabela = comando.retornaPalavraDeInput(input, ' ');
+    string chave = comando.retornaPalavraDeInput(input, ' ');
     comando.criaIndice(modifier, tabela, chave);
   }
   else if (palavra_chave == "RI") {
-    string tabela = retornaPalavraDeInput(input, " ");
-    string chave = retornaPalavraDeInput(input, delimitador);
+    string tabela = comando.retornaPalavraDeInput(input, ' ');
+    string chave = comando.retornaPalavraDeInput(input, ' ');
     comando.removeIndiceChave(tabela, chave);
   }
   else if (palavra_chave == "GI") {
-    string tabela = retornaPalavraDeInput(input, " ");
-    string chave = retornaPalavraDeInput(input, delimitador);
+    string tabela = comando.retornaPalavraDeInput(input, ' ');
+    string chave = comando.retornaPalavraDeInput(input, ' ');
     comando.geraNovoIndiceDeTabelaChave(tabela, chave);
   }
   else if (palavra_chave == "EB") {
     cout << "Finalizando a execução... Tenha um ótimo dia." << '\n';
-  } 
+    return FINISH_PROGRAM;
+  }
   else {
-    cout << "Comando não reconhecido." << "\n" 
-          << "Aperte ENTER para nova entrada." << "\n";
+    cout << "Comando não reconhecido." << "\n"
+
+		 << "Use o comando CT para criar um arquivo vazio associado à tabela indicada " << "\n"
+		 << "Use o comando RT para apagar o arquivo relativo à tabela indicada." << "\n"
+		 << "Use o comando AT para apresentar um resumo dos metadados da tabela indicada." << "\n"
+		 << "Use o comando LT para listar o nome de todas as tabelas existentes." << "\n"
+		 << "Use o comando IR para inserir o registro no arquivo da tabela indicada." << "\n"
+		 << "Use o comando BR para buscar na tabela todos os registros que satisfaçam o critério da busca." << "\n"
+		 << "Use o comando AR para apresentar na tela os valores dos registros retornado pela última busca." << "\n"
+		 << "Use o comando RR para remover todos os registros da última busca realizada." << "\n"
+		 << "Use o comando CI para criar um indice usando a chave indicada como chave de busca." << "\n"
+		 << "Use o comando RI para remover o índice relativo à chave indicada." << "\n"
+		 << "Use o comando GI para gerar novamente um novo índice de tabela referente à chave indicada." << "\n"
+		 << "Use o comando EB para encerrar a execução do programa." << "\n"
+     		 << "Aperte ENTER para nova entrada." << "\n";
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
   }
+
+  return SUCCESS;
 }
 
 int main() {
   Comandos comando;
   string input = "";
-  while (input != "EB") {
+  int codeResult = SUCCESS;
+  while (codeResult != FINISH_PROGRAM) {
     cout << ">>> ";
     getline(cin, input);
-    interpretadorDeComandos(comando, input);
+    codeResult = interpretadorDeComandos(comando, input);
   }
 
   return 0;
