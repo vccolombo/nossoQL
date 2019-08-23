@@ -54,11 +54,12 @@ Decidimos por modelar nossa base de forma que cada tabela tenha seu próprio arq
 
 1. Nome da tabela;
 2. Número de campos;
-3. Tipos dos campos;
-4. Número de entradas;
-5. Última edição feita;
-6. Data da última edição feita;
-7. Data de criação da tabela;
-8. Path para o arquivo com os dados
+3. Nomes dos campos;
+4. Tipos dos campos;
+5. Número de entradas;
+6. Última edição feita;
+7. Data da última edição feita;
+8. Data de criação da tabela;
+9. Path para o arquivo com os dados;
 
 O arquivo com os dados conterá os valores inseridos na tabela, separados provavelmente por ;
