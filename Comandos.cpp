@@ -1,4 +1,3 @@
-#include <algorithm>
 #include "Comandos.h"
 
 
@@ -96,7 +95,8 @@ string Comandos::retornaPalavraDeInput (string &input, char delimitador, bool re
 //separa o tipo e o nome de cada um dos campos da tabela
 string* Comandos::parseCampoCT(string input) {
   
-  int i = 0, campo_correto = 0, quant_campo = 0;
+  int i = 0, quant_campo = 0;
+  int ponto_virgula =0, dois_pontos = 0;
   int idx_ini = 0,idx_fim;
   string palavra, *campo;
   input.erase(0, 1);
@@ -108,17 +108,14 @@ string* Comandos::parseCampoCT(string input) {
     if (input[i] == ' ')
       return NULL;
     if (input[i] == ':')
-      campo_correto++;
+      dois_pontos++;
     if (input[i] == ';'){
       quant_campo++;
-      campo_correto--;  
-    }
-    if (campo_correto > 1 || campo_correto < 0){
-      return NULL;
+      ponto_virgula++;  
     }
     i++;
   }
-  if (campo_correto != 0){
+  if (dois_pontos != ponto_virgula || dois_pontos == 0){
     return NULL;
   }
   campo = new string[1+quant_campo*2];
@@ -146,6 +143,8 @@ string* Comandos::parseCampoCT(string input) {
     idx_ini = idx_fim+1;
     idx_fim = input.find(';',idx_ini);
     palavra = input.substr(idx_ini, idx_fim-idx_ini);
+    if (strlen(palavra.c_str()) == 0)
+      return NULL;
     campo[i++] = palavra;
     idx_ini = idx_fim+1;
   }
