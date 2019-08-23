@@ -14,8 +14,9 @@ nossoQL é um Sistema Gerenciador de Banco de Dados (SGBD) feito para o trabalho
 
 [**Mayk Tulio Bezerra**](https://github.com/mayktu) -- 727953
 
-
 [**Jean Araujo**](https://github.com/jeanufscar) -- 620394
+
+[**Renan Dantas Pasquantonio**](https://github.com/renandantasp) -- 760549
 
 
 ### Etapas
@@ -27,6 +28,17 @@ nossoQL é um Sistema Gerenciador de Banco de Dados (SGBD) feito para o trabalho
 5. **11/10** -- Implementação da indexação com árvores.
 6. **05/11** -- Implementação da indexação com hash.
 7. **19/11** -- Testes de larga escala. 
+
+***
+
+### Como instalar e usar
+
+```
+git clone https://github.com/vccolombo/nossoQL.git
+cd nossoQL
+make
+./main.exe
+```
 
 ***
 

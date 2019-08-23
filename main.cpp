@@ -4,85 +4,83 @@
 #include <string>
 using namespace std;
 
-void interpretadorDeComandos(Comandos &comando, string input) {
+// encontra o indice do delimitador na string input e retorna a palavra antes dele
+// remove a palavra antes do delimitador da string input
+string retornaPalavraDeInput (string &input, string delimitador) {
+  string palavra;
+  int i = 0;
+  while (input[i] == ' ')
+    i++;
+  input.erase(0, i);
+  palavra = input.substr(0, input.find(delimitador));
+  input.erase(0, palavra.length());
+  return palavra;
+}
 
-  if (input == "CT") {
-    string tabela, campos;
-    cin >> tabela >> campos;
+void interpretadorDeComandos (Comandos &comando, string &input) {
+  string delimitador = "\n";
+  string palavra_chave;
+  palavra_chave = retornaPalavraDeInput(input, " ");
+  // Transformar comando para UPPER (retirar case sensitiviness)
+  transform(palavra_chave.begin(), palavra_chave.end(), palavra_chave.begin(), ::toupper);
+
+  if (palavra_chave == "CT") {
+    string tabela = retornaPalavraDeInput(input, " ");
+    string campos = retornaPalavraDeInput(input, delimitador);
     comando.criarArquivoComNomeTabela(tabela, campos);
   }
-
-  else if (input == "RT") {
-    string tabela;
-    cin >> tabela;
+  else if (palavra_chave == "RT") {
+    string tabela = retornaPalavraDeInput(input, delimitador);
     comando.apagaArquivoComNomeTabela(tabela);
   }
-
-  else if (input == "AT") {
-    string tabela;
-    cin >> tabela;
+  else if (palavra_chave == "AT") {
+    string tabela = retornaPalavraDeInput(input, delimitador);
     comando.resumoDaTabela(tabela);
-
   }
-
-  else if (input == "LT") {
+  else if (palavra_chave == "LT") {
     comando.listarTabelas();
-
   }
-
-  else if (input == "IR") {
-    string tabela, registro;
-    cin >> tabela >> registro;
+  else if (palavra_chave == "IR") {
+    string tabela = retornaPalavraDeInput(input, " ");
+    string registro = retornaPalavraDeInput(input, delimitador);
     comando.inserirRegistro(tabela, registro);
   }
-
-  else if (input == "BR") {
-    string modifier, tabela, busca;
-    cin >> modifier >> tabela >> busca;
+  else if (palavra_chave == "BR") {
+    string modifier = retornaPalavraDeInput(input, " ");
+    string tabela = retornaPalavraDeInput(input, " ");
+    string busca = retornaPalavraDeInput(input, delimitador);
     comando.buscaEmTabela(modifier, tabela, busca);
   }
-
-  else if (input == "AR") {
-    string tabela;
-    cin >> tabela;
+  else if (palavra_chave == "AR") {
+    string tabela = retornaPalavraDeInput(input, delimitador);
     comando.apresentarRegistrosUltimaBusca(tabela);
   }
-
-  else if (input == "RR") {
-    string tabela;
-    cin >> tabela;
+  else if (palavra_chave == "RR") {
+    string tabela = retornaPalavraDeInput(input, delimitador);
     comando.removeRegistrosUltimaBusca(tabela);
-
   }
-
-  else if (input == "CI") {
-    string modifier, tabela, chave;
-    cin >> modifier >> tabela >> chave;
+  else if (palavra_chave == "CI") {
+    string modifier = retornaPalavraDeInput(input, " ");
+    string tabela = retornaPalavraDeInput(input, " ");
+    string chave = retornaPalavraDeInput(input, delimitador);
     comando.criaIndice(modifier, tabela, chave);
   }
-
-  else if (input == "RI") {
-    string tabela, chave;
-    cin >> tabela >> chave;
-
+  else if (palavra_chave == "RI") {
+    string tabela = retornaPalavraDeInput(input, " ");
+    string chave = retornaPalavraDeInput(input, delimitador);
     comando.removeIndiceChave(tabela, chave);
-
   }
-
-  else if (input == "GI") {
-    string tabela, chave;
-    cin >> tabela >> chave;
-
+  else if (palavra_chave == "GI") {
+    string tabela = retornaPalavraDeInput(input, " ");
+    string chave = retornaPalavraDeInput(input, delimitador);
     comando.geraNovoIndiceDeTabelaChave(tabela, chave);
-
   }
-
-  else if (input == "EB") {
+  else if (palavra_chave == "EB") {
     cout << "Finalizando a execução... Tenha um ótimo dia." << '\n';
-  }
-
+  } 
   else {
-    cout << "Comando não reconhecido." << "\n";
+    cout << "Comando não reconhecido." << "\n" 
+          << "Aperte ENTER para nova entrada." << "\n";
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
   }
 }
@@ -92,9 +90,7 @@ int main() {
   string input = "";
   while (input != "EB") {
     cout << ">>> ";
-    cin >> input;
-    // Transformar comando para UPPER (retirar case sensitiviness)
-    transform(input.begin(), input.end(), input.begin(), ::toupper);
+    getline(cin, input);
     interpretadorDeComandos(comando, input);
   }
 
