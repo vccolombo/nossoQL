@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <iostream>
 #include <string>
+#include <fstream>
 using namespace std;
 
 #define SUCCESS 0
@@ -21,16 +22,22 @@ int interpretadorDeComandos (Comandos &comando, string &input) {
     }
     else
       cout << "Campos Invalidos, tente novamente!" << endl;
-    
-    
   }
   else if (palavra_chave == "RT") {
     string tabela = comando.retornaPalavraDeInput(input, ' ');
-    comando.apagaArquivoComNomeTabela(tabela);
+    if (tabela.length() > 0) {
+      comando.apagaArquivoComNomeTabela(tabela);
+    } else {
+      cout << "Erro: entrada incompleta." << "\n";
+    }
   }
   else if (palavra_chave == "AT") {
     string tabela = comando.retornaPalavraDeInput(input, ' ');
-    comando.resumoDaTabela(tabela);
+    if (tabela.length() > 0) {
+      comando.resumoDaTabela(tabela);
+    } else {
+      cout << "Erro: entrada incompleta." << "\n";
+    }
   }
   else if (palavra_chave == "LT") {
     comando.listarTabelas();
@@ -38,39 +45,67 @@ int interpretadorDeComandos (Comandos &comando, string &input) {
   else if (palavra_chave == "IR") {
     string tabela = comando.retornaPalavraDeInput(input, ' ');
     string registro = comando.retornaPalavraDeInput(input, '\n');
-    comando.inserirRegistro(tabela, registro);
+    if (tabela.length() > 0 && registro.length() > 0) {
+      comando.inserirRegistro(tabela, registro);
+    } else {
+      cout << "Erro: entrada incompleta." << "\n";
+    }
   }
   else if (palavra_chave == "BR") {
     string modifier = comando.retornaPalavraDeInput(input, ' ');
     transform(modifier.begin(), modifier.end(), modifier.begin(), ::toupper);
     string tabela = comando.retornaPalavraDeInput(input, ' ');
     string busca = comando.retornaPalavraDeInput(input, ' ');
+    if (tabela.length() > 0 && modifier.length() > 0 && busca.length() > 0) {
     comando.buscaEmTabela(modifier, tabela, busca);
+    } else {
+      cout << "Erro: entrada incompleta." << "\n";
+    }
   }
   else if (palavra_chave == "AR") {
     string tabela = comando.retornaPalavraDeInput(input, ' ');
-    comando.apresentarRegistrosUltimaBusca(tabela);
+    if (tabela.length() > 0) {
+      comando.apresentarRegistrosUltimaBusca(tabela);
+    } else {
+      cout << "Erro: entrada incompleta." << "\n";
+    }
   }
   else if (palavra_chave == "RR") {
     string tabela = comando.retornaPalavraDeInput(input, ' ');
-    comando.removeRegistrosUltimaBusca(tabela);
+    if (tabela.length() > 0) {
+      comando.removeRegistrosUltimaBusca(tabela);
+    } else {
+      cout << "Erro: entrada incompleta." << "\n";
+    }
   }
   else if (palavra_chave == "CI") {
     string modifier = comando.retornaPalavraDeInput(input, ' ');
     transform(modifier.begin(), modifier.end(), modifier.begin(), ::toupper);
     string tabela = comando.retornaPalavraDeInput(input, ' ');
     string chave = comando.retornaPalavraDeInput(input, ' ');
-    comando.criaIndice(modifier, tabela, chave);
+    if (tabela.length() > 0 && modifier.length() > 0 && chave.length() > 0) {
+      comando.criaIndice(modifier, tabela, chave);
+    } else {
+      cout << "Erro: entrada incompleta." << "\n";
+    }
   }
   else if (palavra_chave == "RI") {
     string tabela = comando.retornaPalavraDeInput(input, ' ');
     string chave = comando.retornaPalavraDeInput(input, ' ');
-    comando.removeIndiceChave(tabela, chave);
+    if (tabela.length() > 0 && chave.length() > 0) {
+      comando.removeIndiceChave(tabela, chave);
+    } else {
+      cout << "Erro: entrada incompleta." << "\n";
+    }
   }
   else if (palavra_chave == "GI") {
     string tabela = comando.retornaPalavraDeInput(input, ' ');
     string chave = comando.retornaPalavraDeInput(input, ' ');
-    comando.geraNovoIndiceDeTabelaChave(tabela, chave);
+    if (tabela.length() > 0 && chave.length() > 0) { 
+      comando.geraNovoIndiceDeTabelaChave(tabela, chave);
+    } else {
+      cout << "Erro: entrada incompleta." << "\n";
+    }
   }
   else if (palavra_chave == "EB") {
     cout << "Finalizando a execução... Tenha um ótimo dia." << '\n';
@@ -94,19 +129,43 @@ int interpretadorDeComandos (Comandos &comando, string &input) {
      		 << "Aperte ENTER para nova entrada." << "\n";
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
   }
-
   return SUCCESS;
 }
 
 int main() {
   Comandos comando;
   string input = "";
-  int codeResult = SUCCESS;
-  while (codeResult != FINISH_PROGRAM) {
-    cout << ">>> ";
-    getline(cin, input);
-    codeResult = interpretadorDeComandos(comando, input);
+  string modo;
+  // Opcao de selecionar modo interativo ou ler um arquivo
+  cout << "Digite I para modo interativo ou F para leitura de arquivo:\t";
+  cin >> modo;
+  transform(modo.begin(), modo.end(), modo.begin(), ::toupper);
+  // se modo == F, abrir arquivo
+  if (modo == "F") {
+    cout << "Digite o nome do arquivo:\t";
+    cin >> input;
+    cout << "\n\n";
+    ifstream arquivo(input);
+    if (arquivo.is_open()) {
+      int code_result = SUCCESS;
+      while (getline(arquivo, input) && code_result != FINISH_PROGRAM) {
+        code_result = interpretadorDeComandos(comando, input);
+      }
+    } else {
+      cout << "Erro ao abrir arquivo.\nFinalizando execução.\n";
+    }
   }
-
+  // se modo == I, utilize o terminal do interpretador
+  else if (modo == "I") {
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    int code_result = SUCCESS;
+    while (code_result != FINISH_PROGRAM) {
+      cout << ">>> ";
+      getline(cin, input);
+      code_result = interpretadorDeComandos(comando, input);
+    }
+  } else {
+    cout << "Comando Invalido.\nFinalizando execução.\n";
+  }
   return 0;
 }
