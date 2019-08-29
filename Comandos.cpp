@@ -6,7 +6,7 @@ Comandos::Comandos() {}
 void Comandos::criarArquivoComNomeTabela(string tabela, string* campos) {
   int j=1;
   cout << "Criando tabela com nome: " << tabela << "\n";
-  cout << "Campos:" << endl;
+  cout << "Campos:" << " " << int(campos[0][0]) << endl;
   for(int i = 0; i < int(campos[0][0]); i++){
     cout << "TIPO: "   << campos[j] << ", NOME: " << campos[j+1] << endl;
     j+=2;
@@ -104,15 +104,15 @@ string* Comandos::parseCampoCT(string input) {
   while(input[i] != '\0'){
     if (input[i] == ' ')
       return NULL;
-    if (input[i] == ':')
+    if (input[i] == ':'){
       dois_pontos++;
-    if (input[i] == ';'){
       quant_campo++;
-      ponto_virgula++;  
     }
+    if (input[i] == ';')
+      ponto_virgula++;  
     i++;
   }
-  if (dois_pontos != ponto_virgula || dois_pontos == 0){
+  if (dois_pontos-1 != ponto_virgula || dois_pontos == 0){
     return NULL;
   }
   campo = new string[1 + quant_campo * 2];
@@ -135,9 +135,10 @@ string* Comandos::parseCampoCT(string input) {
     }
 
     idx_ini = idx_fim + 1;
-    idx_fim = input.find(';', idx_ini);
+    idx_fim = input.find(";", idx_ini);
+    cout << idx_fim << endl;
     palavra = input.substr(idx_ini, idx_fim - idx_ini);
-    if (strlen(palavra.c_str()) == 0)
+    if (strlen(palavra.c_str()) <= 0)
       return NULL;
     campo[i++] = palavra;
     idx_ini = idx_fim + 1;
