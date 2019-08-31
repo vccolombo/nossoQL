@@ -37,10 +37,12 @@ void Comandos::apagaArquivoComNomeTabela(string tabela) {
   ofstream temp;
   arquivo_base.open(base);
   temp.open("./tabelas/temp.txt");
+  // tenta abrir arquivo base e temp
   if (!arquivo_base.is_open() || !temp.is_open()) {
     cout << "Erro ao abrir arquivo base.txt\n";
     return;
   }
+  // tenta remover arquivo com tabela e metadados
   string arquivo_tabela = "./tabelas/" + tabela + "_TAB.txt";
   string arquivo_meta = "./tabelas/" + tabela + "_META.txt";
   if (remove(arquivo_tabela.c_str()) != 0) {
@@ -51,6 +53,7 @@ void Comandos::apagaArquivoComNomeTabela(string tabela) {
     cout << "Erro ao tentar remover arquivo.\n";
     return;
   } else {
+    // copia e remocao de dados da tabela para novo arquivo temp
     cout << "Apagando tabela " << tabela << "\n";
     arquivo_tabela.erase(0, 10);
     arquivo_meta.erase(0, 10);
