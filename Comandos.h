@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <fstream>
 #include <string.h>
+#include <cstdio>
 using namespace std;
 
 class Comandos {
