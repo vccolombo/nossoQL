@@ -111,6 +111,10 @@ int interpretadorDeComandos (Comandos &comando, string &input, int modo_interati
     cout << "Finalizando a execução... Tenha um ótimo dia." << '\n';
     return FINISH_PROGRAM;
   }
+  else if (palavra_chave == "" && modo_interativo) {
+    cout << "Finalizando execução.\n\n";
+    return FINISH_PROGRAM;
+  }
   else {
     cout << "Comando não reconhecido." << "\n";
     if (modo_interativo) {
@@ -125,11 +129,8 @@ int interpretadorDeComandos (Comandos &comando, string &input, int modo_interati
       << "Use o comando CI para criar um indice usando a chave indicada como chave de busca." << "\n"
       << "Use o comando RI para remover o índice relativo à chave indicada." << "\n"
       << "Use o comando GI para gerar novamente um novo índice de tabela referente à chave indicada." << "\n"
-      << "Use o comando EB para encerrar a execução do programa." << "\n"
-      << "Aperte ENTER para nova entrada." << "\n";
-      cin.ignore(numeric_limits<streamsize>::max(), '\n');
+      << "Use o comando EB para encerrar a execução do programa." << "\n";
     }
-    cout << "\n";
   }
   return SUCCESS;
 }
@@ -169,5 +170,6 @@ int main() {
   } else {
     cout << "Comando Invalido.\nFinalizando execução.\n";
   }
+  cout << "Execução finalizada.\n";
   return 0;
 }
