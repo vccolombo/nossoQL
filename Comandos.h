@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <fstream>
 #include <string.h>
 using namespace std;
 

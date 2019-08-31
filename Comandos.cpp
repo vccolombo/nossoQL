@@ -4,12 +4,31 @@
 Comandos::Comandos() {}
 
 void Comandos::criarArquivoComNomeTabela(string tabela, string* campos) {
-  int j=1;
+  ofstream file;
+
+  string tab = "tabelas/", meta = "tabelas/";
+  tab.append(tabela);
+  tab.append("_TAB.txt");
+  
+  meta.append(tabela);
+  meta.append("_META.txt");
+
+  ofstream(tab.c_str()); 
+  ofstream(meta.c_str()); 
+
+  string base = tabela + "_TAB," + tabela + "_META";
+  file.open("tabelas/base.txt", ios_base::app);
+  if (file.fail()) {
+    ofstream("tabelas/base.txt");
+  }
+  file << base << endl;
+  file.close();
+  int j = 1;
   cout << "Criando tabela com nome: " << tabela << "\n";
   cout << "Campos:" << " " << int(campos[0][0]) << endl;
   for(int i = 0; i < int(campos[0][0]); i++){
-    cout << "TIPO: "   << campos[j] << ", NOME: " << campos[j+1] << endl;
-    j+=2;
+    cout << "TIPO: "   << campos[j] << ", NOME: " << campos[j + 1] << endl;
+    j += 2;
   }
 }
 
@@ -136,7 +155,6 @@ string* Comandos::parseCampoCT(string input) {
 
     idx_ini = idx_fim + 1;
     idx_fim = input.find(";", idx_ini);
-    cout << idx_fim << endl;
     palavra = input.substr(idx_ini, idx_fim - idx_ini);
     if (strlen(palavra.c_str()) <= 0)
       return NULL;
