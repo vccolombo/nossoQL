@@ -3,12 +3,9 @@
 Comandos::Comandos() {}
 
 void Comandos::criarArquivoComNomeTabela(string tabela, string* campos) {
-  ofstream file;
-
   string tab = "tabelas/", meta = "tabelas/";
   tab.append(tabela);
   tab.append("_TAB.txt");
-  
   meta.append(tabela);
   meta.append("_META.txt");
 
@@ -16,6 +13,7 @@ void Comandos::criarArquivoComNomeTabela(string tabela, string* campos) {
   ofstream(meta.c_str()); 
 
   string base = tabela + "_TAB," + tabela + "_META";
+  ofstream file;
   file.open("tabelas/base.txt", ios_base::app);
   if (file.fail()) {
     ofstream("tabelas/base.txt");
@@ -129,18 +127,17 @@ void Comandos::geraNovoIndiceDeTabelaChave(string tabela, string chave) {
 // encontra o indice do delimitador na string input e retorna a palavra antes dele
 // remove a palavra antes do delimitador da string input
 string Comandos::retornaPalavraDeInput (string &input, char delimitador, bool removerEspacosAfrente) {
-  string palavra;
   if (removerEspacosAfrente) {
     int i = 0;
     while (input[i] == ' ')
       i++;
     input.erase(0, i);
   }
-
   int i = 0;
   while (input[i] == delimitador)
     i++;
   input.erase(0, i);
+  string palavra;
   palavra = input.substr(0, input.find(delimitador));
   input.erase(0, palavra.length());
   return palavra;
@@ -205,7 +202,7 @@ void Comandos::parseInsercao(string registro) {
   int campo = 0;
   while (registro.length() > 0) {
     cout << "Campo " << ++campo << ": ";
-    cout << retornaPalavraDeInput(registro, ';') << '\n';
+    cout << retornaPalavraDeInput(registro, ';') << "<\n";
   }
   cout << '\n';
 }
