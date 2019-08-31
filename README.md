@@ -56,9 +56,10 @@ Decidimos por modelar nossa base de forma que cada tabela tenha seu próprio arq
 2. Número de campos;
 3. Nomes dos campos;
 4. Tipos dos campos;
-5. Número de entradas;
+5. Número de registros;
 6. Último comando de busca realizado;
 7. Data de criação da tabela;
-8. Path para o arquivo com os dados;
+8. Quantidade de tabelas criadas ate o momento.
+9. Path para o arquivo com os dados;
 
-O arquivo com os dados conterá os valores inseridos na tabela, separados provavelmente por ;
+O arquivo com os dados conterá os valores inseridos na tabela, separados provavelmente por;
