@@ -44,8 +44,8 @@ int interpretadorDeComandos (Comandos &comando, string &input, int modo_interati
   }
   else if (palavra_chave == "IR") {
     string tabela = comando.retornaPalavraDeInput(input, ' ');
-    input[0] = ';';
-    string registro = comando.retornaPalavraDeInput(input, '\n');
+    input.erase(0, 1);
+    string registro = comando.retornaPalavraDeInput(input, '\n', false);
     if (tabela.length() > 0 && registro.length() > 0) {
       comando.inserirRegistro(tabela, registro);
     } else {

@@ -200,9 +200,11 @@ string* Comandos::parseCampoCT(string input) {
 void Comandos::parseInsercao(string registro) {
   cout << "Registros a serem inseridos: " << '\n';
   int campo = 0;
+  bool var = false;
   while (registro.length() > 0) {
     cout << "Campo " << ++campo << ": ";
-    cout << retornaPalavraDeInput(registro, ';') << "<\n";
+    cout << retornaPalavraDeInput(registro, ';', var) << "<\n";
+    var = true;
   }
   cout << '\n';
 }
