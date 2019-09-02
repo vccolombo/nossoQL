@@ -28,7 +28,7 @@ void Comandos::criarArquivoComNomeTabela(string tabela, string* campos) {
   ofstream filemetatabela;
   filemetatabela.open(meta, ios_base::app);
   
-  string base = tabela + "_TAB," + tabela + "_META";
+  string base = tabela;
   ofstream file;
   file.open("tabelas/base.txt", ios_base::app);
   if (file.fail()) {
@@ -119,40 +119,13 @@ void Comandos::resumoDaTabela(string tabela) {
 }
 
 void Comandos::listarTabelas() {
-
-  cout << "Listar tabelas" << endl;
-  string leitura;
-  char* linha;
-  ifstream arquivo;
-  arquivo.open("tabelas/base.txt");
-  char car;
-  ifstream Metatabelas;
-  int cont = 0;
-
-
-  if (arquivo.is_open())
-  {
-    while (arquivo.get(car))
-    {
-        if(car == ","){
-            while(arquivo.get(car) != ";"){
-                linha[cont++] = car;
-
-            }
-            Metatabelas.open(linha);
-            while (!Metatabelas.eof())
-            {
-              getline(Metatabelas,leitura);
-              cout << leitura << endl;
-            }
-
-            Metatabelas.close();
-            linha = NULL;
-            cont = 0;
-        }
-
+  ifstream base;
+  base.open("./tabelas/base.txt");
+  if (base.is_open()) {
+    string linha;
+    while (getline(base, linha)) {
+      cout << linha << "\n";
     }
-    arquivo.close();
   }
   else{
     cout << "Erro ao tentar ler lista de tabelas" << endl;
