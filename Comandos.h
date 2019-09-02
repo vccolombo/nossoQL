@@ -6,8 +6,13 @@
 #include <fstream>
 #include <string.h>
 #include <cstdio>
+#include <time.h>       /* time_t, struct tm, time, localtime */
+#include <stdio.h>
+#include <fstream.h> 
 #include <vector>
+
 using namespace std;
+
 
 class Comandos {
 public:
@@ -25,6 +30,8 @@ public:
   void geraNovoIndiceDeTabelaChave(string tabela, string chave);
   string retornaPalavraDeInput (string &input, char delimitador, bool removerEspacosAfrente = true);
   string* parseCampoCT(string input);
+  string horaatual();
+
 
 private:
   vector<string> parseInsercao(string registro);

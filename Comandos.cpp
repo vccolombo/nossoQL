@@ -4,7 +4,18 @@ using namespace std;
 
 Comandos::Comandos() {}
 
+string Comandos::horaatual(){
+  time_t rawtime;
+  struct tm * timeinfo;
+
+  time (&rawtime);
+  timeinfo = localtime (&rawtime);
+  mktime (timeinfo);
+  return string(asctime(timeinfo));
+}
+
 void Comandos::criarArquivoComNomeTabela(string tabela, string* campos) {
+
   string tab = "tabelas/", meta = "tabelas/";
   tab.append(tabela);
   tab.append("_TAB.txt");
@@ -13,22 +24,33 @@ void Comandos::criarArquivoComNomeTabela(string tabela, string* campos) {
 
   ofstream(tab.c_str());
   ofstream(meta.c_str());
-
+  
+  ofstream filemetatabela;
+  filemetatabela.open(meta, ios_base::app);
+  
   string base = tabela + "_TAB," + tabela + "_META";
   ofstream file;
   file.open("tabelas/base.txt", ios_base::app);
   if (file.fail()) {
     ofstream("tabelas/base.txt");
   }
+
   file << base << endl;
   file.close();
+
   int j = 1;
+
   cout << "Criando tabela com nome: " << tabela << "\n";
-  cout << "Campos:" << " " << int(campos[0][0]) << endl;
+  filemetatabela << tabela << ";" << "tabelas/_META.txt" << ";" << int(campos[0][0]) << ";";
+  cout << "Campos:" << " " << int(campos[0][0]) << ";" ;
+
   for(int i = 0; i < int(campos[0][0]); i++){
     cout << "TIPO: "   << campos[j] << ", NOME: " << campos[j + 1] << endl;
+    filemetatabela << campos[j] << ":" << campos[j + 1] << ";";
     j += 2;
   }
+  filemetatabela << Comandos::horaatual() << ";" << endl;
+  filemetatabela.close();
 }
 
 void Comandos::apagaArquivoComNomeTabela(string tabela) {
@@ -73,10 +95,69 @@ void Comandos::apagaArquivoComNomeTabela(string tabela) {
 }
 
 void Comandos::resumoDaTabela(string tabela) {
-  cout << "Resumo da tabela " << tabela << '\n';
+  cout << "Resumo da tabela " << tabela << endl;
+
+  string meta = "tabelas/";
+  meta.append(tabela);
+  meta.append("_META.txt");
+
+  string linha;
+  ifstream arquivo;
+  arquivo.open(meta);
+  if (arquivo.is_open())
+  {
+    while (!arquivo.eof() )
+    {
+      getline(arquivo,linha);
+      cout << linha << endl;
+    }
+    arquivo.close();
+  }
+  else{
+    cout << "Erro ao tentar ler resumo de tabela" << endl;
+  }
 }
 
-void Comandos::listarTabelas() { cout << "Listar tabelas" << '\n'; }
+void Comandos::listarTabelas() {
+
+  cout << "Listar tabelas" << endl;
+  string leitura;
+  char* linha;
+  ifstream arquivo;
+  arquivo.open("tabelas/base.txt");
+  char car;
+  ifstream Metatabelas;
+  int cont = 0;
+
+
+  if (arquivo.is_open())
+  {
+    while (arquivo.get(car))
+    {
+        if(car == ","){
+            while(arquivo.get(car) != ";"){
+                linha[cont++] = car;
+
+            }
+            Metatabelas.open(linha);
+            while (!Metatabelas.eof())
+            {
+              getline(Metatabelas,leitura);
+              cout << leitura << endl;
+            }
+
+            Metatabelas.close();
+            linha = NULL;
+            cont = 0;
+        }
+
+    }
+    arquivo.close();
+  }
+  else{
+    cout << "Erro ao tentar ler lista de tabelas" << endl;
+  }
+}
 
 void Comandos::inserirRegistro(string tabela, string registro) {
   cout << "Inserir registro " << registro << " na tabela " << tabela << '\n';

@@ -3,6 +3,9 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <stdio.h>
+#include <time.h>       /* time_t, struct tm, time, localtime */
+
 using namespace std;
 
 #define SUCCESS 0
