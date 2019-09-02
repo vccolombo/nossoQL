@@ -1,5 +1,7 @@
 #include "Comandos.h"
 
+using namespace std;
+
 Comandos::Comandos() {}
 
 void Comandos::criarArquivoComNomeTabela(string tabela, string* campos) {
@@ -9,8 +11,8 @@ void Comandos::criarArquivoComNomeTabela(string tabela, string* campos) {
   meta.append(tabela);
   meta.append("_META.txt");
 
-  ofstream(tab.c_str()); 
-  ofstream(meta.c_str()); 
+  ofstream(tab.c_str());
+  ofstream(meta.c_str());
 
   string base = tabela + "_TAB," + tabela + "_META";
   ofstream file;
@@ -78,7 +80,24 @@ void Comandos::listarTabelas() { cout << "Listar tabelas" << '\n'; }
 
 void Comandos::inserirRegistro(string tabela, string registro) {
   cout << "Inserir registro " << registro << " na tabela " << tabela << '\n';
-  parseInsercao(registro);
+
+  // vetor em que cada entrada é um campo da inserção
+  vector<string> inserir = parseInsercao(registro);
+
+  ofstream file;
+  file.open("tabelas/" + tabela + "_TAB.txt", ios_base::app);
+  if (file.fail()) {
+    // TODO o arquivo não existe (a tabela não foi criada)
+    std::cout << "ERRO" << '\n';
+    return;
+  }
+
+  // escrever no arquivo cada entrada do vetor inserir
+  for (auto reg : inserir) {
+    file << reg << ';';
+  }
+  file << '\n';
+  file.close();
 }
 
 void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
@@ -151,7 +170,7 @@ string* Comandos::parseCampoCT(string input) {
   string palavra, *campo;
   input.erase(0, 1);
   //varredura para encontrar problemas na string como
-  //Existencia de ' ' e separção incorreta de campos 
+  //Existencia de ' ' e separção incorreta de campos
   //contagem de campos
   while(input[i] != '\0'){
     if (input[i] == ' ')
@@ -161,7 +180,7 @@ string* Comandos::parseCampoCT(string input) {
       quant_campo++;
     }
     if (input[i] == ';')
-      ponto_virgula++;  
+      ponto_virgula++;
     i++;
   }
   if (dois_pontos-1 != ponto_virgula || dois_pontos == 0){
@@ -176,13 +195,13 @@ string* Comandos::parseCampoCT(string input) {
     idx_fim = input.find(':', idx_ini);
     palavra = input.substr(idx_ini, idx_fim - idx_ini);
     transform(palavra.begin(), palavra.end(), palavra.begin(), ::toupper);
-  
+
     if (palavra.compare("INT") == 0 || palavra.compare("STR") == 0)
       campo[i++] = palavra;
     else if (palavra.compare("FLT") == 0 || palavra.compare("BIN") == 0)
       campo[i++] = palavra;
     else{
-      delete[] campo;  
+      delete[] campo;
       return NULL;
     }
 
@@ -197,14 +216,18 @@ string* Comandos::parseCampoCT(string input) {
   return campo;
 }
 
-void Comandos::parseInsercao(string registro) {
+vector<string> Comandos::parseInsercao(string registro) {
+  vector<string> insercoes;
   cout << "Registros a serem inseridos: " << '\n';
   int campo = 0;
   bool var = false;
   while (registro.length() > 0) {
     cout << "Campo " << ++campo << ": ";
-    cout << retornaPalavraDeInput(registro, ';', var) << "<\n";
+    string palavra = retornaPalavraDeInput(registro, ';', var);
+    cout << palavra << "<\n";
+    insercoes.push_back(palavra);
     var = true;
   }
   cout << '\n';
+  return insercoes;
 }

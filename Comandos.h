@@ -6,6 +6,7 @@
 #include <fstream>
 #include <string.h>
 #include <cstdio>
+#include <vector>
 using namespace std;
 
 class Comandos {
@@ -26,7 +27,7 @@ public:
   string* parseCampoCT(string input);
 
 private:
-  void parseInsercao(string registro);
+  vector<string> parseInsercao(string registro);
 };
 
 #endif
