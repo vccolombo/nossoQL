@@ -5,7 +5,7 @@ Comandos::Comandos() {}
 string Comandos::horaatual(){
   time_t rawtime;
   struct tm * timeinfo;
-  
+
   time (&rawtime);
   timeinfo = localtime (&rawtime);
   mktime (timeinfo);
@@ -19,16 +19,13 @@ void Comandos::criarArquivoComNomeTabela(string tabela, string* campos) {
   tab.append("_TAB.txt");
   meta.append(tabela);
   meta.append("_META.txt");
-  
-  ofstream(tab.c_str()); 
-  ofstream(meta.c_str()); 
+
+  ofstream(tab.c_str());
+  ofstream(meta.c_str());
 
   ofstream filemetatabela;
-  ofstream Metameta;
- 
   filemetatabela.open(meta, ios_base::app);
-  Metameta.open("tabelas/_META.txt", ios_base::app);
-  
+
   string base = tabela + "_TAB," + tabela + "_META";
   ofstream file;
   file.open("tabelas/base.txt", ios_base::app);
@@ -42,8 +39,7 @@ void Comandos::criarArquivoComNomeTabela(string tabela, string* campos) {
   int j = 1;
 
   cout << "Criando tabela com nome: " << tabela << "\n";
-  filemetatabela << tabela << ";" << Comandos::horaatual() << ";" << "tabelas/_META.txt" << ";" << int(campos[0][0]) << ";";
-  Metameta << tabela << ";" << Comandos::horaatual() << ";" << "tabelas/_META.txt" << ";" << int(campos[0][0]) << ";";
+  filemetatabela << tabela << ";" << "tabelas/_META.txt" << ";" << int(campos[0][0]) << ";";
   cout << "Campos:" << " " << int(campos[0][0]) << ";" ;
 
   for(int i = 0; i < int(campos[0][0]); i++){
@@ -51,10 +47,8 @@ void Comandos::criarArquivoComNomeTabela(string tabela, string* campos) {
     filemetatabela << campos[j] << ":" << campos[j + 1] << ";";
     j += 2;
   }
-  filemetatabela << endl;
-  Metameta << endl;
+  filemetatabela << Comandos::horaatual() << ";" << endl;
   filemetatabela.close();
-  Metameta.close();
 }
 
 void Comandos::apagaArquivoComNomeTabela(string tabela) {
@@ -122,18 +116,39 @@ void Comandos::resumoDaTabela(string tabela) {
   }
 }
 
-void Comandos::listarTabelas() { 
-  
-  cout << "Listar tabelas" << endl; 
-  string linha;
+void Comandos::listarTabelas() {
+
+  cout << "Listar tabelas" << endl;
+  string leitura;
+  char* linha;
   ifstream arquivo;
-  arquivo.open("tabelas/_META.txt");
+  arquivo.open("tabelas/base.txt");
+  char car;
+  ifstream Metatabelas;
+  int cont = 0;
+
+
   if (arquivo.is_open())
   {
-    while (! arquivo.eof() )
+    while (arquivo.get(car))
     {
-      getline(arquivo,linha);
-      cout << linha << endl;
+        if(car == ","){
+            while(arquivo.get(car) != ";"){
+                linha[cont++] = car;
+
+            }
+            Metatabelas.open(linha);
+            while (!Metatabelas.eof())
+            {
+              getline(Metatabelas,leitura);
+              cout << leitura << endl;
+            }
+
+            Metatabelas.close();
+            linha = NULL;
+            cont = 0;
+        }
+
     }
     arquivo.close();
   }
@@ -217,7 +232,7 @@ string* Comandos::parseCampoCT(string input) {
   string palavra, *campo;
   input.erase(0, 1);
   //varredura para encontrar problemas na string como
-  //Existencia de ' ' e separção incorreta de campos 
+  //Existencia de ' ' e separção incorreta de campos
   //contagem de campos
   while(input[i] != '\0'){
     if (input[i] == ' ')
@@ -227,7 +242,7 @@ string* Comandos::parseCampoCT(string input) {
       quant_campo++;
     }
     if (input[i] == ';')
-      ponto_virgula++;  
+      ponto_virgula++;
     i++;
   }
   if (dois_pontos-1 != ponto_virgula || dois_pontos == 0){
@@ -242,13 +257,13 @@ string* Comandos::parseCampoCT(string input) {
     idx_fim = input.find(':', idx_ini);
     palavra = input.substr(idx_ini, idx_fim - idx_ini);
     transform(palavra.begin(), palavra.end(), palavra.begin(), ::toupper);
-  
+
     if (palavra.compare("INT") == 0 || palavra.compare("STR") == 0)
       campo[i++] = palavra;
     else if (palavra.compare("FLT") == 0 || palavra.compare("BIN") == 0)
       campo[i++] = palavra;
     else{
-      delete[] campo;  
+      delete[] campo;
       return NULL;
     }
 
