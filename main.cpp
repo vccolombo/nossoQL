@@ -21,7 +21,7 @@ int interpretadorDeComandos (Comandos &comando, string &input, int modo_interati
     string tabela = comando.retornaPalavraDeInput(input, ' ');
     string *campos = comando.parseCampoCT(input);
     if (campos != NULL){
-      comando.criarArquivoComNomeTabela(tabela, campos);
+      return comando.criarArquivoComNomeTabela(tabela, campos);
     }
     else
       cout << "Campos Invalidos, tente novamente!" << endl;

@@ -12,11 +12,13 @@
 
 using namespace std;
 
+#define SUCCESS 0
+#define FINISH_PROGRAM 1
 
 class Comandos {
 public:
   Comandos();
-  void criarArquivoComNomeTabela(string tabela, string* campos);
+  int criarArquivoComNomeTabela(string tabela, string* campos);
   void apagaArquivoComNomeTabela(string tabela);
   void resumoDaTabela(string tabela);
   void listarTabelas();

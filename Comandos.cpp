@@ -7,50 +7,56 @@ Comandos::Comandos() {}
 string Comandos::horaatual(){
   time_t rawtime;
   struct tm * timeinfo;
-
   time (&rawtime);
   timeinfo = localtime (&rawtime);
   mktime (timeinfo);
   return string(asctime(timeinfo));
 }
 
-void Comandos::criarArquivoComNomeTabela(string tabela, string* campos) {
+int Comandos::criarArquivoComNomeTabela(string tabela, string* campos) {
+  // verificar se existe tabela com nome igual
+  ifstream arquivo_base;
+  arquivo_base.open("./tabelas/base.txt");
+  if (arquivo_base.is_open()) {
+    // verificar se ja existe uma tabela com o mesmo nome
+    string linha;
+    while (getline(arquivo_base, linha)) {
+      if (linha == tabela) {
+        cout << "Tabela já existe. Terminando execução.\n";
+        return FINISH_PROGRAM;
+      }
+    }
+  } else {
+    cout << "Erro ao criar arquivo base.txt\n";
+  }
+  ofstream base;
+  base.open("./tabelas/base.txt", ios_base::app);
+  if (base.is_open()) {
+    base << tabela << endl;
+    base.close(); 
+  }
 
   string tab = "tabelas/", meta = "tabelas/";
-  tab.append(tabela);
-  tab.append("_TAB.txt");
-  meta.append(tabela);
-  meta.append("_META.txt");
-
+  tab.append(tabela + "_TAB.txt");
+  meta.append(tabela + "_META.txt");
   ofstream(tab.c_str());
   ofstream(meta.c_str());
   
-  ofstream filemetatabela;
-  filemetatabela.open(meta, ios_base::app);
-  
-  string base = tabela;
-  ofstream file;
-  file.open("tabelas/base.txt", ios_base::app);
-  if (file.fail()) {
-    ofstream("tabelas/base.txt");
-  }
-
-  file << base << endl;
-  file.close();
+  ofstream arquivo_meta;
+  arquivo_meta.open(meta, ios_base::app);
 
   int j = 1;
-
   cout << "Criando tabela com nome: " << tabela << "\n";
-  filemetatabela << tabela << ";" << "tabelas/_META.txt" << ";" << int(campos[0][0]) << ";";
+  arquivo_meta << tabela << ";" << "tabelas/_META.txt" << ";" << int(campos[0][0]) << ";";
   cout << "Campos:" << " " << int(campos[0][0]) << ";" ;
-
   for(int i = 0; i < int(campos[0][0]); i++){
     cout << "TIPO: "   << campos[j] << ", NOME: " << campos[j + 1] << endl;
-    filemetatabela << campos[j] << ":" << campos[j + 1] << ";";
+    arquivo_meta << campos[j] << ":" << campos[j + 1] << ";";
     j += 2;
   }
-  filemetatabela << Comandos::horaatual() << ";" << endl;
-  filemetatabela.close();
+  arquivo_meta << Comandos::horaatual() << ";" << endl;
+  arquivo_meta.close();
+  return SUCCESS;
 }
 
 void Comandos::apagaArquivoComNomeTabela(string tabela) {
@@ -68,21 +74,18 @@ void Comandos::apagaArquivoComNomeTabela(string tabela) {
   string arquivo_tabela = "./tabelas/" + tabela + "_TAB.txt";
   string arquivo_meta = "./tabelas/" + tabela + "_META.txt";
   if (remove(arquivo_tabela.c_str()) != 0) {
-    cout << "Erro ao tentar remover arquivo.\n";
+    cout << "Erro ao tentar remover arquivo: " << arquivo_tabela << "\n";
     return;
   }
   if (remove(arquivo_meta.c_str()) != 0) {
-    cout << "Erro ao tentar remover arquivo.\n";
+    cout << "Erro ao tentar remover arquivo: " << arquivo_meta << "\n";
     return;
   } else {
     // copia e remocao de dados da tabela para novo arquivo temp
     cout << "Apagando tabela " << tabela << "\n";
-    arquivo_tabela.erase(0, 10);
-    arquivo_meta.erase(0, 10);
-    arquivo_tabela = tabela + "_TAB" + ',' + tabela + "_META";
     string input;
     while (getline(arquivo_base, input)) {
-      if (input != arquivo_tabela)
+      if (input != tabela)
         temp << input << endl;
     }
     arquivo_base.close();
@@ -96,7 +99,6 @@ void Comandos::apagaArquivoComNomeTabela(string tabela) {
 
 void Comandos::resumoDaTabela(string tabela) {
   cout << "Resumo da tabela " << tabela << endl;
-
   string meta = "tabelas/";
   meta.append(tabela);
   meta.append("_META.txt");
@@ -104,10 +106,8 @@ void Comandos::resumoDaTabela(string tabela) {
   string linha;
   ifstream arquivo;
   arquivo.open(meta);
-  if (arquivo.is_open())
-  {
-    while (!arquivo.eof() )
-    {
+  if (arquivo.is_open()) {
+    while (!arquivo.eof() ) {
       getline(arquivo,linha);
       cout << linha << endl;
     }
@@ -134,7 +134,6 @@ void Comandos::listarTabelas() {
 
 void Comandos::inserirRegistro(string tabela, string registro) {
   cout << "Inserir registro " << registro << " na tabela " << tabela << '\n';
-
   // vetor em que cada entrada é um campo da inserção
   vector<string> inserir = parseInsercao(registro);
 
@@ -145,7 +144,6 @@ void Comandos::inserirRegistro(string tabela, string registro) {
     std::cout << "ERRO" << '\n';
     return;
   }
-
   // escrever no arquivo cada entrada do vetor inserir
   for (auto reg : inserir) {
     file << reg << ';';
