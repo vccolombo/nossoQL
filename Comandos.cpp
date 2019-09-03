@@ -33,7 +33,7 @@ int Comandos::criarArquivoComNomeTabela(string tabela, string* campos) {
   base.open("./tabelas/base.txt", ios_base::app);
   if (base.is_open()) {
     base << tabela << endl;
-    base.close(); 
+    base.close();
   }
 
   string tab = "tabelas/", meta = "tabelas/";
@@ -41,20 +41,20 @@ int Comandos::criarArquivoComNomeTabela(string tabela, string* campos) {
   meta.append(tabela + "_META.txt");
   ofstream(tab.c_str());
   ofstream(meta.c_str());
-  
+
   ofstream arquivo_meta;
   arquivo_meta.open(meta, ios_base::app);
 
   int j = 1;
   cout << "Criando tabela com nome: " << tabela << "\n";
-  arquivo_meta << tabela << ";" << "tabelas/_META.txt" << ";" << int(campos[0][0]) << ";";
+  arquivo_meta << tabela << ";" << int(campos[0][0]) << ";";
   cout << "Campos:" << " " << int(campos[0][0]) << ";" ;
   for(int i = 0; i < int(campos[0][0]); i++){
     cout << "TIPO: "   << campos[j] << ", NOME: " << campos[j + 1] << endl;
     arquivo_meta << campos[j] << ":" << campos[j + 1] << ";";
     j += 2;
   }
-  arquivo_meta << Comandos::horaatual() << ";" << endl;
+  arquivo_meta << Comandos::horaatual() << endl;
   arquivo_meta.close();
   return SUCCESS;
 }
