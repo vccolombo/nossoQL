@@ -380,6 +380,7 @@ vector<string> Comandos::parseInsercao(string registro) {
   return insercoes;
 }
 
+//Retorna em um vetor todo o conteúdo entre ;
 vector<string> Comandos::parseBuscaMetaDados(string dados_meta){
   vector<string> resposta;
   while(dados_meta.length() > 0){
