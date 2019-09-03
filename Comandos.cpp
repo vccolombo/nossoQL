@@ -54,7 +54,7 @@ int Comandos::criarArquivoComNomeTabela(string tabela, string* campos) {
     arquivo_meta << campos[j] << ":" << campos[j + 1] << ";";
     j += 2;
   }
-  arquivo_meta << Comandos::horaatual() << ";" << endl;
+  arquivo_meta << Comandos::horaatual() << endl;
   arquivo_meta.close();
   return SUCCESS;
 }
