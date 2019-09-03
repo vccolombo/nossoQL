@@ -32,7 +32,7 @@ public:
   string retornaPalavraDeInput (string &input, char delimitador, bool removerEspacosAfrente = true);
   string* parseCampoCT(string input);
   string horaatual();
-
+  vector<string> parseBuscaMetaDados(string dados_meta);
 
 private:
   vector<string> parseInsercao(string registro);
