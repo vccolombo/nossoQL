@@ -189,7 +189,7 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
 
 
   //Percorre todos os campos presentes no meta, e ao encontrar o campo necessário pra busca, armazena sua posição em indice_campo
-  while (i < stoi(linha_meta_dados[2]) && !existe_campo ){
+  while (i < stoi(linha_meta_dados[2])){
     size_t pos_dois_pontos = linha_meta_dados[3+i].find(":");
     string tipo = linha_meta_dados[3+i].substr(0,pos_dois_pontos);
     string campo = linha_meta_dados[3+i].substr(pos_dois_pontos+1);
