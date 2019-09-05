@@ -13,4 +13,4 @@ main: $(OBJECTS)
 Comandos.o: Comandos.h
 
 clean:
-	rm *.o *.exe
+	rm *.o *.exe tabelas/*.txt
