@@ -26,8 +26,6 @@ int Comandos::criarArquivoComNomeTabela(string tabela, string* campos) {
         return FINISH_PROGRAM;
       }
     }
-  } else {
-    cout << "Erro ao criar arquivo base.txt\n";
   }
   ofstream base;
   base.open("./tabelas/base.txt", ios_base::app);
@@ -62,11 +60,9 @@ int Comandos::criarArquivoComNomeTabela(string tabela, string* campos) {
 void Comandos::apagaArquivoComNomeTabela(string tabela) {
   string base = "./tabelas/base.txt";
   ifstream arquivo_base;
-  ofstream temp;
   arquivo_base.open(base);
-  temp.open("./tabelas/temp.txt");
   // tenta abrir arquivo base e temp
-  if (!arquivo_base.is_open() || !temp.is_open()) {
+  if (!arquivo_base.is_open()) {
     cout << "Erro ao abrir arquivo base.txt\n";
     return;
   }
@@ -82,6 +78,8 @@ void Comandos::apagaArquivoComNomeTabela(string tabela) {
     return;
   } else {
     // copia e remocao de dados da tabela para novo arquivo temp
+    ofstream temp;
+    temp.open("./tabelas/temp.txt");
     cout << "Apagando tabela " << tabela << "\n";
     string input;
     while (getline(arquivo_base, input)) {
