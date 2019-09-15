@@ -133,9 +133,12 @@ void Comandos::listarTabelas() {
 }
 
 void Comandos::inserirRegistro(string tabela, string registro) {
+  vector<string> metadados = getVetorDeMetadados(tabela);
+
   cout << "Inserir registro " << registro << " na tabela " << tabela << '\n';
   // vetor em que cada entrada é um campo da inserção
   vector<string> inserir = parseInsercao(registro);
+  
 
   ofstream file;
   file.open("tabelas/" + tabela + "_TAB.txt", ios_base::app);
@@ -162,19 +165,7 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
     return;
   }
 
-  ifstream file_meta; //Leitura do arquivo
-  file_meta.open("tabelas/" + tabela + "_META.txt");
-  if (file.fail()) {
-    // TODO o arquivo não existe (a tabela não foi criada)
-    std::cout << "Não foi possível encontrar a o Metadados da Tabela." << '\n';
-    return;
-  }
-
-  string dados_file_meta;
-  file_meta >> dados_file_meta; //recebe como string todo o conteudo do arquivo meta da tabela
-
-  //0  = Nome Tabela / 1 = path txt meta / 2 = qtd de campos / 3 até 3+qtd de campos = campos / ultimo = data
-  vector<string> linha_meta_dados = parseBuscaMetaDados(dados_file_meta);
+  vector<string> linha_meta_dados = getVetorDeMetadados(tabela);
   // Retira o tipo dos campo, mantendo somente o nome do campo
   vector<string> nomes_campos;
 
@@ -390,3 +381,23 @@ vector<string> Comandos::parseBuscaMetaDados(string dados_meta){
 
   return resposta;
 }
+
+vector<string> Comandos::getVetorDeMetadados(string tabela) {
+  ifstream file_meta; //Leitura do arquivo
+  file_meta.open("tabelas/" + tabela + "_META.txt");
+  if (file_meta.fail()) {
+    // TODO o arquivo não existe (a tabela não foi criada)
+    std::cout << "Não foi possível encontrar a o Metadados da Tabela." << '\n';
+    vector<string> empty;
+    return empty;
+  }
+
+  string dados_file_meta;
+  file_meta >> dados_file_meta; //recebe como string todo o conteudo do arquivo meta da tabela
+
+  //0  = Nome Tabela / 1 = path txt meta / 2 = qtd de campos / 3 até 3+qtd de campos = campos / ultimo = data
+  vector<string> linha_meta_dados = parseBuscaMetaDados(dados_file_meta);
+
+  return linha_meta_dados;
+
+} 
