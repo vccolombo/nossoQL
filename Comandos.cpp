@@ -132,10 +132,42 @@ void Comandos::listarTabelas() {
   }
 }
 
+// retirado de https://stackoverflow.com/questions/4654636/how-to-determine-if-a-string-is-a-number-with-c
+bool is_number(const std::string& s)
+{
+    return !s.empty() && std::find_if(s.begin(), 
+        s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
+}
+
 void Comandos::inserirRegistro(string tabela, string registro) {
+  vector<string> metadados = getVetorDeMetadados(tabela);
+  size_t quantidade_de_campos = stoi(metadados[2]);
+
   cout << "Inserir registro " << registro << " na tabela " << tabela << '\n';
   // vetor em que cada entrada é um campo da inserção
   vector<string> inserir = parseInsercao(registro);
+
+  if (quantidade_de_campos != inserir.size())
+  {
+    cout << "ERRO IMPOSSÍVEL INSERIR NA TABELA: Quantidade incorreta de campos para inserir\n";
+    return;
+  }
+
+  for (size_t i = 0; i < quantidade_de_campos; i++)
+  {
+    string campo = metadados[3+i]; // 3 é a posição do primeiro campo
+    string tipo = retornaPalavraDeInput(campo, ':');
+    if (tipo == "INT")
+    {
+      if(is_number(inserir[i]) == false) {
+        cout << "ERRO TIPO INCORRETO: TIPO INCORRETO DE DADOS NO CAMPO " << i << '\n';
+        return;
+      }
+    }
+    
+  }
+  
+  
 
   ofstream file;
   file.open("tabelas/" + tabela + "_TAB.txt", ios_base::app);
@@ -152,6 +184,8 @@ void Comandos::inserirRegistro(string tabela, string registro) {
   file.close();
 }
 
+
+
 void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
 
   ifstream file; //Leitura do arquivo
@@ -162,19 +196,7 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
     return;
   }
 
-  ifstream file_meta; //Leitura do arquivo
-  file_meta.open("tabelas/" + tabela + "_META.txt");
-  if (file.fail()) {
-    // TODO o arquivo não existe (a tabela não foi criada)
-    std::cout << "Não foi possível encontrar a o Metadados da Tabela." << '\n';
-    return;
-  }
-
-  string dados_file_meta;
-  file_meta >> dados_file_meta; //recebe como string todo o conteudo do arquivo meta da tabela
-
-  //0  = Nome Tabela / 1 = path txt meta / 2 = qtd de campos / 3 até 3+qtd de campos = campos / ultimo = data
-  vector<string> linha_meta_dados = parseBuscaMetaDados(dados_file_meta);
+  vector<string> linha_meta_dados = getVetorDeMetadados(tabela);
   // Retira o tipo dos campo, mantendo somente o nome do campo
   vector<string> nomes_campos;
 
@@ -390,3 +412,24 @@ vector<string> Comandos::parseBuscaMetaDados(string dados_meta){
 
   return resposta;
 }
+
+vector<string> Comandos::getVetorDeMetadados(string tabela) {
+  ifstream file_meta; //Leitura do arquivo
+  file_meta.open("tabelas/" + tabela + "_META.txt");
+
+  if (file_meta.fail()) {
+    // TODO o arquivo não existe (a tabela não foi criada)
+    std::cout << "Não foi possível encontrar a o Metadados da Tabela." << '\n';
+    vector<string> empty;
+    return empty;
+  }
+
+  string dados_file_meta;
+  file_meta >> dados_file_meta; //recebe como string todo o conteudo do arquivo meta da tabela
+
+  //0  = Nome Tabela / 1 = path txt meta / 2 = qtd de campos / 3 até 3+qtd de campos = campos / ultimo = data
+  vector<string> linha_meta_dados = parseBuscaMetaDados(dados_file_meta);
+
+  return linha_meta_dados;
+
+} 

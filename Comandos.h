@@ -36,6 +36,7 @@ public:
 
 private:
   vector<string> parseInsercao(string registro);
+  vector<string> getVetorDeMetadados(string tabela);
 };
 
 #endif
