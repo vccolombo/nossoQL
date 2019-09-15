@@ -134,10 +134,18 @@ void Comandos::listarTabelas() {
 
 void Comandos::inserirRegistro(string tabela, string registro) {
   vector<string> metadados = getVetorDeMetadados(tabela);
+  size_t quantidade_de_campos = stoi(metadados[2]);
 
   cout << "Inserir registro " << registro << " na tabela " << tabela << '\n';
   // vetor em que cada entrada é um campo da inserção
   vector<string> inserir = parseInsercao(registro);
+
+  if (quantidade_de_campos != inserir.size())
+  {
+    cout << "ERRO IMPOSSÍVEL INSERIR NA TABELA: Quantidade incorreta de campos para inserir\n";
+    return;
+  }
+  
   
 
   ofstream file;
