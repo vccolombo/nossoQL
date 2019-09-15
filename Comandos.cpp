@@ -132,6 +132,13 @@ void Comandos::listarTabelas() {
   }
 }
 
+// retirado de https://stackoverflow.com/questions/4654636/how-to-determine-if-a-string-is-a-number-with-c
+bool is_number(const std::string& s)
+{
+    return !s.empty() && std::find_if(s.begin(), 
+        s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
+}
+
 void Comandos::inserirRegistro(string tabela, string registro) {
   vector<string> metadados = getVetorDeMetadados(tabela);
   size_t quantidade_de_campos = stoi(metadados[2]);
@@ -144,6 +151,20 @@ void Comandos::inserirRegistro(string tabela, string registro) {
   {
     cout << "ERRO IMPOSSÍVEL INSERIR NA TABELA: Quantidade incorreta de campos para inserir\n";
     return;
+  }
+
+  for (size_t i = 0; i < quantidade_de_campos; i++)
+  {
+    string campo = metadados[3+i]; // 3 é a posição do primeiro campo
+    string tipo = retornaPalavraDeInput(campo, ':');
+    if (tipo == "INT")
+    {
+      if(is_number(inserir[i]) == false) {
+        cout << "ERRO TIPO INCORRETO: TIPO INCORRETO DE DADOS NO CAMPO " << i << '\n';
+        return;
+      }
+    }
+    
   }
   
   
@@ -162,6 +183,8 @@ void Comandos::inserirRegistro(string tabela, string registro) {
   file << '\n';
   file.close();
 }
+
+
 
 void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
 
@@ -393,6 +416,7 @@ vector<string> Comandos::parseBuscaMetaDados(string dados_meta){
 vector<string> Comandos::getVetorDeMetadados(string tabela) {
   ifstream file_meta; //Leitura do arquivo
   file_meta.open("tabelas/" + tabela + "_META.txt");
+
   if (file_meta.fail()) {
     // TODO o arquivo não existe (a tabela não foi criada)
     std::cout << "Não foi possível encontrar a o Metadados da Tabela." << '\n';
