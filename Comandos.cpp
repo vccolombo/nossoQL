@@ -275,7 +275,7 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
     if(!_buscas.size()){
       _buscas.insert(_buscas.end(),resultado_busca);
     }
-    else{      
+    else{
       for(i = 0; i < _buscas.size(); i++){
         if(retornaPalavraDeInput(_buscas[i], ':') == tabela){
           _buscas[i] = resultado_busca;
