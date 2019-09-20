@@ -185,8 +185,6 @@ void Comandos::inserirRegistro(string tabela, string registro) {
   file.close();
 }
 
-
-
 void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
 
   ifstream file; //Leitura do arquivo
@@ -200,6 +198,7 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
   vector<string> linha_meta_dados = getVetorDeMetadados(tabela);
   // Retira o tipo dos campo, mantendo somente o nome do campo
   vector<string> nomes_campos;
+  unsigned int quantidade_de_campos = stoi(linha_meta_dados[2]);
 
   //parse do campo selecionado para busca
   size_t pos_dois_pontos = busca.find(":"); //Posição dos ":"
@@ -207,14 +206,13 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
   string elemento_b = busca.substr(pos_dois_pontos+1); //Separa o ":" até o fim
 
   bool existe_campo = false; // Verificador da existência do campo
-  int i = 0;
+  unsigned int i = 0;
   int indice_campo; // Armazena a posição do campo que foi encontrado na busca
 
 
   //Percorre todos os campos presentes no meta, e ao encontrar o campo necessário pra busca, armazena sua posição em indice_campo
-  while (i < stoi(linha_meta_dados[2])){
+  while (i < quantidade_de_campos){
     size_t pos_dois_pontos = linha_meta_dados[3+i].find(":");
-    string tipo = linha_meta_dados[3+i].substr(0,pos_dois_pontos);
     string campo = linha_meta_dados[3+i].substr(pos_dois_pontos+1);
     nomes_campos.push_back(campo); //Insere o nome do campo no vetor
     // Se o campo for igual ao campo da busca, armazena a posição
@@ -241,8 +239,8 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
   if (modifier == "N") {
     cout << "Busca em " << tabela << " todos com critério " << busca
               << '\n';
-    do{
-      getline(file, linha_busca); //Armazena a linha em linha_busca
+    do{      
+      getline(file, linha_busca); //Armazena a linha em linha_busca     
       vetor_linha_busca = parseBuscaMetaDados(linha_busca); //Armazena os campos da linha atual
       //Evita segmentation fault quando pega uma linha vazia.
       if (linha_busca != ""){
@@ -277,7 +275,7 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
     if(!_buscas.size()){
       _buscas.insert(_buscas.end(),resultado_busca);
     }
-    else{
+    else{      
       for(i = 0; i < _buscas.size(); i++){
         if(retornaPalavraDeInput(_buscas[i], ':') == tabela){
           _buscas[i] = resultado_busca;
@@ -303,28 +301,17 @@ void Comandos::apresentarRegistrosUltimaBusca(string tabela) {
     std::cout << "Não foi possível encontrar a Tabela." << '\n';
     return;
   }
-  ifstream file_meta; //Leitura do arquivo
-  file_meta.open("tabelas/" + tabela + "_META.txt");
-  if (file.fail()) {
-    // TODO o arquivo não existe (a tabela não foi criada)
-    std::cout << "Não foi possível encontrar a o Metadados da Tabela." << '\n';
-    return;
-  }
-
-  string dados_file_meta;
-  file_meta >> dados_file_meta; //recebe como string todo o conteudo do arquivo meta da tabela
 
   //0  = Nome Tabela / 1 = path txt meta / 2 = qtd de campos / 3 até 3+qtd de campos = campos / ultimo = data
-  vector<string> linha_meta_dados = parseBuscaMetaDados(dados_file_meta);
+  vector<string> linha_meta_dados = getVetorDeMetadados(tabela);
   // Retira o tipo dos campo, mantendo somente o nome do campo
   vector<string> nomes_campos;
-  int i = 0;
-
+  unsigned int i = 0;
+  unsigned int quantidade_de_campos = stoi(linha_meta_dados[2]);
 
   //Percorre todos os campos presentes no meta, e ao encontrar o campo necessário pra busca, armazena sua posição em indice_campo
-  while (i < stoi(linha_meta_dados[2])){
+  while (i < quantidade_de_campos){
     size_t pos_dois_pontos = linha_meta_dados[3+i].find(":");
-    string tipo = linha_meta_dados[3+i].substr(0,pos_dois_pontos);
     string campo = linha_meta_dados[3+i].substr(pos_dois_pontos+1);
     nomes_campos.push_back(campo); 
     i++;
@@ -334,7 +321,7 @@ void Comandos::apresentarRegistrosUltimaBusca(string tabela) {
   vector<string> linhas;
   cout << "Apresentar registro da última busca em " << tabela << '\n';
   if(_buscas.size()){
-    for(int i = 0; i < _buscas.size(); i++){
+    for(i = 0; i < _buscas.size(); i++){
       string linha_busca = _buscas[i];
       if(retornaPalavraDeInput(linha_busca, ':') == tabela){
         linha_busca.erase(linha_busca.begin()); //APAGAR OS DOIS PONTOS DO COMEÇO DA LINHA.
