@@ -11,7 +11,7 @@ using namespace std;
 #define SUCCESS 0
 #define FINISH_PROGRAM 1
 
-int interpretadorDeComandos (Comandos &comando, string &input, int modo_interativo = 1) {
+int interpretadorDeComandos (Comandos &comando, string &input, int modo_interativo, string &tab_ultima_busca, vector<int> &vet_busca) {
   string palavra_chave;
   palavra_chave = comando.retornaPalavraDeInput(input, ' ');
   // Transformar comando para UPPER (retirar case sensitiviness)
@@ -61,10 +61,13 @@ int interpretadorDeComandos (Comandos &comando, string &input, int modo_interati
     string tabela = comando.retornaPalavraDeInput(input, ' ');
     string busca = comando.retornaPalavraDeInput(input, ' ');
     if (tabela.length() > 0 && modifier.length() > 0 && busca.length() > 0) {
-    comando.buscaEmTabela(modifier, tabela, busca);
-    } else {
+      tab_ultima_busca = tabela;
+      vet_busca = comando.buscaEmTabela(modifier, tabela, busca);
+      for (int i = 0; i < vet_busca.size(); i++)
+		    cout << vet_busca.at(i) << ' ';
+      cout << "<" << endl;
+    } else 
       cout << "Erro: entrada incompleta." << "\n";
-    }
   }
   else if (palavra_chave == "AR") {
     string tabela = comando.retornaPalavraDeInput(input, ' ');
@@ -76,8 +79,13 @@ int interpretadorDeComandos (Comandos &comando, string &input, int modo_interati
   }
   else if (palavra_chave == "RR") {
     string tabela = comando.retornaPalavraDeInput(input, ' ');
+    
+
     if (tabela.length() > 0) {
-      comando.removeRegistrosUltimaBusca(tabela);
+      if (tab_ultima_busca == tabela)
+       comando.removeRegistrosUltimaBusca(tabela, vet_busca);
+      else
+        cout << "Erro: a ultima busca nao corresponde a tabela:" << tabela << endl;
     } else {
       cout << "Erro: entrada incompleta." << "\n";
     }
@@ -143,6 +151,8 @@ int main() {
   Comandos comando;
   string input = "";
   string modo;
+  string tab_ultima_busca;
+  vector<int> vet_busca;
   // Opcao de selecionar modo interativo ou ler um arquivo
   cout << "Digite I para modo interativo ou F para leitura de arquivo:\t";
   cin >> modo;
@@ -156,7 +166,7 @@ int main() {
     if (arquivo.is_open()) {
       int code_result = SUCCESS;
       while (getline(arquivo, input) && code_result != FINISH_PROGRAM) {
-        code_result = interpretadorDeComandos(comando, input, 0);
+        code_result = interpretadorDeComandos(comando, input, 0,tab_ultima_busca,vet_busca);
       }
     } else {
       cout << "Erro ao abrir arquivo.\nFinalizando execução.\n";
@@ -169,7 +179,7 @@ int main() {
     while (code_result != FINISH_PROGRAM) {
       cout << ">>> ";
       getline(cin, input);
-      code_result = interpretadorDeComandos(comando, input);
+      code_result = interpretadorDeComandos(comando, input,1,tab_ultima_busca,vet_busca);
     }
   } else {
     cout << "Comando Invalido.\nFinalizando execução.\n";
