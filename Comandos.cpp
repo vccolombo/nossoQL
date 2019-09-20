@@ -252,7 +252,9 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
       indice_no_txt++;
     }while(!file.eof());
 
-  } else if (modifier == "U") {
+  } 
+  else{
+     if (modifier == "U") {
     cout << "Busca em " << tabela << " primeiro com critério " << busca
               << '\n';
 
@@ -269,8 +271,13 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
       }
     indice_no_txt++;
     }while(!file.eof() && !encontrou);
+    }
+    else {
+    cout << "Modificador não reconhecido: " << modifier << ". Utilize N para fazer a busca, na tabela, de todos os registros que satisfaçam o critério de busca e U para fazer a busca, na tabela, do primeiro registro que satisfaça o critério. \n";
+    return;
   }
-
+  
+  }
   if(encontrou){
     if(!_buscas.size()){
       _buscas.insert(_buscas.end(),resultado_busca);
@@ -286,10 +293,12 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
         _buscas.insert(_buscas.end(),resultado_busca);
       }
     }
+    cout << "REGISTRO ENCONTRADO" << endl;
   }
-  else {
-    cout << "Modificador não reconhecido: " << modifier << ". Utilize N para fazer a busca, na tabela, de todos os registros que satisfaçam o critério de busca e U para fazer a busca, na tabela, do primeiro registro que satisfaça o critério. \n";
+  else{
+    cout << "REGISTRO NÃO ENCONTRADO" << endl;
   }
+
 }
 
 void Comandos::apresentarRegistrosUltimaBusca(string tabela) {
