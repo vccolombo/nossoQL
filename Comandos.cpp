@@ -314,23 +314,23 @@ void Comandos::removeRegistrosUltimaBusca(string tabela, vector<int> vetor_busca
   
   //cout << "removidos: " << quant_removido << "/" << vetor_busca.size() << endl;
   do {
-    
-    //variaves que 
+    //reinicializadas após toda remoção
     linha_atual = 0;
     pos_atual = 0;
 
     ifile.open("tabelas/" + tabela + "_TAB.txt", ios_base::app);
-    ifile.seekg(0,ios_base::beg);
+    ifile.seekg(0,ios_base::beg); //ponteiro retorna ao começo do arquivo
+
     while(linha_atual != vetor_busca[i]){
       getline(ifile,linha);
-      tam_linha = strlen(linha.c_str());
-      pos_atual += tam_linha;
+      pos_atual += strlen(linha.c_str());
       linha_atual++;
 
       //cout << "--------------------------------" << endl;
       //cout << "LINHA: [" << linha << "]"<< endl;
       //cout << "tam_linha: " << tam_linha << ", pos_atual: " << pos_atual << endl;
     } 
+    
     //se a linha atual é a que foi marcada na busca, iremos pegar o tamanho da linha
     //antes de invalidar o registro
     if(linha_atual==vetor_busca[i]){
@@ -338,7 +338,7 @@ void Comandos::removeRegistrosUltimaBusca(string tabela, vector<int> vetor_busca
       tam_linha = strlen(linha.c_str());
     }
     ifile.close();
-    
+
     ofile = fopen(("tabelas/" + tabela + "_TAB.txt").c_str(),"r+");
     if(linha_atual == vetor_busca[i]){
       fseek(ofile, pos_atual+linha_atual, SEEK_SET);
