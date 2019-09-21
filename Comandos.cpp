@@ -301,56 +301,57 @@ void Comandos::apresentarRegistrosUltimaBusca(string tabela) {
 
 void Comandos::removeRegistrosUltimaBusca(string tabela, vector<int> vetor_busca){
   
+  FILE* ofile; //escrita no arquivo
   ifstream ifile; //Leitura do arquivo
-  ofstream ofile; //Escrita no arquivo
   string linha, buffer;
-  int linha_atual = 0, tam_linha=0;
-  int pos_atual=0;
+
+  //linha_atual guarda qual linha está sendo lida pelo getline
+  //pos_atual guarda a posição que será escrita a invalidez
+  int linha_atual = 0, pos_atual=0; 
+  int tam_linha=0;
   unsigned long int quant_removido = 0;
   int i = 0;
   
-  cout << "removidos: " << quant_removido << "/" << vetor_busca.size() << endl;
-  FILE* arquivo;
+  //cout << "removidos: " << quant_removido << "/" << vetor_busca.size() << endl;
   do {
     
-    
+    //variaves que 
+    linha_atual = 0;
+    pos_atual = 0;
+
     ifile.open("tabelas/" + tabela + "_TAB.txt", ios_base::app);
-      ifile.seekg(pos_atual,ios_base::beg);
-    
+    ifile.seekg(0,ios_base::beg);
     while(linha_atual != vetor_busca[i]){
-      //cout << "--------------------------------" << endl;
       getline(ifile,linha);
-      //cout << "LINHA: [" << linha << "]"<<endl;
       tam_linha = strlen(linha.c_str());
       pos_atual += tam_linha;
-      //cout << "tam_linha: " << tam_linha << ", pos_atual: " << pos_atual << endl;
       linha_atual++;
+
+      //cout << "--------------------------------" << endl;
+      //cout << "LINHA: [" << linha << "]"<< endl;
+      //cout << "tam_linha: " << tam_linha << ", pos_atual: " << pos_atual << endl;
     } 
-    
+    //se a linha atual é a que foi marcada na busca, iremos pegar o tamanho da linha
+    //antes de invalidar o registro
     if(linha_atual==vetor_busca[i]){
       getline(ifile,linha);
       tam_linha = strlen(linha.c_str());
-      //ifile.seekg(pos_atual,ios_base::beg);
     }
-    
     ifile.close();
     
-    
-    //ofile.open("tabelas/" + tabela + "_TAB.txt", ios_base::app);
-    //ofile.seekp(pos_atual,ios_base::beg);
-    arquivo = fopen(("tabelas/" + tabela + "_TAB.txt").c_str(),"r+");
+    ofile = fopen(("tabelas/" + tabela + "_TAB.txt").c_str(),"r+");
     if(linha_atual == vetor_busca[i]){
-      fseek(arquivo, pos_atual+linha_atual, SEEK_SET);
+      fseek(ofile, pos_atual+linha_atual, SEEK_SET);
       buffer = to_string(tam_linha) + "#";
-      fprintf(arquivo,buffer.c_str());
+      fprintf(ofile,buffer.c_str());
       pos_atual += tam_linha;
       linha_atual++;
       i++;
       quant_removido++;
       
-      cout << "removidos: " << quant_removido << "/" << vetor_busca.size() << endl;
+      //cout << "removidos: " << quant_removido << "/" << vetor_busca.size() << endl;
     }
-    fclose(arquivo);
+    fclose(ofile);
     
 
   }while(quant_removido != vetor_busca.size());
