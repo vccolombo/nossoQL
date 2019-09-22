@@ -479,13 +479,19 @@ vector<string> Comandos::parseInsercao(string registro) {
 
 int Comandos::firstFit(string tabela, vector<string> inserir) {
   tabela = "./tabelas/" + tabela + "_TAB.txt";
+  // calcula o tamanho da nova insercao
+  int tam_inserir = 0;
+  for (auto reg : inserir)
+    tam_inserir += reg.size() + 1;
   // le o arquivo e verifica se existe algum espaco valido para insercao
   ifstream arquivo_tabela;
   arquivo_tabela.open(tabela);
   string linha;
+  int tam_disponivel = 0;
   int qtd_linhas = 0;
   int percorrido_pos = 0;
-  while (getline(arquivo_tabela, linha) && linha.find('#') == -1) {
+  while (getline(arquivo_tabela, linha) && tam_disponivel < tam_inserir) {
+    tam_disponivel = stoi(linha.substr(0, linha.find('#')));
     percorrido_pos += linha.size();
     qtd_linhas++;
   }
@@ -494,11 +500,6 @@ int Comandos::firstFit(string tabela, vector<string> inserir) {
     return 0;
   
   // verifica se o espaco valido possui tamanho suficiente
-  int tam_disponivel = 0;
-  tam_disponivel = stoi(linha.substr(0, linha.find('#')));
-  int tam_inserir = 0;
-  for (auto reg : inserir)
-    tam_inserir += reg.size() + 1;
   if (tam_disponivel < tam_inserir) {
     return 0;
   } else {
