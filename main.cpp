@@ -59,7 +59,7 @@ int interpretadorDeComandos (Comandos &comando, string &input, int modo_interati
     string modifier = comando.retornaPalavraDeInput(input, ' ');
     transform(modifier.begin(), modifier.end(), modifier.begin(), ::toupper);
     string tabela = comando.retornaPalavraDeInput(input, ' ');
-    string busca = comando.retornaPalavraDeInput(input, ';');
+    string busca = comando.retornaPalavraDeInput(input, ' ');
     if (tabela.length() > 0 && modifier.length() > 0 && busca.length() > 0) {
     comando.buscaEmTabela(modifier, tabela, busca);
     } else {
