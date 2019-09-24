@@ -29,7 +29,7 @@ int interpretadorDeComandos (Comandos &comando, string &input, int modo_interati
   else if (palavra_chave == "RT") {
     string tabela = comando.retornaPalavraDeInput(input, ' ');
     if (tabela.length() > 0) {
-      comando.apagaArquivoComNomeTabela(tabela);
+      return comando.apagaArquivoComNomeTabela(tabela);
     } else {
       cout << "Erro: entrada incompleta." << "\n";
     }

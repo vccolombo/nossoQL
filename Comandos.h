@@ -19,7 +19,7 @@ class Comandos {
 public:
   Comandos();
   int criarArquivoComNomeTabela(string tabela, string* campos);
-  void apagaArquivoComNomeTabela(string tabela);
+  int apagaArquivoComNomeTabela(string tabela);
   void resumoDaTabela(string tabela);
   void listarTabelas();
   void inserirRegistro(string tabela, string registro);

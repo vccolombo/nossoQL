@@ -27,14 +27,14 @@ int Comandos::criarArquivoComNomeTabela(string tabela, string* campos) {
         return FINISH_PROGRAM;
       }
     }
-  } else {
-    cout << "Erro ao criar arquivo base.txt\n";
   }
   ofstream base;
   base.open("./tabelas/base.txt", ios_base::app);
   if (base.is_open()) {
     base << tabela << endl;
     base.close();
+  } else {
+    cout << "Erro ao criar arquivo base.txt\n";
   }
 
   string tab = "tabelas/", meta = "tabelas/";
@@ -60,28 +60,40 @@ int Comandos::criarArquivoComNomeTabela(string tabela, string* campos) {
   return SUCCESS;
 }
 
-void Comandos::apagaArquivoComNomeTabela(string tabela) {
+int Comandos::apagaArquivoComNomeTabela(string tabela) {
   string base = "./tabelas/base.txt";
   ifstream arquivo_base;
-  ofstream temp;
   arquivo_base.open(base);
-  temp.open("./tabelas/temp.txt");
   // tenta abrir arquivo base e temp
-  if (!arquivo_base.is_open() || !temp.is_open()) {
+  if (!arquivo_base.is_open()) {
     cout << "Erro ao abrir arquivo base.txt\n";
-    return;
+    return FINISH_PROGRAM;
+  }
+  // verificar se tabela existe
+  string linha;
+  bool existe = false;
+  while (getline(arquivo_base, linha) && !existe) {
+    if (linha == tabela)
+      existe = true;
+  }
+  if (!existe) {
+    cout << "Tabela: " + tabela + " não existe!" << endl
+         << "Finalizando execução." << endl;
+    return FINISH_PROGRAM;
   }
   // tenta remover arquivo com tabela e metadados
   string arquivo_tabela = "./tabelas/" + tabela + "_TAB.txt";
   string arquivo_meta = "./tabelas/" + tabela + "_META.txt";
   if (remove(arquivo_tabela.c_str()) != 0) {
     cout << "Erro ao tentar remover arquivo: " << arquivo_tabela << "\n";
-    return;
+    return FINISH_PROGRAM;
   }
   if (remove(arquivo_meta.c_str()) != 0) {
     cout << "Erro ao tentar remover arquivo: " << arquivo_meta << "\n";
-    return;
+    return FINISH_PROGRAM;
   } else {
+    ofstream temp;
+    temp.open("./tabelas/temp.txt");
     // copia e remocao de dados da tabela para novo arquivo temp
     cout << "Apagando tabela " << tabela << "\n";
     string input;
@@ -96,6 +108,7 @@ void Comandos::apagaArquivoComNomeTabela(string tabela) {
     }
     rename("./tabelas/temp.txt", "./tabelas/base.txt");
   }
+  return FINISH_PROGRAM;
 }
 
 void Comandos::resumoDaTabela(string tabela) {
@@ -134,8 +147,7 @@ void Comandos::listarTabelas() {
 }
 
 // retirado de https://stackoverflow.com/questions/4654636/how-to-determine-if-a-string-is-a-number-with-c
-bool is_number(const std::string& s)
-{
+bool is_number(const std::string& s) {
     return !s.empty() && std::find_if(s.begin(), 
         s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
 }
