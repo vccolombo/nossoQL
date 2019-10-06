@@ -530,18 +530,27 @@ int Comandos::firstFit(string tabela, vector<string> inserir) {
   int tam_disponivel = 0;
   int qtd_linhas = 0;
   int percorrido_pos = 0;
-  while (getline(arquivo_tabela, linha) && tam_disponivel < tam_inserir) {
-    tam_disponivel = stoi(linha.substr(0, linha.find('#')));
-    percorrido_pos += linha.size();
-    qtd_linhas++;
+  while (tam_disponivel < tam_inserir && getline(arquivo_tabela, linha)) {
+    if (linha.find('#') != string::npos) {
+      tam_disponivel = stoi(linha.substr(0, linha.find('#')));
+      if (tam_inserir > tam_disponivel) {
+        percorrido_pos += linha.size();
+        qtd_linhas++;
+      }
+    } else {
+      percorrido_pos += linha.size();
+      qtd_linhas++;
+    }
   }
+  
   arquivo_tabela.close();
-  if (linha.find('#') == -1)
+  if (linha.find('#') == string::npos)
     return 0;
   
   // verifica se o espaco valido possui tamanho suficiente
   if (tam_disponivel < tam_inserir) {
     return 0;
+
   } else {
      // insere no espaco disponivel
     percorrido_pos += 2 * qtd_linhas;
