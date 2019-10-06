@@ -198,6 +198,11 @@ void Comandos::inserirRegistro(string tabela, string registro) {
   }
 }
 
+bool linhaInvalida(string linha) {
+  return linha.find('#');
+  
+}
+
 void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
 
   ifstream file; //Leitura do arquivo
@@ -253,7 +258,9 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
     cout << "Busca em " << tabela << " todos com critério " << busca
               << '\n';
     do{      
-      getline(file, linha_busca); //Armazena a linha em linha_busca     
+      getline(file, linha_busca); //Armazena a linha em linha_busca
+      if (linhaInvalida(linha_busca)) continue; // Ignora linha inválida
+           
       vetor_linha_busca = parseBuscaMetaDados(linha_busca); //Armazena os campos da linha atual
       //Evita segmentation fault quando pega uma linha vazia.
       if (linha_busca != ""){
@@ -274,6 +281,7 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
     // Busca até encontrar o primeiro campo igual ao conteúdo da busca
     do{
       getline(file, linha_busca);
+      if (linhaInvalida(linha_busca)) continue; // Ignora linha inválida
       vetor_linha_busca = parseBuscaMetaDados(linha_busca);
       //Evita segmentation fault quando pega uma linha vazia.
       if (linha_busca != ""){
