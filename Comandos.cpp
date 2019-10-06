@@ -265,13 +265,18 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca)
     do
     {
       getline(file, linha_busca); //Armazena a linha em linha_busca
-      if (linhaInvalida(linha_busca))
-        continue; // Ignora linha inválida
+      // Ignora linha inválida
+      if (linhaInvalida(linha_busca)) { 
+        cout << "ignorado" << '\n';
+        indice_no_txt++;
+        continue;
+      } 
 
       vetor_linha_busca = parseBuscaMetaDados(linha_busca); //Armazena os campos da linha atual
       //Evita segmentation fault quando pega uma linha vazia.
       if (linha_busca != "")
       {
+        cout << linha_busca << endl;
         if (vetor_linha_busca[indice_campo] == elemento_b)
         { //Compara o conteúdo do campo com o conteúdo da busca
           encontrou = true;
@@ -292,8 +297,12 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca)
       do
       {
         getline(file, linha_busca);
-        if (linhaInvalida(linha_busca))
-          continue; // Ignora linha inválida
+        // Ignora linha inválida
+        if (linhaInvalida(linha_busca)) { 
+          cout << "ignorado" << '\n';
+          indice_no_txt++;
+          continue;
+        } 
         vetor_linha_busca = parseBuscaMetaDados(linha_busca);
         //Evita segmentation fault quando pega uma linha vazia.
         if (linha_busca != "")
