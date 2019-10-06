@@ -199,7 +199,7 @@ void Comandos::inserirRegistro(string tabela, string registro) {
 }
 
 bool linhaInvalida(string linha) {
-  return linha.find('#');
+  return linha.find('#') != string::npos;
   
 }
 
