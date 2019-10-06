@@ -33,7 +33,7 @@ public:
   string* parseCampoCT(string input);
   string horaatual();
   vector<string> parseBuscaMetaDados(string dados_meta);
-
+  int firstFit(string tabela, vector<string>inserir);
 private:
   vector<string> parseInsercao(string registro);
   vector<string> getVetorDeMetadados(string tabela);

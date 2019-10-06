@@ -179,22 +179,23 @@ void Comandos::inserirRegistro(string tabela, string registro) {
     }
     
   }
-  
-  
-
-  ofstream file;
-  file.open("tabelas/" + tabela + "_TAB.txt", ios_base::app);
-  if (file.fail()) {
-    // TODO o arquivo não existe (a tabela não foi criada)
-    std::cout << "ERRO" << '\n';
-    return;
+  // firstFit retorna 0 caso nao exista espacos marcados como invalido
+  // neste caso, a insercao ocorre no fim do arquivo
+  if (firstFit(tabela, inserir) == 0) {
+    ofstream file;
+    file.open("tabelas/" + tabela + "_TAB.txt", ios_base::app);
+    if (file.fail()) {
+      // TODO o arquivo não existe (a tabela não foi criada)
+      std::cout << "ERRO" << '\n';
+      return;
+    }
+    // escrever no arquivo cada entrada do vetor inserir
+    for (auto reg : inserir) {
+      file << reg << ';';
+    }
+    file << '\n';
+    file.close();
   }
-  // escrever no arquivo cada entrada do vetor inserir
-  for (auto reg : inserir) {
-    file << reg << ';';
-  }
-  file << '\n';
-  file.close();
 }
 
 void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
@@ -486,6 +487,50 @@ vector<string> Comandos::parseInsercao(string registro) {
   }
   cout << '\n';
   return insercoes;
+}
+
+int Comandos::firstFit(string tabela, vector<string> inserir) {
+  tabela = "./tabelas/" + tabela + "_TAB.txt";
+  // calcula o tamanho da nova insercao
+  int tam_inserir = 0;
+  for (auto reg : inserir)
+    tam_inserir += reg.size() + 1;
+  // le o arquivo e verifica se existe algum espaco valido para insercao
+  ifstream arquivo_tabela;
+  arquivo_tabela.open(tabela);
+  string linha;
+  int tam_disponivel = 0;
+  int qtd_linhas = 0;
+  int percorrido_pos = 0;
+  while (getline(arquivo_tabela, linha) && tam_disponivel < tam_inserir) {
+    tam_disponivel = stoi(linha.substr(0, linha.find('#')));
+    percorrido_pos += linha.size();
+    qtd_linhas++;
+  }
+  arquivo_tabela.close();
+  if (linha.find('#') == -1)
+    return 0;
+  
+  // verifica se o espaco valido possui tamanho suficiente
+  if (tam_disponivel < tam_inserir) {
+    return 0;
+  } else {
+     // insere no espaco disponivel
+    percorrido_pos += 2 * qtd_linhas;
+    FILE *arquivo;
+    arquivo = fopen(tabela.c_str(), "r+");
+    fseek(arquivo, percorrido_pos, SEEK_SET);
+    for (auto reg : inserir) {
+      fprintf(arquivo, reg.c_str());
+      fprintf(arquivo, ";");
+    }
+    int remanescente = tam_disponivel - tam_inserir;
+    for (int i = 0; i < remanescente; i++) {
+      fprintf(arquivo, "|");
+    }
+    fclose(arquivo);
+    return 1;
+  }
 }
 
 //Retorna em um vetor todo o conteúdo entre ;
