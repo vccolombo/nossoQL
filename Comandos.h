@@ -34,6 +34,9 @@ public:
   string horaatual();
   vector<string> parseBuscaMetaDados(string dados_meta);
   int firstFit(string tabela, vector<string>inserir);
+  void inserirListaReutilizacao(string tabela, int linha, int tamanho);
+  int encontrarOndeInserir(string tabela, int tamanhoParaInserir);
+  void removerDaListaDeEspacosDisponiveis(string tabela, int linha);
 private:
   vector<string> parseInsercao(string registro);
   vector<string> getVetorDeMetadados(string tabela);

@@ -579,6 +579,57 @@ int Comandos::firstFit(string tabela, vector<string> inserir) {
   }
 }
 
+void Comandos::inserirListaReutilizacao(string tabela, int linha, int tamanho) {
+  tabela = "./tabelas/" + tabela + "_ESPACOS.txt";
+  ofstream arquivo_tabela;
+  arquivo_tabela.open(tabela, ios::app);
+  arquivo_tabela << linha << "," << tamanho << "\n"; 
+}
+
+int Comandos::encontrarOndeInserir(string tabela, int tamanhoParaInserir) {
+  tabela = "./tabelas/" + tabela + "_ESPACOS.txt";
+  ifstream arquivo_tabela;
+  arquivo_tabela.open(tabela);
+
+  string linha;
+  while (getline(arquivo_tabela, linha)) {
+    int linha_com_espaco_disponivel = stoi(retornaPalavraDeInput(linha, ','));
+    int quantidade_de_espacos_disponiveis = stoi(retornaPalavraDeInput(linha, ','));
+
+    if (quantidade_de_espacos_disponiveis > tamanhoParaInserir) {
+      return linha_com_espaco_disponivel;
+    }
+  }
+
+  return -1; // -1 se não há espaços disponíveis
+}
+
+void Comandos::removerDaListaDeEspacosDisponiveis(string tabela, int linha) {
+  tabela = "./tabelas/" + tabela + "_ESPACOS.txt";
+  ifstream arquivo_tabela;
+  arquivo_tabela.open(tabela);
+
+  string temp = "./tabelas/temp.txt";
+  ofstream arquivo_temp;
+  arquivo_temp.open(temp);
+
+  string linha_atual;
+  while (getline(arquivo_tabela, linha_atual)) {
+    int linha_com_espaco_disponivel = stoi(retornaPalavraDeInput(linha_atual, ','));
+    int quantidade_de_espacos_disponiveis = stoi(retornaPalavraDeInput(linha_atual, ','));
+    if (linha_com_espaco_disponivel != linha) {
+      arquivo_temp << linha_com_espaco_disponivel << ',' << quantidade_de_espacos_disponiveis << endl;
+    }    
+  }
+
+  arquivo_temp.close();
+  arquivo_tabela.close();
+
+  const char * p = tabela.c_str(); // required conversion for remove and rename functions
+  remove(p);
+  rename(temp.c_str(), tabela.c_str());
+}
+
 //Retorna em um vetor todo o conteúdo entre ;
 vector<string> Comandos::parseBuscaMetaDados(string dados_meta){
   vector<string> resposta;
