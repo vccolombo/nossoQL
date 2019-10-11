@@ -3,15 +3,13 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include <stdio.h>
-#include <time.h>       /* time_t, struct tm, time, localtime */
 
 using namespace std;
 
 #define SUCCESS 0
 #define FINISH_PROGRAM 1
 
-int interpretadorDeComandos (Comandos &comando, string &input, int modo_interativo = 1) {
+int interpretadorDeComandos (Comandos &comando, string &input, int modo_interativo, string &tab_ultima_busca, vector<int> &vet_busca) {
   string palavra_chave;
   palavra_chave = comando.retornaPalavraDeInput(input, ' ');
   // Transformar comando para UPPER (retirar case sensitiviness)
@@ -61,10 +59,13 @@ int interpretadorDeComandos (Comandos &comando, string &input, int modo_interati
     string tabela = comando.retornaPalavraDeInput(input, ' ');
     string busca = comando.retornaPalavraDeInput(input, ';');
     if (tabela.length() > 0 && modifier.length() > 0 && busca.length() > 0) {
-    comando.buscaEmTabela(modifier, tabela, busca);
-    } else {
+      tab_ultima_busca = tabela;
+      vet_busca = comando.buscaEmTabela(modifier, tabela, busca);
+      for (int i = 0; i < vet_busca.size(); i++)
+		    cout << vet_busca.at(i) << ' ';
+      cout << "<" << endl;
+    } else
       cout << "Erro: entrada incompleta." << "\n";
-    }
   }
   else if (palavra_chave == "AR") {
     string tabela = comando.retornaPalavraDeInput(input, ' ');
@@ -76,8 +77,13 @@ int interpretadorDeComandos (Comandos &comando, string &input, int modo_interati
   }
   else if (palavra_chave == "RR") {
     string tabela = comando.retornaPalavraDeInput(input, ' ');
+
+
     if (tabela.length() > 0) {
-      comando.removeRegistrosUltimaBusca(tabela);
+      if (tab_ultima_busca == tabela)
+       comando.removeRegistrosUltimaBusca(tabela, vet_busca);
+      else
+        cout << "Erro: a ultima busca nao corresponde a tabela:" << tabela << endl;
     } else {
       cout << "Erro: entrada incompleta." << "\n";
     }
@@ -105,7 +111,7 @@ int interpretadorDeComandos (Comandos &comando, string &input, int modo_interati
   else if (palavra_chave == "GI") {
     string tabela = comando.retornaPalavraDeInput(input, ' ');
     string chave = comando.retornaPalavraDeInput(input, ' ');
-    if (tabela.length() > 0 && chave.length() > 0) { 
+    if (tabela.length() > 0 && chave.length() > 0) {
       comando.geraNovoIndiceDeTabelaChave(tabela, chave);
     } else {
       cout << "Erro: entrada incompleta." << "\n";
@@ -139,41 +145,34 @@ int interpretadorDeComandos (Comandos &comando, string &input, int modo_interati
   return SUCCESS;
 }
 
-int main() {
+int main(int argc, char *argv[]) {
   Comandos comando;
   string input = "";
-  string modo;
-  // Opcao de selecionar modo interativo ou ler um arquivo
-  cout << "Digite I para modo interativo ou F para leitura de arquivo:\t";
-  cin >> modo;
-  transform(modo.begin(), modo.end(), modo.begin(), ::toupper);
-  // se modo == F, abrir arquivo
-  if (modo == "F") {
-    cout << "Digite o nome do arquivo:\t";
-    cin >> input;
-    cout << "\n\n";
-    ifstream arquivo(input);
-    if (arquivo.is_open()) {
-      int code_result = SUCCESS;
-      while (getline(arquivo, input) && code_result != FINISH_PROGRAM) {
-        code_result = interpretadorDeComandos(comando, input, 0);
+  string tab_ultima_busca;
+  vector<int> vet_busca;
+  int code_result = SUCCESS;
+
+  if(argv[1] != NULL){
+    cout << "Modo arquivo, trabalhando com: " << argv[1] << endl;
+    ifstream myfile(argv[1]);
+
+    if(myfile.is_open()){
+      while(getline(myfile, input) && code_result != FINISH_PROGRAM){
+        code_result = interpretadorDeComandos(comando, input, 0,tab_ultima_busca,vet_busca);
       }
-    } else {
-      cout << "Erro ao abrir arquivo.\nFinalizando execução.\n";
+    }
+    else{
+      cout << "Erro ao abrir arquivo.\n Finalizando Execução.\n";
     }
   }
-  // se modo == I, utilize o terminal do interpretador
-  else if (modo == "I") {
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    int code_result = SUCCESS;
+  else{
     while (code_result != FINISH_PROGRAM) {
       cout << ">>> ";
       getline(cin, input);
-      code_result = interpretadorDeComandos(comando, input);
+      code_result = interpretadorDeComandos(comando, input,1,tab_ultima_busca,vet_busca);
+
     }
-  } else {
-    cout << "Comando Invalido.\nFinalizando execução.\n";
   }
-  cout << "Execução finalizada.\n";
+
   return 0;
 }

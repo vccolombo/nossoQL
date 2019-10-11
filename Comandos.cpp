@@ -1,4 +1,6 @@
 #include "Comandos.h"
+#include <vector>
+#include <iostream>
 
 using namespace std;
 vector<string> _buscas;
@@ -203,16 +205,14 @@ bool linhaInvalida(string linha) {
   
 }
 
-void Comandos::buscaEmTabela(string modifier, string tabela, string busca)
-{
-
+vector<int> Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
   ifstream file; //Leitura do arquivo
+  vector<int> vet_buscas;
   file.open("tabelas/" + tabela + "_TAB.txt");
-  if (file.fail())
-  {
+  if (file.fail()) {
     // TODO o arquivo não existe (a tabela não foi criada)
     std::cout << "Não foi possível encontrar a Tabela." << '\n';
-    return;
+    return vet_buscas;
   }
 
   vector<string> linha_meta_dados = getVetorDeMetadados(tabela);
@@ -230,23 +230,20 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca)
   int indice_campo; // Armazena a posição do campo que foi encontrado na busca
 
   //Percorre todos os campos presentes no meta, e ao encontrar o campo necessário pra busca, armazena sua posição em indice_campo
-  while (i < quantidade_de_campos)
-  {
+  while (i < quantidade_de_campos) {
     size_t pos_dois_pontos = linha_meta_dados[3 + i].find(":");
     string campo = linha_meta_dados[3 + i].substr(pos_dois_pontos + 1);
     nomes_campos.push_back(campo); //Insere o nome do campo no vetor
     // Se o campo for igual ao campo da busca, armazena a posição
-    if (campo == campo_b)
-    {
+    if (campo == campo_b) {
       indice_campo = i;
       existe_campo = true;
     }
     i++;
-  };
-  if (!existe_campo)
-  {
+  }
+  if (!existe_campo) {
     cout << "Não foi possível encontrar o campo" << endl;
-    return;
+    return vet_buscas;
   }
 
   // Linha busca = 1;2;3;4;
@@ -258,12 +255,10 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca)
   bool encontrou = false;
   bool existe_nas_buscas = false;
 
-  if (modifier == "N")
-  {
+  if (modifier == "N") {
     cout << "Busca em " << tabela << " todos com critério " << busca
          << '\n';
-    do
-    {
+    do {
       getline(file, linha_busca); //Armazena a linha em linha_busca
       // Ignora linha inválida
       if (linhaInvalida(linha_busca)) { 
@@ -274,81 +269,68 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca)
 
       vetor_linha_busca = parseBuscaMetaDados(linha_busca); //Armazena os campos da linha atual
       //Evita segmentation fault quando pega uma linha vazia.
-      if (linha_busca != "")
-      {
+      if (linha_busca != "") {
         cout << linha_busca << endl;
-        if (vetor_linha_busca[indice_campo] == elemento_b)
-        { //Compara o conteúdo do campo com o conteúdo da busca
+        if (vetor_linha_busca[indice_campo] == elemento_b) { 
+          //Compara o conteúdo do campo com o conteúdo da busca
           encontrou = true;
+          vet_buscas.push_back(indice_no_txt);
           resultado_busca += to_string(indice_no_txt) + ';';
         }
       }
       indice_no_txt++;
     } while (!file.eof());
   }
-  else
-  {
-    if (modifier == "U")
-    {
-      cout << "Busca em " << tabela << " primeiro com critério " << busca
-           << '\n';
+  else if (modifier == "U") {
+    cout << "Busca em " << tabela << " primeiro com critério " << busca
+          << '\n';
 
-      // Busca até encontrar o primeiro campo igual ao conteúdo da busca
-      do
-      {
-        getline(file, linha_busca);
-        // Ignora linha inválida
-        if (linhaInvalida(linha_busca)) { 
-          cout << "ignorado" << '\n';
-          indice_no_txt++;
-          continue;
-        } 
-        vetor_linha_busca = parseBuscaMetaDados(linha_busca);
-        //Evita segmentation fault quando pega uma linha vazia.
-        if (linha_busca != "")
-        {
-          if (vetor_linha_busca[indice_campo] == elemento_b)
-          {
-            encontrou = true;
-            resultado_busca += to_string(indice_no_txt);
-          }
-        }
+    // Busca até encontrar o primeiro campo igual ao conteúdo da busca
+    do {
+      getline(file, linha_busca);
+      // Ignora linha inválida
+      if (linhaInvalida(linha_busca)) { 
+        cout << "ignorado" << '\n';
         indice_no_txt++;
-      } while (!file.eof() && !encontrou);
-    }
-    else
-    {
-      cout << "Modificador não reconhecido: " << modifier << ". Utilize N para fazer a busca, na tabela, de todos os registros que satisfaçam o critério de busca e U para fazer a busca, na tabela, do primeiro registro que satisfaça o critério. \n";
-      return;
-    }
+        continue;
+      } 
+      vetor_linha_busca = parseBuscaMetaDados(linha_busca);
+      //Evita segmentation fault quando pega uma linha vazia.
+      if (linha_busca != "") {
+        if (vetor_linha_busca[indice_campo] == elemento_b) {
+          encontrou = true;
+          vet_buscas.push_back(indice_no_txt);
+          resultado_busca += to_string(indice_no_txt);
+        }
+      }
+      indice_no_txt++;
+    } while (!file.eof() && !encontrou);
   }
-  if (encontrou)
-  {
-    if (!_buscas.size())
-    {
+  else { // Modificador incorreto
+      cout << "Modificador não reconhecido: " << modifier << ". Utilize N para fazer a busca, na tabela, de todos os registros que satisfaçam o critério de busca e U para fazer a busca, na tabela, do primeiro registro que satisfaça o critério. \n";
+      return vet_buscas;
+  }
+  if (encontrou) {
+    if (!_buscas.size()) {
       _buscas.insert(_buscas.end(), resultado_busca);
     }
-    else
-    {
-      for (i = 0; i < _buscas.size(); i++)
-      {
-        if (retornaPalavraDeInput(_buscas[i], ':') == tabela)
-        {
+    else {
+      for (i = 0; i < _buscas.size(); i++) {
+        if (retornaPalavraDeInput(_buscas[i], ':') == tabela) {
           _buscas[i] = resultado_busca;
           existe_nas_buscas = true;
         }
       }
-      if (!existe_nas_buscas)
-      {
+      if (!existe_nas_buscas) {
         _buscas.insert(_buscas.end(), resultado_busca);
       }
     }
     cout << "REGISTRO ENCONTRADO" << endl;
   }
-  else
-  {
+  else {
     cout << "REGISTRO NÃO ENCONTRADO" << endl;
   }
+  return vet_buscas;
 }
 
 void Comandos::apresentarRegistrosUltimaBusca(string tabela) {
@@ -410,8 +392,68 @@ void Comandos::apresentarRegistrosUltimaBusca(string tabela) {
 
 }
 
-void Comandos::removeRegistrosUltimaBusca(string tabela) {
+
+void Comandos::removeRegistrosUltimaBusca(string tabela, vector<int> vetor_busca){
+  
+  FILE* ofile; //escrita no arquivo
+  ifstream ifile; //Leitura do arquivo
+  string linha, buffer;
+
+  //linha_atual guarda qual linha está sendo lida pelo getline
+  //pos_atual guarda a posição que será escrita a invalidez
+  int linha_atual = 0, pos_atual=0; 
+  int tam_linha=0;
+  unsigned long int quant_removido = 0;
+  int i = 0;
+  
+  //cout << "removidos: " << quant_removido << "/" << vetor_busca.size() << endl;
+  do {
+    //reinicializadas após toda remoção
+    linha_atual = 0;
+    pos_atual = 0;
+
+    ifile.open("tabelas/" + tabela + "_TAB.txt", ios_base::app);
+    ifile.seekg(0,ios_base::beg); //ponteiro retorna ao começo do arquivo
+
+    while(linha_atual != vetor_busca[i]){
+      getline(ifile,linha);
+      pos_atual += strlen(linha.c_str());
+      linha_atual++;
+
+      //cout << "--------------------------------" << endl;
+      //cout << "LINHA: [" << linha << "]"<< endl;
+      //cout << "tam_linha: " << tam_linha << ", pos_atual: " << pos_atual << endl;
+    } 
+    
+    //se a linha atual é a que foi marcada na busca, iremos pegar o tamanho da linha
+    //antes de invalidar o registro
+    if(linha_atual==vetor_busca[i]){
+      getline(ifile,linha);
+      tam_linha = strlen(linha.c_str());
+    }
+    ifile.close();
+
+    ofile = fopen(("tabelas/" + tabela + "_TAB.txt").c_str(),"r+");
+    if(linha_atual == vetor_busca[i]){
+      fseek(ofile, pos_atual+linha_atual, SEEK_SET);
+      buffer = to_string(tam_linha) + "#";
+      fprintf(ofile,buffer.c_str());
+      pos_atual += tam_linha;
+      linha_atual++;
+      i++;
+      quant_removido++;
+      
+      //cout << "removidos: " << quant_removido << "/" << vetor_busca.size() << endl;
+    }
+    fclose(ofile);
+    
+
+  }while(quant_removido != vetor_busca.size());
+  
+  
+  
   cout << "Remove registro da última busca em " << tabela << '\n';
+  
 }
 
 void Comandos::criaIndice(string modifier, string tabela, string chave) {
