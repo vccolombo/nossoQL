@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <iostream>
 #include <string>
+#include <fstream>
 using namespace std;
 
 #define SUCCESS 0
@@ -85,14 +86,31 @@ int interpretadorDeComandos (Comandos &comando, string &input) {
   return SUCCESS;
 }
 
-int main() {
+int main(int argc, char *argv[]) {
   Comandos comando;
   string input = "";
   int codeResult = SUCCESS;
-  while (codeResult != FINISH_PROGRAM) {
-    cout << ">>> ";
-    getline(cin, input);
-    codeResult = interpretadorDeComandos(comando, input);
+
+  if(argv[1] != NULL){
+    cout << "Modo arquivo, trabalhando com: " << argv[1] << endl;
+
+    ifstream myfile(argv[1]);
+
+    if(myfile.is_open()){
+      while(getline(myfile, input) && codeResult != FINISH_PROGRAM){
+        codeResult = interpretadorDeComandos(comando, input);
+      }
+    }
+    else{
+      cout << "Erro ao abrir arquivo.\n Finalizando Execução.\n"; 
+    }
+  }
+  else{
+    while (codeResult != FINISH_PROGRAM) {
+      cout << ">>> ";
+      getline(cin, input);
+      codeResult = interpretadorDeComandos(comando, input);
+    }
   }
 
   return 0;
