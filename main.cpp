@@ -3,12 +3,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-<<<<<<< HEAD
-=======
-#include <stdio.h>
-#include <time.h>       /* time_t, struct tm, time, localtime */
 
->>>>>>> origin/master
 using namespace std;
 
 #define SUCCESS 0
