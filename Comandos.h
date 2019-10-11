@@ -19,7 +19,7 @@ class Comandos {
 public:
   Comandos();
   int criarArquivoComNomeTabela(string tabela, string* campos);
-  void apagaArquivoComNomeTabela(string tabela);
+  int apagaArquivoComNomeTabela(string tabela);
   void resumoDaTabela(string tabela);
   void listarTabelas();
   void inserirRegistro(string tabela, string registro);
@@ -33,7 +33,7 @@ public:
   string* parseCampoCT(string input);
   string horaatual();
   vector<string> parseBuscaMetaDados(string dados_meta);
-
+  int firstFit(string tabela, vector<string>inserir);
 private:
   vector<string> parseInsercao(string registro);
   vector<string> getVetorDeMetadados(string tabela);
