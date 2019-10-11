@@ -324,7 +324,7 @@ vector<int> Comandos::buscaEmTabela(string modifier, string tabela, string busca
     else
     {
       cout << "Modificador não reconhecido: " << modifier << ". Utilize N para fazer a busca, na tabela, de todos os registros que satisfaçam o critério de busca e U para fazer a busca, na tabela, do primeiro registro que satisfaça o critério. \n";
-      return;
+      return vet_buscas;
     }
   }
   if (encontrou)
