@@ -3,8 +3,6 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include <stdio.h>
-#include <time.h>       /* time_t, struct tm, time, localtime */
 
 using namespace std;
 
@@ -139,41 +137,32 @@ int interpretadorDeComandos (Comandos &comando, string &input, int modo_interati
   return SUCCESS;
 }
 
-int main() {
+int main(int argc, char *argv[]) {
   Comandos comando;
   string input = "";
-  string modo;
-  // Opcao de selecionar modo interativo ou ler um arquivo
-  cout << "Digite I para modo interativo ou F para leitura de arquivo:\t";
-  cin >> modo;
-  transform(modo.begin(), modo.end(), modo.begin(), ::toupper);
-  // se modo == F, abrir arquivo
-  if (modo == "F") {
-    cout << "Digite o nome do arquivo:\t";
-    cin >> input;
-    cout << "\n\n";
-    ifstream arquivo(input);
-    if (arquivo.is_open()) {
-      int code_result = SUCCESS;
-      while (getline(arquivo, input) && code_result != FINISH_PROGRAM) {
-        code_result = interpretadorDeComandos(comando, input, 0);
+  int codeResult = SUCCESS;
+
+  if(argv[1] != NULL){
+    cout << "Modo arquivo, trabalhando com: " << argv[1] << endl;
+    ifstream myfile(argv[1]);
+
+    if(myfile.is_open()){
+      while(getline(myfile, input) && codeResult != FINISH_PROGRAM){
+        codeResult = interpretadorDeComandos(comando, input);
       }
-    } else {
-      cout << "Erro ao abrir arquivo.\nFinalizando execução.\n";
+    }
+    else{
+      cout << "Erro ao abrir arquivo.\n Finalizando Execução.\n"; 
     }
   }
-  // se modo == I, utilize o terminal do interpretador
-  else if (modo == "I") {
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    int code_result = SUCCESS;
-    while (code_result != FINISH_PROGRAM) {
+  else{
+    while (codeResult != FINISH_PROGRAM) {
       cout << ">>> ";
       getline(cin, input);
-      code_result = interpretadorDeComandos(comando, input);
+      codeResult = interpretadorDeComandos(comando, input);
     }
-  } else {
-    cout << "Comando Invalido.\nFinalizando execução.\n";
   }
-  cout << "Execução finalizada.\n";
+
   return 0;
 }
+
