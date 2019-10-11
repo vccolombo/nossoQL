@@ -150,14 +150,14 @@ int main(int argc, char *argv[]) {
   string input = "";
   string tab_ultima_busca;
   vector<int> vet_busca;
-  int codeResult = SUCCESS;
+  int code_result = SUCCESS;
 
   if(argv[1] != NULL){
     cout << "Modo arquivo, trabalhando com: " << argv[1] << endl;
     ifstream myfile(argv[1]);
 
     if(myfile.is_open()){
-      while(getline(myfile, input) && codeResult != FINISH_PROGRAM){
+      while(getline(myfile, input) && code_result != FINISH_PROGRAM){
         code_result = interpretadorDeComandos(comando, input, 0,tab_ultima_busca,vet_busca);
       }
     }
@@ -166,7 +166,7 @@ int main(int argc, char *argv[]) {
     }
   }
   else{
-    while (codeResult != FINISH_PROGRAM) {
+    while (code_result != FINISH_PROGRAM) {
       cout << ">>> ";
       getline(cin, input);
       code_result = interpretadorDeComandos(comando, input,1,tab_ultima_busca,vet_busca);
