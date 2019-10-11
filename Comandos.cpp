@@ -1,6 +1,7 @@
 #include "Comandos.h"
 #include <vector>
 #include <iostream>
+#include <cstdlib>
 
 using namespace std;
 vector<string> _buscas;
@@ -438,6 +439,7 @@ void Comandos::removeRegistrosUltimaBusca(string tabela, vector<int> vetor_busca
       fseek(ofile, pos_atual+linha_atual, SEEK_SET);
       buffer = to_string(tam_linha) + "#";
       fprintf(ofile,buffer.c_str());
+      inserirListaReutilizacao(tabela, pos_atual == 0? 0:pos_atual + 1, tam_linha);
       pos_atual += tam_linha;
       linha_atual++;
       i++;
@@ -448,7 +450,7 @@ void Comandos::removeRegistrosUltimaBusca(string tabela, vector<int> vetor_busca
     fclose(ofile);
     
 
-  }while(quant_removido != vetor_busca.size());
+  } while(quant_removido != vetor_busca.size());
   
   
   
@@ -569,6 +571,7 @@ vector<string> Comandos::parseInsercao(string registro) {
 }
 
 int Comandos::firstFit(string tabela, vector<string> inserir) {
+  string tabela_nao_modificada = tabela;
   tabela = "./tabelas/" + tabela + "_TAB.txt";
   // calcula o tamanho da nova insercao
   int tam_inserir = 0;
@@ -576,49 +579,84 @@ int Comandos::firstFit(string tabela, vector<string> inserir) {
     tam_inserir += reg.size() + 1;
   // le o arquivo e verifica se existe algum espaco valido para insercao
   ifstream arquivo_tabela;
-  arquivo_tabela.open(tabela);
   string linha;
-  int tam_disponivel = 0;
-  int qtd_linhas = 0;
-  int percorrido_pos = 0;
-  while (tam_disponivel < tam_inserir && getline(arquivo_tabela, linha)) {
-    if (linha.find('#') != string::npos) {
-      tam_disponivel = stoi(linha.substr(0, linha.find('#')));
-      if (tam_inserir > tam_disponivel) {
-        percorrido_pos += linha.size();
-        qtd_linhas++;
-      }
-    } else {
-      percorrido_pos += linha.size();
-      qtd_linhas++;
-    }
+  pair<int, int> par = encontrarOndeInserir(tabela_nao_modificada, tam_inserir);
+  int percorrido_pos = par.first;
+  int tam_disponivel = par.second;
+  if (percorrido_pos == -1) {
+    return 0;
   }
   
-  arquivo_tabela.close();
-  if (linha.find('#') == string::npos)
-    return 0;
-  
-  // verifica se o espaco valido possui tamanho suficiente
-  if (tam_disponivel < tam_inserir) {
-    return 0;
+  // insere no espaco disponivel
+  FILE *arquivo;
+  arquivo = fopen(tabela.c_str(), "r+");
+  fseek(arquivo, percorrido_pos, SEEK_SET);
+  for (auto reg : inserir) {
+    fprintf(arquivo, reg.c_str());
+    fprintf(arquivo, ";");
+  }
+  int remanescente = tam_disponivel - tam_inserir;
+  for (int i = 0; i < remanescente; i++) {
+    fprintf(arquivo, "|");
+  }
+  fclose(arquivo);
+  removerDaListaDeEspacosDisponiveis(tabela_nao_modificada, percorrido_pos);
+  return 1;
+}
 
-  } else {
-     // insere no espaco disponivel
-    percorrido_pos += 2 * qtd_linhas;
-    FILE *arquivo;
-    arquivo = fopen(tabela.c_str(), "r+");
-    fseek(arquivo, percorrido_pos, SEEK_SET);
-    for (auto reg : inserir) {
-      fprintf(arquivo, reg.c_str());
-      fprintf(arquivo, ";");
-    }
-    int remanescente = tam_disponivel - tam_inserir;
-    for (int i = 0; i < remanescente; i++) {
-      fprintf(arquivo, "|");
-    }
-    fclose(arquivo);
-    return 1;
+void Comandos::inserirListaReutilizacao(string tabela, int pos, int tamanho) {
+  tabela = "./tabelas/" + tabela + "_ESPACOS.txt";
+  ofstream arquivo_tabela;
+  arquivo_tabela.open(tabela, ios::app);
+  arquivo_tabela << pos << "," << tamanho << "\n"; 
+}
+
+pair<int, int> Comandos::encontrarOndeInserir(string tabela, int tamanhoParaInserir) {
+  tabela = "./tabelas/" + tabela + "_ESPACOS.txt";
+  ifstream arquivo_tabela;
+  arquivo_tabela.open(tabela);
+
+  if (!arquivo_tabela.is_open()) {
+    return make_pair(-1, -1);
   }
+
+  string linha;
+  while (getline(arquivo_tabela, linha)) {
+    int linha_com_espaco_disponivel = stoi(retornaPalavraDeInput(linha, ','));
+    int quantidade_de_espacos_disponiveis = stoi(retornaPalavraDeInput(linha, ','));
+
+    if (quantidade_de_espacos_disponiveis > tamanhoParaInserir) {
+      return make_pair(linha_com_espaco_disponivel, quantidade_de_espacos_disponiveis);
+    }
+  }
+
+  return make_pair(-1, -1); // -1 se não há espaços disponíveis
+}
+
+void Comandos::removerDaListaDeEspacosDisponiveis(string tabela, int linha) {
+  tabela = "./tabelas/" + tabela + "_ESPACOS.txt";
+  ifstream arquivo_tabela;
+  arquivo_tabela.open(tabela);
+
+  string temp = "./tabelas/temp.txt";
+  ofstream arquivo_temp;
+  arquivo_temp.open(temp);
+
+  string linha_atual;
+  while (getline(arquivo_tabela, linha_atual)) {
+    int linha_com_espaco_disponivel = stoi(retornaPalavraDeInput(linha_atual, ','));
+    int quantidade_de_espacos_disponiveis = stoi(retornaPalavraDeInput(linha_atual, ','));
+    if (linha_com_espaco_disponivel != linha) {
+      arquivo_temp << linha_com_espaco_disponivel << ',' << quantidade_de_espacos_disponiveis << endl;
+    }    
+  }
+
+  arquivo_temp.close();
+  arquivo_tabela.close();
+
+  const char * p = tabela.c_str(); // required conversion for remove and rename functions
+  remove(p);
+  rename(temp.c_str(), tabela.c_str());
 }
 
 //Retorna em um vetor todo o conteúdo entre ;
