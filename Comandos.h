@@ -2,14 +2,24 @@
 #define COMANDOS_H
 
 #include <iostream>
-#include <string>
+#include <algorithm>
+#include <fstream>
+#include <string.h>
+#include <cstdio>
+#include <time.h>       /* time_t, struct tm, time, localtime */
+#include <stdio.h>
+#include <vector>
+
 using namespace std;
+
+#define SUCCESS 0
+#define FINISH_PROGRAM 1
 
 class Comandos {
 public:
   Comandos();
-  void criarArquivoComNomeTabela(string tabela, string* campos);
-  void apagaArquivoComNomeTabela(string tabela);
+  int criarArquivoComNomeTabela(string tabela, string* campos);
+  int apagaArquivoComNomeTabela(string tabela);
   void resumoDaTabela(string tabela);
   void listarTabelas();
   void inserirRegistro(string tabela, string registro);
@@ -21,9 +31,12 @@ public:
   void geraNovoIndiceDeTabelaChave(string tabela, string chave);
   string retornaPalavraDeInput (string &input, char delimitador, bool removerEspacosAfrente = true);
   string* parseCampoCT(string input);
-
+  string horaatual();
+  vector<string> parseBuscaMetaDados(string dados_meta);
+  int firstFit(string tabela, vector<string>inserir);
 private:
-  void parseInsercao(string registro);
+  vector<string> parseInsercao(string registro);
+  vector<string> getVetorDeMetadados(string tabela);
 };
 
 #endif
