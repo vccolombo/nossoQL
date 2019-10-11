@@ -9,7 +9,7 @@ using namespace std;
 #define SUCCESS 0
 #define FINISH_PROGRAM 1
 
-int interpretadorDeComandos (Comandos &comando, string &input, int modo_interativo = 1) {
+int interpretadorDeComandos (Comandos &comando, string &input, int modo_interativo, string &tab_ultima_busca, vector<int> &vet_busca) {
   string palavra_chave;
   palavra_chave = comando.retornaPalavraDeInput(input, ' ');
   // Transformar comando para UPPER (retirar case sensitiviness)
@@ -59,10 +59,13 @@ int interpretadorDeComandos (Comandos &comando, string &input, int modo_interati
     string tabela = comando.retornaPalavraDeInput(input, ' ');
     string busca = comando.retornaPalavraDeInput(input, ';');
     if (tabela.length() > 0 && modifier.length() > 0 && busca.length() > 0) {
-    comando.buscaEmTabela(modifier, tabela, busca);
-    } else {
+      tab_ultima_busca = tabela;
+      vet_busca = comando.buscaEmTabela(modifier, tabela, busca);
+      for (int i = 0; i < vet_busca.size(); i++)
+		    cout << vet_busca.at(i) << ' ';
+      cout << "<" << endl;
+    } else
       cout << "Erro: entrada incompleta." << "\n";
-    }
   }
   else if (palavra_chave == "AR") {
     string tabela = comando.retornaPalavraDeInput(input, ' ');
@@ -74,8 +77,13 @@ int interpretadorDeComandos (Comandos &comando, string &input, int modo_interati
   }
   else if (palavra_chave == "RR") {
     string tabela = comando.retornaPalavraDeInput(input, ' ');
+
+
     if (tabela.length() > 0) {
-      comando.removeRegistrosUltimaBusca(tabela);
+      if (tab_ultima_busca == tabela)
+       comando.removeRegistrosUltimaBusca(tabela, vet_busca);
+      else
+        cout << "Erro: a ultima busca nao corresponde a tabela:" << tabela << endl;
     } else {
       cout << "Erro: entrada incompleta." << "\n";
     }
@@ -103,7 +111,7 @@ int interpretadorDeComandos (Comandos &comando, string &input, int modo_interati
   else if (palavra_chave == "GI") {
     string tabela = comando.retornaPalavraDeInput(input, ' ');
     string chave = comando.retornaPalavraDeInput(input, ' ');
-    if (tabela.length() > 0 && chave.length() > 0) { 
+    if (tabela.length() > 0 && chave.length() > 0) {
       comando.geraNovoIndiceDeTabelaChave(tabela, chave);
     } else {
       cout << "Erro: entrada incompleta." << "\n";
@@ -140,6 +148,8 @@ int interpretadorDeComandos (Comandos &comando, string &input, int modo_interati
 int main(int argc, char *argv[]) {
   Comandos comando;
   string input = "";
+  string tab_ultima_busca;
+  vector<int> vet_busca;
   int codeResult = SUCCESS;
 
   if(argv[1] != NULL){
@@ -148,21 +158,21 @@ int main(int argc, char *argv[]) {
 
     if(myfile.is_open()){
       while(getline(myfile, input) && codeResult != FINISH_PROGRAM){
-        codeResult = interpretadorDeComandos(comando, input);
+        code_result = interpretadorDeComandos(comando, input, 0,tab_ultima_busca,vet_busca);
       }
     }
     else{
-      cout << "Erro ao abrir arquivo.\n Finalizando Execução.\n"; 
+      cout << "Erro ao abrir arquivo.\n Finalizando Execução.\n";
     }
   }
   else{
     while (codeResult != FINISH_PROGRAM) {
       cout << ">>> ";
       getline(cin, input);
-      codeResult = interpretadorDeComandos(comando, input);
+      code_result = interpretadorDeComandos(comando, input,1,tab_ultima_busca,vet_busca);
+
     }
   }
 
   return 0;
 }
-
