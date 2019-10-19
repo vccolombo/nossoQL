@@ -180,7 +180,6 @@ void Comandos::inserirRegistro(string tabela, string registro) {
         return;
       }
     }
-    
   }
   // firstFit retorna 0 caso nao exista espacos marcados como invalido
   // neste caso, a insercao ocorre no fim do arquivo
@@ -193,8 +192,14 @@ void Comandos::inserirRegistro(string tabela, string registro) {
       return;
     }
     // escrever no arquivo cada entrada do vetor inserir
+    int tamanho_insercao = 0;
     for (auto reg : inserir) {
+      tamanho_insercao += reg.size();
       file << reg << ';';
+    }
+    tamanho_insercao = MIN_SIZE - ++tamanho_insercao;
+    for (int i = 0; i < tamanho_insercao; i++) {
+      file << '|';
     }
     file << '\n';
     file.close();
@@ -393,69 +398,63 @@ void Comandos::apresentarRegistrosUltimaBusca(string tabela) {
 
 }
 
-
 void Comandos::removeRegistrosUltimaBusca(string tabela, vector<int> vetor_busca){
-  
-  FILE* ofile; //escrita no arquivo
-  ifstream ifile; //Leitura do arquivo
-  string linha, buffer;
+  tabela = "tabelas/" + tabela + "_TAB.txt";
+  for (int i = 0; i < vetor_busca.size(); i++) {
+    ifstream arquivo;
+    arquivo.open(tabela);
+    arquivo.seekg(0, ios::beg);
 
-  //linha_atual guarda qual linha está sendo lida pelo getline
-  //pos_atual guarda a posição que será escrita a invalidez
-  int linha_atual = 0, pos_atual=0; 
-  int tam_linha=0;
-  unsigned long int quant_removido = 0;
-  int i = 0;
-  
-  //cout << "removidos: " << quant_removido << "/" << vetor_busca.size() << endl;
-  do {
-    //reinicializadas após toda remoção
-    linha_atual = 0;
-    pos_atual = 0;
+    int pos = 0;
+    Comandos::Removido anterior;
+    anterior.pos = -1;
+    Comandos::Removido atual;
+    Comandos::Removido posterior;
+    posterior.pos = -1;
 
-    ifile.open("tabelas/" + tabela + "_TAB.txt", ios_base::app);
-    ifile.seekg(0,ios_base::beg); //ponteiro retorna ao começo do arquivo
-
-    while(linha_atual != vetor_busca[i]){
-      getline(ifile,linha);
-      pos_atual += strlen(linha.c_str());
-      linha_atual++;
-
-      //cout << "--------------------------------" << endl;
-      //cout << "LINHA: [" << linha << "]"<< endl;
-      //cout << "tam_linha: " << tam_linha << ", pos_atual: " << pos_atual << endl;
-    } 
-    
-    //se a linha atual é a que foi marcada na busca, iremos pegar o tamanho da linha
-    //antes de invalidar o registro
-    if(linha_atual==vetor_busca[i]){
-      getline(ifile,linha);
-      tam_linha = strlen(linha.c_str());
+    int qtd_linha = -1;
+    string linha;
+    while (getline(arquivo, linha) && posterior.pos == -1) {
+      qtd_linha++;
+      if (qtd_linha == vetor_busca[i]) {
+        atual.pos = pos + (2 * qtd_linha);
+        atual.tamanho = linha.size();
+        atual.conteudo = linha;
+      } else {
+        if (qtd_linha < vetor_busca[i] && linha.find('#') != string::npos) {
+          anterior.pos = pos + (2 * qtd_linha);
+          anterior.tamanho = linha.size();
+          anterior.conteudo = linha;
+        }
+        else if (qtd_linha > vetor_busca[i] && linha.find('#') != string::npos) {
+          posterior.pos = pos + (2 * qtd_linha);
+          posterior.tamanho = linha.size();
+          posterior.conteudo = linha;
+        }
+      }
+      pos += linha.size(); 
     }
-    ifile.close();
+    arquivo.close();
 
-    ofile = fopen(("tabelas/" + tabela + "_TAB.txt").c_str(),"r+");
-    if(linha_atual == vetor_busca[i]){
-      fseek(ofile, pos_atual+linha_atual, SEEK_SET);
-      buffer = to_string(tam_linha) + "#";
-      fprintf(ofile,buffer.c_str());
-      inserirListaReutilizacao(tabela, pos_atual == 0? 0:pos_atual + 1, tam_linha);
-      pos_atual += tam_linha;
-      linha_atual++;
-      i++;
-      quant_removido++;
-      
-      //cout << "removidos: " << quant_removido << "/" << vetor_busca.size() << endl;
+    FILE *fp;
+    fp = fopen(tabela.c_str(), "r+");
+    if (anterior.pos != -1) {
+      retornaPalavraDeInput(anterior.conteudo, '#');
+      anterior.conteudo.erase(0, 1);
+      atual.prox = stoi(anterior.conteudo.substr(0, linha.find('#')));
+      anterior.prox = atual.pos;
+      anterior.buffer = to_string(anterior.tamanho) + "#" + to_string(anterior.prox) + '#';
+
+      fseek(fp, anterior.pos, SEEK_SET);
+      fprintf(fp, anterior.buffer.c_str());
     }
-    fclose(ofile);
-    
 
-  } while(quant_removido != vetor_busca.size());
-  
-  
-  
-  cout << "Remove registro da última busca em " << tabela << '\n';
-  
+    atual.prox = posterior.pos;
+    atual.buffer = to_string(atual.tamanho) + '#' + to_string(atual.prox) + '#';
+    fseek(fp, atual.pos, SEEK_SET);
+    fprintf(fp, atual.buffer.c_str());
+    fclose(fp);
+  }
 }
 
 void Comandos::criaIndice(string modifier, string tabela, string chave) {
@@ -479,6 +478,13 @@ void Comandos::removeIndiceChave(string tabela, string chave) {
 void Comandos::geraNovoIndiceDeTabelaChave(string tabela, string chave) {
   cout << "Gera novamente o indice de " << tabela << " referente a chave "
             << chave << '\n';
+}
+
+// retorna um "ponteiro" para o proximo espaco disponivel
+int Comandos::ponteiroProximo(string &linha) {
+  retornaPalavraDeInput(linha, '#');
+  linha.erase(0, 1);
+  return stoi(linha.substr(0, linha.find('#')));
 }
 
 // encontra o indice do delimitador na string input e retorna a palavra antes dele
@@ -570,93 +576,95 @@ vector<string> Comandos::parseInsercao(string registro) {
   return insercoes;
 }
 
+pair<Comandos::Removido, Comandos::Removido> Comandos::encontrarOndeInserir(string tabela, int tam_inserir) {
+  ifstream arquivo;
+  arquivo.open(tabela);
+  arquivo.seekg(0, ios::beg);
+
+  int tam_disponivel;
+  int tam_atual;
+  int melhor_tam = numeric_limits<int>::max();
+  int pos = 0;
+  int pos_prox;
+  int percorrido_pos;
+  int qtd_linha = 0;
+  Comandos::Removido melhor;
+  melhor.pos = -1;
+  Comandos::Removido anterior_melhor;
+  Comandos::Removido anterior;
+  anterior.pos = 0;
+  anterior.prox = 0;
+  
+  string linha;
+  while (getline(arquivo, linha)) {
+    if (linha.find('#') != string::npos) { 
+      tam_atual = linha.size();
+      tam_disponivel = tam_atual - tam_inserir;
+
+      pos = anterior.prox;
+      string copia_linha = linha;
+      pos_prox = ponteiroProximo(copia_linha);
+      if (tam_disponivel >= 0 && tam_disponivel <= melhor_tam) {
+        melhor_tam = tam_disponivel;
+        anterior_melhor.tamanho = anterior.tamanho;
+        anterior_melhor.pos = anterior.pos;
+
+        melhor.pos = pos;
+        melhor.tamanho = tam_atual;
+        melhor.prox = pos_prox;
+      }
+      anterior.tamanho = tam_atual;
+      anterior.pos = anterior.prox;
+      anterior.prox = pos_prox;
+      // mover para o proximo removido
+      arquivo.seekg(pos_prox, ios::beg);
+    }  else {
+      pos += linha.size();
+      qtd_linha++;
+      anterior.prox = pos + (2 * qtd_linha);
+      anterior.pos = anterior.prox;
+    }
+  }
+  arquivo.close();
+  return make_pair(anterior_melhor, melhor);
+}
+
 int Comandos::firstFit(string tabela, vector<string> inserir) {
-  string tabela_nao_modificada = tabela;
   tabela = "./tabelas/" + tabela + "_TAB.txt";
   // calcula o tamanho da nova insercao
   int tam_inserir = 0;
   for (auto reg : inserir)
     tam_inserir += reg.size() + 1;
+
   // le o arquivo e verifica se existe algum espaco valido para insercao
-  ifstream arquivo_tabela;
-  string linha;
-  pair<int, int> par = encontrarOndeInserir(tabela_nao_modificada, tam_inserir);
-  int percorrido_pos = par.first;
-  int tam_disponivel = par.second;
-  if (percorrido_pos == -1) {
+  auto par = encontrarOndeInserir(tabela, tam_inserir);
+  Comandos::Removido melhor_anterior = par.first;
+  Comandos::Removido melhor = par.second;
+  // retorna se nao ha espacos validos
+  if (melhor.pos == -1) {
     return 0;
   }
   
   // insere no espaco disponivel
   FILE *arquivo;
   arquivo = fopen(tabela.c_str(), "r+");
-  fseek(arquivo, percorrido_pos, SEEK_SET);
+  // mudar ponteiro da anterior
+  fseek(arquivo, melhor_anterior.pos, SEEK_SET);
+  melhor_anterior.buffer = to_string(melhor_anterior.tamanho) + '#' + to_string(melhor.prox) + '#';
+  fprintf(arquivo, melhor_anterior.buffer.c_str());
+  // nova insercao no espaco disponivel
+  fseek(arquivo, melhor.pos, SEEK_SET);
   for (auto reg : inserir) {
     fprintf(arquivo, reg.c_str());
     fprintf(arquivo, ";");
   }
-  int remanescente = tam_disponivel - tam_inserir;
+  int remanescente = melhor.tamanho - tam_inserir;
+  cout << remanescente;
   for (int i = 0; i < remanescente; i++) {
     fprintf(arquivo, "|");
   }
   fclose(arquivo);
-  removerDaListaDeEspacosDisponiveis(tabela_nao_modificada, percorrido_pos);
   return 1;
-}
-
-void Comandos::inserirListaReutilizacao(string tabela, int pos, int tamanho) {
-  tabela = "./tabelas/" + tabela + "_ESPACOS.txt";
-  ofstream arquivo_tabela;
-  arquivo_tabela.open(tabela, ios::app);
-  arquivo_tabela << pos << "," << tamanho << "\n"; 
-}
-
-pair<int, int> Comandos::encontrarOndeInserir(string tabela, int tamanhoParaInserir) {
-  tabela = "./tabelas/" + tabela + "_ESPACOS.txt";
-  ifstream arquivo_tabela;
-  arquivo_tabela.open(tabela);
-
-  if (!arquivo_tabela.is_open()) {
-    return make_pair(-1, -1);
-  }
-
-  string linha;
-  while (getline(arquivo_tabela, linha)) {
-    int linha_com_espaco_disponivel = stoi(retornaPalavraDeInput(linha, ','));
-    int quantidade_de_espacos_disponiveis = stoi(retornaPalavraDeInput(linha, ','));
-
-    if (quantidade_de_espacos_disponiveis > tamanhoParaInserir) {
-      return make_pair(linha_com_espaco_disponivel, quantidade_de_espacos_disponiveis);
-    }
-  }
-
-  return make_pair(-1, -1); // -1 se não há espaços disponíveis
-}
-
-void Comandos::removerDaListaDeEspacosDisponiveis(string tabela, int linha) {
-  tabela = "./tabelas/" + tabela + "_ESPACOS.txt";
-  ifstream arquivo_tabela;
-  arquivo_tabela.open(tabela);
-
-  string temp = "./tabelas/temp.txt";
-  ofstream arquivo_temp;
-  arquivo_temp.open(temp);
-
-  string linha_atual;
-  while (getline(arquivo_tabela, linha_atual)) {
-    int linha_com_espaco_disponivel = stoi(retornaPalavraDeInput(linha_atual, ','));
-    int quantidade_de_espacos_disponiveis = stoi(retornaPalavraDeInput(linha_atual, ','));
-    if (linha_com_espaco_disponivel != linha) {
-      arquivo_temp << linha_com_espaco_disponivel << ',' << quantidade_de_espacos_disponiveis << endl;
-    }    
-  }
-
-  arquivo_temp.close();
-  arquivo_tabela.close();
-
-  const char * p = tabela.c_str(); // required conversion for remove and rename functions
-  remove(p);
-  rename(temp.c_str(), tabela.c_str());
 }
 
 //Retorna em um vetor todo o conteúdo entre ;
