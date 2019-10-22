@@ -111,7 +111,7 @@ int Comandos::apagaArquivoComNomeTabela(string tabela) {
     }
     rename("./tabelas/temp.txt", "./tabelas/base.txt");
   }
-  return FINISH_PROGRAM;
+  return SUCCESS;
 }
 
 void Comandos::resumoDaTabela(string tabela) {
