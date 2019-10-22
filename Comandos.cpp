@@ -472,8 +472,43 @@ void Comandos::criaIndice(string modifier, string tabela, string chave) {
 }
 
 void Comandos::removeIndiceChave(string tabela, string chave) {
-  cout << "Remove o indice relativo a " << chave << " de " << tabela
-            << '\n';
+  string meta = "tabelas/";
+  meta.append(tabela);
+  meta.append("_META.txt");
+
+  string linha;
+  ifstream arquivo;
+  arquivo.open(meta);
+
+  ofstream temp;
+  temp.open("tabelas/temp.txt");
+  if (arquivo.is_open()) {
+    getline(arquivo, linha);
+    temp << linha << endl;
+    while (!arquivo.eof()) {
+      getline(arquivo,linha);
+      if (linha.find(chave) != string::npos) {
+        if (linha.find(" A") != string::npos) {
+          cout << "REMOVER ARVORE" << endl;
+        } else if (linha.find(" H") != string::npos) {
+          cout << "REMOVER HASH" << endl;
+        }
+      } else {
+        if (linha.size() != 0) {
+          temp << linha << endl;
+        }
+      }
+    }
+    arquivo.close();
+    temp.close();
+
+    const char * p = meta.c_str();
+    remove(p);
+    rename("tabelas/temp.txt", meta.c_str());
+  }
+  else{
+    cout << "Erro ao tentar ler metadados" << endl;
+  }
 }
 
 void Comandos::geraNovoIndiceDeTabelaChave(string tabela, string chave) {
