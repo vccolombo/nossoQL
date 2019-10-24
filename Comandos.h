@@ -37,9 +37,7 @@ public:
   string horaatual();
   vector<string> parseBuscaMetaDados(string dados_meta);
   int ponteiroProximo(string &linha);
-  int firstFit(string tabela, vector<string>inserir);
-  void inserirListaReutilizacao(string tabela, int pos, int tamanho);
-  void removerDaListaDeEspacosDisponiveis(string tabela, int linha);
+  int bestFit(string tabela, vector<string>inserir);
   typedef struct Removido{
     int pos;
     int prox;

@@ -183,7 +183,7 @@ void Comandos::inserirRegistro(string tabela, string registro) {
   }
   // firstFit retorna 0 caso nao exista espacos marcados como invalido
   // neste caso, a insercao ocorre no fim do arquivo
-  if (firstFit(tabela, inserir) == 0) {
+  if (bestFit(tabela, inserir) == 0) {
     ofstream file;
     file.open("tabelas/" + tabela + "_TAB.txt", ios_base::app);
     if (file.fail()) {
@@ -685,7 +685,7 @@ pair<Comandos::Removido, Comandos::Removido> Comandos::encontrarOndeInserir(stri
   return make_pair(anterior_melhor, melhor);
 }
 
-int Comandos::firstFit(string tabela, vector<string> inserir) {
+int Comandos::bestFit(string tabela, vector<string> inserir) {
   tabela = "./tabelas/" + tabela + "_TAB.txt";
   // calcula o tamanho da nova insercao
   int tam_inserir = 0;
