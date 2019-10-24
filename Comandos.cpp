@@ -488,7 +488,7 @@ int Comandos::criaIndice(string modifier, string tabela, string chave) {
   }
   
   if (campos != chave) {
-    cout << "Campo invalido.\nTerminando execução." << endl;
+    cout << "Erro: Campo invalido.\nTerminando execução." << endl;
     return FINISH_PROGRAM;
   }
 
@@ -501,7 +501,7 @@ int Comandos::criaIndice(string modifier, string tabela, string chave) {
   while (getline(arquivo, linha)) {
     // se o indice ja existe && tipo do indice ja existe
     if (linha.find(campos) != string::npos && linha.find(modifier) != string::npos) {
-      cout << "Índice já existe. Comando ignorado." << endl;
+      cout << "Erro: Índice já existe. Comando ignorado." << endl;
       return SUCCESS;
     }
   }
@@ -520,7 +520,7 @@ int Comandos::criaIndice(string modifier, string tabela, string chave) {
     cout << "Cria um índice usando hash para " << tabela
               << " usando a chave " << chave << '\n';
   } else {
-    cout << "Modificador não reconhecido: " << modifier << '\n'
+    cout << "Erro: Modificador não reconhecido: " << modifier << '\n'
 		 << "Utilize A para criar um índice estruturado como árvore de múltiplos caminhos para a tabela, usando chave como chave de busca, atualizando os metadados e  H para criar um índice usando hashing para a tabela, usando chave como chave de busca, atualizando os metadados. \n";
   }
   return SUCCESS;
