@@ -506,8 +506,7 @@ int Comandos::criaIndice(string modifier, string tabela, string chave) {
     }
   }
   arquivo.close();
-  cout << "C=" << chave << endl;
-  cout << "Campos=" << campos << endl;
+  
   // insere indice e tipo no arquivo de metadados
   ofstream arquivo_meta;
   arquivo_meta.open(tabela, ios::app);
