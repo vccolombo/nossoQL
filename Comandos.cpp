@@ -58,7 +58,7 @@ int Comandos::criarArquivoComNomeTabela(string tabela, string* campos) {
     arquivo_meta << campos[j] << ":" << campos[j + 1] << ";";
     j += 2;
   }
-  arquivo_meta << Comandos::horaatual() << ";" << endl;
+  arquivo_meta << Comandos::horaatual();
   arquivo_meta.close();
   return SUCCESS;
 }
@@ -457,7 +457,63 @@ void Comandos::removeRegistrosUltimaBusca(string tabela, vector<int> vetor_busca
   }
 }
 
-void Comandos::criaIndice(string modifier, string tabela, string chave) {
+int Comandos::criaIndice(string modifier, string tabela, string chave) {
+  tabela = "./tabelas/" + tabela + "_META.txt";
+  // verificar se a chave e valida
+  ifstream arquivo;
+  arquivo.open(tabela);
+  
+  // qtd de ";" ate os campos (ate o numero que indica a quantidade de campos)
+  int qtd_ate_campos = 2;
+  // qtd de campos
+  int qtd_campos;
+  string linha;
+  getline(arquivo, linha);
+  for (int i = 0; i < qtd_ate_campos; i++) {
+    retornaPalavraDeInput(linha, ';');
+  } linha.erase(0, 1);
+  qtd_campos = stoi(linha.substr(0, linha.find(';')));
+  // deixa a linha contendo apenas os campos em diante
+  retornaPalavraDeInput(linha, ';');
+  linha.erase(0, 1);
+
+  // armazena o tipo de cada campo em uma posicao do vector
+  string campos;
+  string tipo;
+  for (int i = 0; i < qtd_campos && campos != chave; i++) {
+    tipo = retornaPalavraDeInput(linha, ':');
+    linha.erase(0, 1);
+    campos = retornaPalavraDeInput(linha, ';');
+    linha.erase(0, 1);
+  }
+  
+  if (campos != chave) {
+    cout << "Campo invalido.\nTerminando execução." << endl;
+    return FINISH_PROGRAM;
+  }
+
+  if (tipo != "INT") {
+    cout << "Erro: Apenas campos inteiros (INT) podem ser indexados." << endl;
+    return SUCCESS;
+  }
+
+  // verificar se o indice ja existe
+  while (getline(arquivo, linha)) {
+    // se o indice ja existe && tipo do indice ja existe
+    if (linha.find(campos) != string::npos && linha.find(modifier) != string::npos) {
+      cout << "Índice já existe. Comando ignorado." << endl;
+      return SUCCESS;
+    }
+  }
+  arquivo.close();
+  cout << "C=" << chave << endl;
+  cout << "Campos=" << campos << endl;
+  // insere indice e tipo no arquivo de metadados
+  ofstream arquivo_meta;
+  arquivo_meta.open(tabela, ios::app);
+  arquivo_meta << campos + ' ' + modifier << endl; 
+  arquivo_meta.close();
+
   if (modifier == "A") {
     cout << "Cria um índice estruturado para " << tabela
               << " usando a chave " << chave << '\n';
@@ -468,6 +524,7 @@ void Comandos::criaIndice(string modifier, string tabela, string chave) {
     cout << "Modificador não reconhecido: " << modifier << '\n'
 		 << "Utilize A para criar um índice estruturado como árvore de múltiplos caminhos para a tabela, usando chave como chave de busca, atualizando os metadados e  H para criar um índice usando hashing para a tabela, usando chave como chave de busca, atualizando os metadados. \n";
   }
+  return SUCCESS;
 }
 
 void Comandos::removeIndiceChave(string tabela, string chave) {

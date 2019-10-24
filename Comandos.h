@@ -29,7 +29,7 @@ public:
   vector<int> buscaEmTabela(string modifier, string tabela, string busca);
   void apresentarRegistrosUltimaBusca(string tabela);
   void removeRegistrosUltimaBusca(string tabela, vector<int> vetor_busca);
-  void criaIndice(string modifier, string tabela, string chave);
+  int criaIndice(string modifier, string tabela, string chave);
   void removeIndiceChave(string tabela, string chave);
   void geraNovoIndiceDeTabelaChave(string tabela, string chave);
   string retornaPalavraDeInput (string &input, char delimitador, bool removerEspacosAfrente = true);
