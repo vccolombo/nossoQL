@@ -9,11 +9,14 @@
 #include <time.h>       /* time_t, struct tm, time, localtime */
 #include <stdio.h>
 #include <vector>
+#include <limits>
 
 using namespace std;
 
 #define SUCCESS 0
 #define FINISH_PROGRAM 1
+// FFFFFFFF#FFFFFFFF#
+#define MIN_SIZE 18
 
 class Comandos {
 public:
@@ -26,17 +29,23 @@ public:
   vector<int> buscaEmTabela(string modifier, string tabela, string busca);
   void apresentarRegistrosUltimaBusca(string tabela);
   void removeRegistrosUltimaBusca(string tabela, vector<int> vetor_busca);
-  void criaIndice(string modifier, string tabela, string chave);
+  int criaIndice(string modifier, string tabela, string chave);
   void removeIndiceChave(string tabela, string chave);
   void geraNovoIndiceDeTabelaChave(string tabela, string chave);
   string retornaPalavraDeInput (string &input, char delimitador, bool removerEspacosAfrente = true);
   string* parseCampoCT(string input);
   string horaatual();
   vector<string> parseBuscaMetaDados(string dados_meta);
-  int firstFit(string tabela, vector<string>inserir);
-  void inserirListaReutilizacao(string tabela, int pos, int tamanho);
-  pair<int,int> encontrarOndeInserir(string tabela, int tamanhoParaInserir);
-  void removerDaListaDeEspacosDisponiveis(string tabela, int linha);
+  int ponteiroProximo(string &linha);
+  int bestFit(string tabela, vector<string>inserir);
+  typedef struct Removido{
+    int pos;
+    int prox;
+    int tamanho;
+    string buffer;
+    string conteudo;
+  } posicoes;
+  pair<Comandos::Removido, Comandos::Removido> encontrarOndeInserir(string tabela, int tam_inserir);
 private:
   vector<string> parseInsercao(string registro);
   vector<string> getVetorDeMetadados(string tabela);

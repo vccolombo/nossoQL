@@ -94,7 +94,7 @@ int interpretadorDeComandos (Comandos &comando, string &input, int modo_interati
     string tabela = comando.retornaPalavraDeInput(input, ' ');
     string chave = comando.retornaPalavraDeInput(input, ' ');
     if (tabela.length() > 0 && modifier.length() > 0 && chave.length() > 0) {
-      comando.criaIndice(modifier, tabela, chave);
+      return comando.criaIndice(modifier, tabela, chave);
     } else {
       cout << "Erro: entrada incompleta." << "\n";
     }
