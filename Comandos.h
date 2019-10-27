@@ -37,7 +37,7 @@ public:
   string horaatual();
   vector<string> parseBuscaMetaDados(string dados_meta);
   int ponteiroProximo(string &linha);
-  int bestFit(string tabela, vector<string>inserir);
+  pair<int, int> bestFit(string tabela, vector<string>inserir);
   typedef struct Removido{
     int pos;
     int prox;
@@ -48,7 +48,7 @@ public:
   pair<Comandos::Removido, Comandos::Removido> encontrarOndeInserir(string tabela, int tam_inserir);
 private:
   vector<string> parseInsercao(string registro);
-  vector<string> getVetorDeMetadados(string tabela);
+  pair<vector<string>, vector<string>> getVetorDeMetadados(string tabela);
 };
 
 #endif
