@@ -499,8 +499,14 @@ int Comandos::criaIndice(string modifier, string tabela, string chave) {
 
   // verificar se o indice ja existe
   while (getline(arquivo, linha)) {
+    string campo_encontrado;
+    string tipo_encontrado;
+    campo_encontrado = retornaPalavraDeInput(linha, ' ');
+    linha.erase(0, 1);
+    tipo_encontrado = linha;
+    cout << "campo=" << campo_encontrado << endl << "tipo=" << tipo_encontrado << endl;
     // se o indice ja existe && tipo do indice ja existe
-    if (linha.find(campos) != string::npos && linha.find(modifier) != string::npos) {
+    if (campo_encontrado == campos && tipo_encontrado == modifier) {
       cout << "Erro: Índice já existe. Comando ignorado." << endl;
       return SUCCESS;
     }
