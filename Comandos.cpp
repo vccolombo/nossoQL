@@ -156,7 +156,7 @@ bool is_number(const std::string& s) {
 }
 
 void Comandos::inserirRegistro(string tabela, string registro) {
-  auto par_meta = getVetorDeMetadados(tabela);
+  auto par_meta = getVetorDeMetadados(tabela, true);
   vector<string> metadados = par_meta.first;
   vector<string> indices_meta = par_meta.second;
   size_t quantidade_de_campos = stoi(metadados[2]);
@@ -828,7 +828,7 @@ vector<string> Comandos::parseBuscaMetaDados(string dados_meta){
   return resposta;
 }
 
-pair<vector<string>, vector<string>> Comandos::getVetorDeMetadados(string tabela) {
+pair<vector<string>, vector<string>> Comandos::getVetorDeMetadados(string tabela, bool IR) {
   ifstream file_meta; //Leitura do arquivo
   file_meta.open("tabelas/" + tabela + "_META.txt");
 
@@ -847,9 +847,11 @@ pair<vector<string>, vector<string>> Comandos::getVetorDeMetadados(string tabela
   
   // recebe os indices (se existir)
   vector<string> linhas_indice;
-  string buffer;
-  while (getline(file_meta, buffer)) {
-    linhas_indice.push_back(buffer);
+  if (IR) {
+    string buffer;
+    while (getline(file_meta, buffer)) {
+      linhas_indice.push_back(buffer);
+    }
   }
   return make_pair(linha_meta_dados, linhas_indice);
 } 

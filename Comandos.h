@@ -48,7 +48,7 @@ public:
   pair<Comandos::Removido, Comandos::Removido> encontrarOndeInserir(string tabela, int tam_inserir);
 private:
   vector<string> parseInsercao(string registro);
-  pair<vector<string>, vector<string>> getVetorDeMetadados(string tabela);
+  pair<vector<string>, vector<string>> getVetorDeMetadados(string tabela, bool IR=false);
 };
 
 #endif
