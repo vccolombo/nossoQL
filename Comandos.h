@@ -17,6 +17,11 @@ using namespace std;
 #define FINISH_PROGRAM 1
 // FFFFFFFF#FFFFFFFF#
 #define MIN_SIZE 18
+  
+typedef struct busca{
+    string nome_tabela;
+    vector<int> linhas;
+}busca;
 
 class Comandos {
 public:
@@ -26,7 +31,7 @@ public:
   void resumoDaTabela(string tabela);
   void listarTabelas();
   void inserirRegistro(string tabela, string registro);
-  vector<int> buscaEmTabela(string modifier, string tabela, string busca);
+  void buscaEmTabela(string modifier, string tabela, string busca);
   void apresentarRegistrosUltimaBusca(string tabela);
   void removeRegistrosUltimaBusca(string tabela, vector<int> vetor_busca);
   int criaIndice(string modifier, string tabela, string chave);
@@ -45,6 +50,7 @@ public:
     string buffer;
     string conteudo;
   } posicoes;
+  vector<busca> buscas;
   pair<Comandos::Removido, Comandos::Removido> encontrarOndeInserir(string tabela, int tam_inserir);
 private:
   vector<string> parseInsercao(string registro);

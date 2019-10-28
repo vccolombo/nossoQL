@@ -4,7 +4,6 @@
 #include <cstdlib>
 
 using namespace std;
-vector<string> _buscas;
 
 Comandos::Comandos() {}
 
@@ -211,14 +210,15 @@ bool linhaInvalida(string linha) {
   
 }
 
-vector<int> Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
+void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
   ifstream file; //Leitura do arquivo
+  struct busca busca_aux;
   vector<int> vet_buscas;
   file.open("tabelas/" + tabela + "_TAB.txt");
   if (file.fail()) {
     // TODO o arquivo não existe (a tabela não foi criada)
     std::cout << "Não foi possível encontrar a Tabela." << '\n';
-    return vet_buscas;
+    return;
   }
 
   vector<string> linha_meta_dados = getVetorDeMetadados(tabela);
@@ -249,14 +249,14 @@ vector<int> Comandos::buscaEmTabela(string modifier, string tabela, string busca
   }
   if (!existe_campo) {
     cout << "Não foi possível encontrar o campo" << endl;
-    return vet_buscas;
+    return;
   }
 
   // Linha busca = 1;2;3;4;
   // Vetor = [1, 2, 3, 4]
   string linha_busca;
   vector<string> vetor_linha_busca;
-  string resultado_busca = tabela + ":";
+  
   int indice_no_txt = 0;
   bool encontrou = false;
   bool existe_nas_buscas = false;
@@ -276,12 +276,11 @@ vector<int> Comandos::buscaEmTabela(string modifier, string tabela, string busca
       vetor_linha_busca = parseBuscaMetaDados(linha_busca); //Armazena os campos da linha atual
       //Evita segmentation fault quando pega uma linha vazia.
       if (linha_busca != "") {
-        cout << linha_busca << endl;
         if (vetor_linha_busca[indice_campo] == elemento_b) { 
           //Compara o conteúdo do campo com o conteúdo da busca
           encontrou = true;
-          vet_buscas.push_back(indice_no_txt);
-          resultado_busca += to_string(indice_no_txt) + ';';
+          busca_aux.linhas.push_back(indice_no_txt);
+          
         }
       }
       indice_no_txt++;
@@ -305,8 +304,7 @@ vector<int> Comandos::buscaEmTabela(string modifier, string tabela, string busca
       if (linha_busca != "") {
         if (vetor_linha_busca[indice_campo] == elemento_b) {
           encontrou = true;
-          vet_buscas.push_back(indice_no_txt);
-          resultado_busca += to_string(indice_no_txt);
+          busca_aux.linhas.push_back(indice_no_txt);
         }
       }
       indice_no_txt++;
@@ -314,21 +312,25 @@ vector<int> Comandos::buscaEmTabela(string modifier, string tabela, string busca
   }
   else { // Modificador incorreto
       cout << "Modificador não reconhecido: " << modifier << ". Utilize N para fazer a busca, na tabela, de todos os registros que satisfaçam o critério de busca e U para fazer a busca, na tabela, do primeiro registro que satisfaça o critério. \n";
-      return vet_buscas;
+      return;
   }
   if (encontrou) {
-    if (!_buscas.size()) {
-      _buscas.insert(_buscas.end(), resultado_busca);
+    if(!buscas.size()){
+      busca_aux.nome_tabela = tabela;
+      buscas.push_back(busca_aux);
     }
-    else {
-      for (i = 0; i < _buscas.size(); i++) {
-        if (retornaPalavraDeInput(_buscas[i], ':') == tabela) {
-          _buscas[i] = resultado_busca;
+    else{
+      i = 0;
+      while(i < buscas.size() && !existe_nas_buscas){
+        if(buscas[i].nome_tabela == tabela){
+          buscas[i].linhas = busca_aux.linhas;
           existe_nas_buscas = true;
         }
+        i++;
       }
-      if (!existe_nas_buscas) {
-        _buscas.insert(_buscas.end(), resultado_busca);
+      if(!existe_nas_buscas){
+        busca_aux.nome_tabela = tabela;
+        buscas.push_back(busca_aux);
       }
     }
     cout << "REGISTRO ENCONTRADO" << endl;
@@ -336,7 +338,7 @@ vector<int> Comandos::buscaEmTabela(string modifier, string tabela, string busca
   else {
     cout << "REGISTRO NÃO ENCONTRADO" << endl;
   }
-  return vet_buscas;
+  return ;
 }
 
 void Comandos::apresentarRegistrosUltimaBusca(string tabela) {
@@ -365,30 +367,30 @@ void Comandos::apresentarRegistrosUltimaBusca(string tabela) {
   };
 
   bool existe_busca = false;
-  vector<string> linhas;
+  vector<int> linhas;
   cout << "Apresentar registro da última busca em " << tabela << '\n';
-  if(_buscas.size()){
-    for(i = 0; i < _buscas.size(); i++){
-      string linha_busca = _buscas[i];
-      if(retornaPalavraDeInput(linha_busca, ':') == tabela){
-        linha_busca.erase(linha_busca.begin()); //APAGAR OS DOIS PONTOS DO COMEÇO DA LINHA.
+  if(buscas.size()){
+    for(i = 0; i < buscas.size(); i++){
+      if(buscas[i].nome_tabela == tabela){
         existe_busca = true;
-        while(linha_busca.size()){
-          linhas.insert(linhas.end(), retornaPalavraDeInput(linha_busca,';'));
-        };
+        linhas = buscas[i].linhas;
       }
     }
   }
   if(existe_busca){
     string resultado;
-    for (int numero_linha = 0; getline(file, resultado) && linhas[0].size(); numero_linha++){
-      if (numero_linha == stoi(linhas[0])){
-        for (i = 0; i < nomes_campos.size(); i++){
-          cout << nomes_campos[i] << ": " << retornaPalavraDeInput(resultado, ';') << " ";
+    i = 0;
+    int j = 0;
+    int k = 0;
+    while(getline(file, resultado) && j < linhas.size()){
+      if(i == linhas[j]){
+        for (k = 0; k < nomes_campos.size(); k++){
+          cout << nomes_campos[k] << ": " << retornaPalavraDeInput(resultado, ';') << " ";
         }
         cout << endl;
-        linhas.erase(linhas.begin());
+        j++;
       }
+      i++;
     }
   }
   else{
