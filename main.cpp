@@ -60,7 +60,7 @@ int interpretadorDeComandos (Comandos &comando, string &input, int modo_interati
     string busca = comando.retornaPalavraDeInput(input, ';');
     if (tabela.length() > 0 && modifier.length() > 0 && busca.length() > 0) {
       tab_ultima_busca = tabela;
-      vet_busca = comando.buscaEmTabela(modifier, tabela, busca);
+      comando.buscaEmTabela(modifier, tabela, busca);
       for (int i = 0; i < vet_busca.size(); i++)
 		    cout << vet_busca.at(i) << ' ';
       cout << "<" << endl;
