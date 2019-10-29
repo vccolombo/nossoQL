@@ -156,9 +156,10 @@ bool is_number(const std::string& s) {
 }
 
 void Comandos::inserirRegistro(string tabela, string registro) {
-  vector<string> metadados = getVetorDeMetadados(tabela);
+  auto par_meta = getVetorDeMetadados(tabela, true);
+  vector<string> metadados = par_meta.first;
+  vector<string> indices_meta = par_meta.second;
   size_t quantidade_de_campos = stoi(metadados[2]);
-
   cout << "Inserir registro " << registro << " na tabela " << tabela << '\n';
   // vetor em que cada entrada é um campo da inserção
   vector<string> inserir = parseInsercao(registro);
@@ -169,6 +170,12 @@ void Comandos::inserirRegistro(string tabela, string registro) {
     return;
   }
 
+  // vetor com indices (se houver)
+  vector<string> indices;
+  // vetor com tipos de indices (se houver)
+  vector<string> tipos;
+  // vetor com indice (literalmente) do registro a ser inserido (se houver indice)
+  vector<int> index;
   for (size_t i = 0; i < quantidade_de_campos; i++)
   {
     string campo = metadados[3+i]; // 3 é a posição do primeiro campo
@@ -180,10 +187,28 @@ void Comandos::inserirRegistro(string tabela, string registro) {
         return;
       }
     }
+
+    // transforma campo no nome do campo removendo o ':'
+    campo = campo.erase(0, 1);
+    // verificar se existe indice para o campo
+    for (int j = 0; j < indices_meta.size(); j++) {
+      string indice_campo = indices_meta[j].substr(0, indices_meta[j].find(' '));
+      string indices_tipos = indices_meta[j].substr(indices_meta[j].find(' ') + 1, indices_meta[j].size());
+      // adiciona no vetor se indice existir
+      if (campo == indice_campo) {
+        indices.push_back(indice_campo);
+        tipos.push_back(indices_tipos);
+        index.push_back(i);
+      }
+    }
   }
-  // firstFit retorna 0 caso nao exista espacos marcados como invalido
-  // neste caso, a insercao ocorre no fim do arquivo
-  if (bestFit(tabela, inserir) == 0) {
+  // bestFit retorna (0, ponteiro) caso nao exista espacos marcados como invalido
+  // neste caso, a insercao ocorre no fim do arquivo (onde ponteiro marca),
+  // ou (1, ponteiro) caso bestFit tenha funcionado e o ponteiro onde foi inserido
+  auto par = bestFit(tabela, inserir);
+  int sucesso = par.first;
+  int ponteiro = par.second;
+  if (sucesso == 0) {
     ofstream file;
     file.open("tabelas/" + tabela + "_TAB.txt", ios_base::app);
     if (file.fail()) {
@@ -204,6 +229,21 @@ void Comandos::inserirRegistro(string tabela, string registro) {
     file << '\n';
     file.close();
   }
+
+  // inserir nas tabelas de indice
+  cout << "INDICES" << endl;
+  for (int i = 0; i < indices.size(); i++) {
+    if (tipos[i] == "A") {
+      // inserir em arvore
+      cout << "Arvore" << endl;
+      cout << "Inserindo: " << inserir[index[i]] << "  na arvore de " << indices[i] << " com ponteiro " << ponteiro << endl; 
+    }
+    else if (tipos[i] == "H") {
+      // inserir em hash
+      cout << "Hash" << endl;
+      cout << "Inserindo: " << inserir[index[i]] << "  na hash de " << indices[i] << " com ponteiro " << ponteiro << endl; 
+    }
+  }
 }
 
 bool linhaInvalida(string linha) {
@@ -221,7 +261,8 @@ vector<int> Comandos::buscaEmTabela(string modifier, string tabela, string busca
     return vet_buscas;
   }
 
-  vector<string> linha_meta_dados = getVetorDeMetadados(tabela);
+  auto par = getVetorDeMetadados(tabela);
+  vector<string> linha_meta_dados = par.first;
   // Retira o tipo dos campo, mantendo somente o nome do campo
   vector<string> nomes_campos;
   unsigned int quantidade_de_campos = stoi(linha_meta_dados[2]);
@@ -350,7 +391,8 @@ void Comandos::apresentarRegistrosUltimaBusca(string tabela) {
   }
 
   //0  = Nome Tabela / 1 = path txt meta / 2 = qtd de campos / 3 até 3+qtd de campos = campos / ultimo = data
-  vector<string> linha_meta_dados = getVetorDeMetadados(tabela);
+  auto par = getVetorDeMetadados(tabela);
+  vector<string> linha_meta_dados = par.first;
   // Retira o tipo dos campo, mantendo somente o nome do campo
   vector<string> nomes_campos;
   unsigned int i = 0;
@@ -691,8 +733,15 @@ pair<Comandos::Removido, Comandos::Removido> Comandos::encontrarOndeInserir(stri
   anterior.pos = 0;
   anterior.prox = 0;
   
+  // X_global e usado para retornar posicao no final do arquivo p/ caso o best fit falhe
+  int percorrido_global = 0;
+  int qtd_linha_global = 0;
+
   string linha;
   while (getline(arquivo, linha)) {
+    percorrido_global += linha.size();
+    qtd_linha_global++;
+
     if (linha.find('#') != string::npos) { 
       tam_atual = linha.size();
       tam_disponivel = tam_atual - tam_inserir;
@@ -721,11 +770,16 @@ pair<Comandos::Removido, Comandos::Removido> Comandos::encontrarOndeInserir(stri
       anterior.pos = anterior.prox;
     }
   }
+  // condicao de best fit falhar, retorne a posicao do final do arquivo
+  if (melhor.pos == -1) {
+    melhor.prox = percorrido_global + (2 * qtd_linha_global);
+  }
+
   arquivo.close();
   return make_pair(anterior_melhor, melhor);
 }
 
-int Comandos::bestFit(string tabela, vector<string> inserir) {
+pair<int, int> Comandos::bestFit(string tabela, vector<string> inserir) {
   tabela = "./tabelas/" + tabela + "_TAB.txt";
   // calcula o tamanho da nova insercao
   int tam_inserir = 0;
@@ -738,7 +792,7 @@ int Comandos::bestFit(string tabela, vector<string> inserir) {
   Comandos::Removido melhor = par.second;
   // retorna se nao ha espacos validos
   if (melhor.pos == -1) {
-    return 0;
+    return make_pair(0, melhor.prox);
   }
   
   // insere no espaco disponivel
@@ -760,7 +814,7 @@ int Comandos::bestFit(string tabela, vector<string> inserir) {
     fprintf(arquivo, "|");
   }
   fclose(arquivo);
-  return 1;
+  return make_pair(1, melhor.pos);
 }
 
 //Retorna em um vetor todo o conteúdo entre ;
@@ -774,7 +828,7 @@ vector<string> Comandos::parseBuscaMetaDados(string dados_meta){
   return resposta;
 }
 
-vector<string> Comandos::getVetorDeMetadados(string tabela) {
+pair<vector<string>, vector<string>> Comandos::getVetorDeMetadados(string tabela, bool IR) {
   ifstream file_meta; //Leitura do arquivo
   file_meta.open("tabelas/" + tabela + "_META.txt");
 
@@ -782,15 +836,22 @@ vector<string> Comandos::getVetorDeMetadados(string tabela) {
     // TODO o arquivo não existe (a tabela não foi criada)
     std::cout << "Não foi possível encontrar a o Metadados da Tabela." << '\n';
     vector<string> empty;
-    return empty;
+    return make_pair(empty, empty);
   }
 
   string dados_file_meta;
-  file_meta >> dados_file_meta; //recebe como string todo o conteudo do arquivo meta da tabela
-
+  //file_meta >> dados_file_meta; //recebe como string todo o conteudo do arquivo meta da tabela
+  getline(file_meta, dados_file_meta);
   //0  = Nome Tabela / 1 = path txt meta / 2 = qtd de campos / 3 até 3+qtd de campos = campos / ultimo = data
   vector<string> linha_meta_dados = parseBuscaMetaDados(dados_file_meta);
-
-  return linha_meta_dados;
-
+  
+  // recebe os indices (se existir)
+  vector<string> linhas_indice;
+  if (IR) {
+    string buffer;
+    while (getline(file_meta, buffer)) {
+      linhas_indice.push_back(buffer);
+    }
+  }
+  return make_pair(linha_meta_dados, linhas_indice);
 } 
