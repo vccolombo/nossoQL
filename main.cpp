@@ -81,7 +81,7 @@ int interpretadorDeComandos (Comandos &comando, string &input, int modo_interati
 
     if (tabela.length() > 0) {
       if (tab_ultima_busca == tabela)
-       comando.removeRegistrosUltimaBusca(tabela, vet_busca);
+       comando.removeRegistrosUltimaBusca(tabela);
       else
         cout << "Erro: a ultima busca nao corresponde a tabela:" << tabela << endl;
     } else {

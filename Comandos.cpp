@@ -442,9 +442,35 @@ void Comandos::apresentarRegistrosUltimaBusca(string tabela) {
 
 }
 
-void Comandos::removeRegistrosUltimaBusca(string tabela, vector<int> vetor_busca){
+void Comandos::removeRegistrosUltimaBusca(string tabela){
+  auto par_meta = getVetorDeMetadados(tabela, true); //retorna um par com <vetor com os metadados da tabela,indices existentes da tabela c/ o tipo>
+  vector<string> metadados = par_meta.first;  
+  vector<string> indices_meta = par_meta.second; //vector com cada linha sendo "nomeIndice tipoIndice"
+  
+  size_t qtd_campo = stoi(metadados[2]);
+  vector<string> indices; //vector que guarda os indices
+  vector<string> tipos;   //vector que guarda os tipos de cada indice
+  
+  vector<vector<string>> reg_removido; //guarda os registros que serao removidos dos indices
+  vector<int> campo_indexado;              //indica o(s) campo(s) indexado(s) nessa tabela
+  vector<int> ponteiro;
+
+
+
+  int tab=0;
+  while(tabela != buscas[tab].nome_tabela || tab == buscas.size())
+      tab++;
+  
+  if(tab == buscas.size()){
+    cout << "erro" << endl;
+    return;
+  }
+  cout << "a tabela é a" << buscas[tab].nome_tabela << endl;
+
+
   tabela = "tabelas/" + tabela + "_TAB.txt";
-  for (int i = 0; i < vetor_busca.size(); i++) {
+
+  for (size_t i = 0; i < buscas[tab].linhas.size(); i++) {
     ifstream arquivo;
     arquivo.open(tabela);
     arquivo.seekg(0, ios::beg);
@@ -460,17 +486,19 @@ void Comandos::removeRegistrosUltimaBusca(string tabela, vector<int> vetor_busca
     string linha;
     while (getline(arquivo, linha) && posterior.pos == -1) {
       qtd_linha++;
-      if (qtd_linha == vetor_busca[i]) {
+      if (qtd_linha == buscas[tab].linhas[i]) {
         atual.pos = pos + (2 * qtd_linha);
         atual.tamanho = linha.size();
         atual.conteudo = linha;
+        reg_removido.push_back(parseInsercao(linha));
+        ponteiro.push_back(pos + 1);
       } else {
-        if (qtd_linha < vetor_busca[i] && linha.find('#') != string::npos) {
+        if (qtd_linha < buscas[tab].linhas[i] && linha.find('#') != string::npos) {
           anterior.pos = pos + (2 * qtd_linha);
           anterior.tamanho = linha.size();
           anterior.conteudo = linha;
         }
-        else if (qtd_linha > vetor_busca[i] && linha.find('#') != string::npos) {
+        else if (qtd_linha > buscas[tab].linhas[i] && linha.find('#') != string::npos) {
           posterior.pos = pos + (2 * qtd_linha);
           posterior.tamanho = linha.size();
           posterior.conteudo = linha;
@@ -498,6 +526,40 @@ void Comandos::removeRegistrosUltimaBusca(string tabela, vector<int> vetor_busca
     fseek(fp, atual.pos, SEEK_SET);
     fprintf(fp, atual.buffer.c_str());
     fclose(fp);
+  }
+
+  for (size_t i = 0; i < qtd_campo; i++){
+
+    string campo = metadados[3+i]; // 3 é a posição do primeiro campo
+    
+    // transforma campo no nome do campo removendo o tipo seguido do ':'
+    campo = campo.erase(0, 4);
+
+    // verificar se existe indice para o campo
+    for (size_t j = 0; j < indices_meta.size(); j++) {
+      string indice_campo = indices_meta[j].substr(0, indices_meta[j].find(' '));
+      string indices_tipos = indices_meta[j].substr(indices_meta[j].find(' ') + 1, indices_meta[j].size());
+      // adiciona no vetor se indice existir
+      if (campo == indice_campo) {
+        indices.push_back(indice_campo);
+        tipos.push_back(indices_tipos);
+        campo_indexado.push_back(i);
+      }
+    }
+  }
+
+  for(size_t i = 0; i < reg_removido.size(); i++){
+    for (size_t j = 0; j < indices.size(); j++) {
+      if (tipos[j] == "A") {
+        // remove na arvore
+        cout << "Removendo: " << reg_removido[i][campo_indexado[j]] << " com ponteiro " << ponteiro[i] << " na ARVORE de " << indices[j] << "." << endl; 
+      }
+      else if (tipos[j] == "H") {
+        // remove na hash
+        cout << "Hash" << endl;
+        cout << "Removendo: " << reg_removido[i][campo_indexado[j]] <<  " com ponteiro" << ponteiro[i] << "  na HASH de " << indices[j] << "." << endl; 
+      }
+    }
   }
 }
 
