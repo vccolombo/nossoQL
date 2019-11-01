@@ -1,4 +1,0 @@
-CT mayk INT:idade
-CT tmayk INT:idade
-RT tmayk
-RT tmayk
