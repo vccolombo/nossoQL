@@ -10,6 +10,18 @@
 #include <stdio.h>
 #include <vector>
 #include <limits>
+#include <dirent.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <cstring>
+#include <string>
+#ifdef WINDOWS
+   #include <direct.h>
+   #define Define_CurrentDir _getcwd
+#else
+   #include <unistd.h>
+   #define Define_CurrentDir getcwd
+ #endif
 
 using namespace std;
 
