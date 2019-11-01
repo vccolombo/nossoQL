@@ -1,1 +1,4 @@
-CT tabelamaykteste INT:idade;
+CT mayk INT:idade
+CT tmayk INT:idade
+RT tmayk
+RT tmayk
