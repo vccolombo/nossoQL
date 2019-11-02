@@ -11,6 +11,6 @@
  */
 typedef enum {
 	FALSE, TRUE
-} bool;
+} boleano;
 
 #endif
