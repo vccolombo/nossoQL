@@ -4,6 +4,9 @@
 #include <string>
 #include <fstream>
 
+#include "btree.h"
+#include "btree_tools.h"
+
 using namespace std;
 
 #define SUCCESS 0
