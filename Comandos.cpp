@@ -148,7 +148,6 @@ int Comandos::apagaArquivoComNomeTabela(string tabela) {
         else{
           break;
         }
-      
       i++;
       }   
   }
