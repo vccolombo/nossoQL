@@ -150,8 +150,7 @@ int Comandos::apagaArquivoComNomeTabela(string tabela) {
         }
       
       i++;
-      }
-      
+      }   
   }
   closedir(dir);
   return SUCCESS;
