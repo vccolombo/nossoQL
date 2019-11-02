@@ -455,8 +455,6 @@ void Comandos::removeRegistrosUltimaBusca(string tabela){
   vector<int> campo_indexado;              //indica o(s) campo(s) indexado(s) nessa tabela
   vector<int> ponteiro;
 
-
-
   int tab=0;
   while(tabela != buscas[tab].nome_tabela || tab == buscas.size())
       tab++;
@@ -466,7 +464,6 @@ void Comandos::removeRegistrosUltimaBusca(string tabela){
     return;
   }
   cout << "a tabela é a" << buscas[tab].nome_tabela << endl;
-
 
   tabela = "tabelas/" + tabela + "_TAB.txt";
 
@@ -529,7 +526,6 @@ void Comandos::removeRegistrosUltimaBusca(string tabela){
   }
 
   for (size_t i = 0; i < qtd_campo; i++){
-
     string campo = metadados[3+i]; // 3 é a posição do primeiro campo
     
     // transforma campo no nome do campo removendo o tipo seguido do ':'
