@@ -33,7 +33,7 @@ public:
   void inserirRegistro(string tabela, string registro);
   void buscaEmTabela(string modifier, string tabela, string busca);
   void apresentarRegistrosUltimaBusca(string tabela);
-  void removeRegistrosUltimaBusca(string tabela, vector<int> vetor_busca);
+  void removeRegistrosUltimaBusca(string tabela);
   int criaIndice(string modifier, string tabela, string chave);
   void removeIndiceChave(string tabela, string chave);
   void geraNovoIndiceDeTabelaChave(string tabela, string chave);
