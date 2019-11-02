@@ -112,22 +112,17 @@ int Comandos::apagaArquivoComNomeTabela(string tabela) {
     rename("./tabelas/temp.txt", "./tabelas/base.txt");
   }
 
-
 //Retirado de https://pt.stackoverflow.com/questions/47130/como-obter-o-diret%C3%B3rio-que-o-programa-est%C3%A1-sendo-executado
 //Recupera onde o programa está sendo executado, parecido com getpwd()
  char LOCAL_DIR[FILENAME_MAX];
-
-  if (!Define_CurrentDir(LOCAL_DIR, sizeof(LOCAL_DIR)))
-    {
+  if (!Define_CurrentDir(LOCAL_DIR, sizeof(LOCAL_DIR))) {
     string erro = "Erro ao tentar encontrar o local de instalação do programa";
     cout << erro;
     return 0;
     }
 
-
 //Adaptado junto com o codigo que le os arquivos de dentro da pasta
 //https://www.hardware.com.br/comunidade/arquivos-varrer/1103524/
-
   DIR *dir;
   struct dirent *lsdir;
   string diretoriolocal = LOCAL_DIR, apagando;
@@ -137,11 +132,8 @@ int Comandos::apagaArquivoComNomeTabela(string tabela) {
   diretoriolocal = diretoriolocal + "/tabelas/";
 
   dir = opendir(diretoriolocal.c_str());
-
-
   /* Imprime e apaga os arquivos referente a tabela do diretorio tabelas */
-  while ( ( lsdir = readdir(dir) ) != NULL )
-  { 
+  while ( ( lsdir = readdir(dir) ) != NULL ) { 
       i = 0;
       controleqt = 0;
       while(controleqt++ != int(tabela.length()+1)){
@@ -161,10 +153,7 @@ int Comandos::apagaArquivoComNomeTabela(string tabela) {
       }
       
   }
-
   closedir(dir);
-
-
   return SUCCESS;
 }
 
