@@ -5,15 +5,15 @@ CXX = g++
 CXXFLAGS = -std=c++11 -Wall
 
 
-OBJECTS = main.o Comandos.o btree_tools.o btree_util.o btree.o
+OBJECTS = btree_tools.o btree_util.o btree.o Comandos.o main.o
 
 main: $(OBJECTS)
+	gcc -o btree_tools.o -c btree_tools.c
+	gcc -o btree_util.o -c btree_util.c
+	gcc -o btree.o -c btree.c
 	$(CXX) $(CXXFLAGS) -o main.exe $(OBJECTS)
 
 Comandos.o: Comandos.h
-btree_tools.o: btree_tools.h
-btree_util.o: btree_util.h
-btree.o: btree.h
 
 clean:
 	rm *.o *.exe tabelas/*.txt

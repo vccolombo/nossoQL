@@ -1,4 +1,6 @@
 #include "Comandos.h"
+#include "btree.h"
+
 #include <algorithm>
 #include <iostream>
 #include <string>
@@ -151,6 +153,17 @@ int main(int argc, char *argv[]) {
   string tab_ultima_busca;
   vector<int> vet_busca;
   int code_result = SUCCESS;
+
+  BTree* teste = btree_new(5);
+  btree_init(teste, 5);
+  btree_insert(teste, 1, (void*)1);
+  btree_insert(teste, 2, (void*)2);
+  btree_insert(teste, 3, (void*)3);
+  btree_insert(teste, 4, (void*)4);
+  btree_insert(teste, 5, (void*)5);
+  btree_insert(teste, 6, (void*)6);
+  btree_insert(teste, 7, (void*)7);
+  printf("%d\n", btree_find(teste, 2).node->keys);
 
   if(argv[1] != NULL){
     cout << "Modo arquivo, trabalhando com: " << argv[1] << endl;

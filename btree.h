@@ -2,6 +2,12 @@
     B-Tree - Antonio Carlos Falcão Petri e Thiago Yonamine
     DC - UFSCar - São Carlos - 2015
 */
+// https://medium.com/@prafullkumar77/undefined-reference-unresolved-external-symbol-errors-in-c-c-objective-c-and-ways-to-solve-avoid-2998869e8af7
+//At the beginning of you header
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef B_TREE_H
 #define B_TREE_H
 
@@ -106,4 +112,8 @@ node_position _node_find_max(node_t *node);
  */
 node_position _node_find_min(node_t *node);
 
+#endif
+//and following at the end
+#ifdef __cplusplus
+}
 #endif
