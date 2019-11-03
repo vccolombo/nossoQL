@@ -4,8 +4,10 @@
 #include <string>
 #include <fstream>
 
-#include "btree.h"
-#include "btree_tools.h"
+extern "C" {
+  #include "btree.h"
+  #include "btree_tools.h"
+}
 
 using namespace std;
 
@@ -149,6 +151,12 @@ int interpretadorDeComandos (Comandos &comando, string &input, int modo_interati
 }
 
 int main(int argc, char *argv[]) {
+  BTree *tree;
+  int value = 100;
+  int key = 6;
+  btree_insert(tree, 6, (int *) value);
+  printf("cheoug");
+
   Comandos comando;
   string input = "";
   string tab_ultima_busca;

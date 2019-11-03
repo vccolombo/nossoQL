@@ -499,7 +499,3 @@ void btree_delete_h(BTree *bt) {
 	btree_delete_s(bt);
 	free(bt);
 }
-
-int main() {
-	return 0;
-}

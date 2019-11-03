@@ -11,8 +11,9 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include <stdbool.h>
 
-#include "util.h"
+// #include "util.h"
 
 /*
    pair <int key, void* value>
