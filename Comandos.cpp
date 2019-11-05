@@ -50,7 +50,8 @@ int Comandos::criarArquivoComNomeTabela(string tabela, string* campos) {
 
   int j = 1;
   cout << "Criando tabela com nome: " << tabela << "\n";
-  arquivo_meta << tabela << ";" << "tabelas/_META.txt" << ";" << int(campos[0][0]) << ";";
+  // -1|||||||| é o ponteiro para a primeira ocorrencia de um registro removido (-1 pq nao existe)
+  arquivo_meta << tabela << ";" << "-1||||||||" << ";" << int(campos[0][0]) << ";";
   cout << "Campos:" << " " << int(campos[0][0]) << ";" ;
   for(int i = 0; i < int(campos[0][0]); i++){
     cout << "TIPO: "   << campos[j] << ", NOME: " << campos[j + 1] << endl;
@@ -207,6 +208,7 @@ void Comandos::inserirRegistro(string tabela, string registro) {
   auto par = bestFit(tabela, inserir);
   int sucesso = par.first;
   int ponteiro = par.second;
+ 
   if (sucesso == 0) {
     ofstream file;
     file.open("tabelas/" + tabela + "_TAB.txt", ios_base::app);
@@ -446,6 +448,9 @@ void Comandos::removeRegistrosUltimaBusca(string tabela){
   auto par_meta = getVetorDeMetadados(tabela, true); //retorna um par com <vetor com os metadados da tabela,indices existentes da tabela c/ o tipo>
   vector<string> metadados = par_meta.first;  
   vector<string> indices_meta = par_meta.second; //vector com cada linha sendo "nomeIndice tipoIndice"
+
+  // ponteiro_head: ponteiro para o primeiro registro invalido (salvo nos metadados)
+  int ponteiro_head = stoi(metadados[1].substr(0, metadados[1].find('|')));
   
   size_t qtd_campo = stoi(metadados[2]);
   vector<string> indices; //vector que guarda os indices
@@ -465,13 +470,16 @@ void Comandos::removeRegistrosUltimaBusca(string tabela){
   }
   cout << "a tabela é a" << buscas[tab].nome_tabela << endl;
 
-  tabela = "tabelas/" + tabela + "_TAB.txt";
+  string arquivo_tab = "tabelas/" + tabela + "_TAB.txt";
 
   for (size_t i = 0; i < buscas[tab].linhas.size(); i++) {
     ifstream arquivo;
-    arquivo.open(tabela);
+    arquivo.open(arquivo_tab);
     arquivo.seekg(0, ios::beg);
 
+    // anterior: registro que esteja antes do removido
+    // atual: registro a ser removido
+    // posterior: registro que esteja apros o removido
     int pos = 0;
     Comandos::Removido anterior;
     anterior.pos = -1;
@@ -487,6 +495,7 @@ void Comandos::removeRegistrosUltimaBusca(string tabela){
         atual.pos = pos + (2 * qtd_linha);
         atual.tamanho = linha.size();
         atual.conteudo = linha;
+
         reg_removido.push_back(parseInsercao(linha));
         ponteiro.push_back(pos + 1);
       } else {
@@ -505,8 +514,16 @@ void Comandos::removeRegistrosUltimaBusca(string tabela){
     }
     arquivo.close();
 
+    // se o registro removido veio antes do ponteiro_head entao atualize o ponteiro_head para o atual
+    // atualize tmb os metadados assim que terminar o loop
+    if (atual.pos < ponteiro_head || ponteiro_head == -1) 
+      ponteiro_head = atual.pos;
+  
     FILE *fp;
-    fp = fopen(tabela.c_str(), "r+");
+    fp = fopen(arquivo_tab.c_str(), "r+");
+    // se existe um registro anterior (removido), altere o ponteiro do anterior para o atual
+    // e o ponteiro do atual.prox para aquele que o anterior apontava
+    // atual.prox -> anterior.prox  &  anterior.prox -> atual
     if (anterior.pos != -1) {
       retornaPalavraDeInput(anterior.conteudo, '#');
       anterior.conteudo.erase(0, 1);
@@ -525,6 +542,9 @@ void Comandos::removeRegistrosUltimaBusca(string tabela){
     fclose(fp);
   }
 
+  alterarPonteiroHead(tabela, ponteiro_head);
+
+  // checar se exsite indice
   for (size_t i = 0; i < qtd_campo; i++){
     string campo = metadados[3+i]; // 3 é a posição do primeiro campo
     
@@ -774,73 +794,85 @@ vector<string> Comandos::parseInsercao(string registro) {
   return insercoes;
 }
 
-pair<Comandos::Removido, Comandos::Removido> Comandos::encontrarOndeInserir(string tabela, int tam_inserir) {
+tuple<Comandos::Removido, Comandos::Removido, int> Comandos::encontrarOndeInserir(string tabela, int tam_inserir) {
   ifstream arquivo;
-  arquivo.open(tabela);
+  string arquivo_tab = "./tabelas/" + tabela + "_TAB.txt";
+  arquivo.open(arquivo_tab);
+  if (!arquivo.is_open())
+    cout << "Erro ao abrir arquivo" << arquivo_tab << endl;
   arquivo.seekg(0, ios::beg);
+  string linha;
+  int percorrido_pos = 0;
+  int qtd_linha = 0;
 
   int tam_disponivel;
   int tam_atual;
   int melhor_tam = numeric_limits<int>::max();
   int pos = 0;
   int pos_prox;
-  int percorrido_pos;
-  int qtd_linha = 0;
   Comandos::Removido melhor;
   melhor.pos = -1;
   Comandos::Removido anterior_melhor;
   Comandos::Removido anterior;
   anterior.pos = 0;
   anterior.prox = 0;
-  
-  // X_global e usado para retornar posicao no final do arquivo p/ caso o best fit falhe
-  int percorrido_global = 0;
-  int qtd_linha_global = 0;
 
-  string linha;
-  while (getline(arquivo, linha)) {
-    percorrido_global += linha.size();
-    qtd_linha_global++;
+  // ponteiro_head: ponteiro para o primeiro registro invalido (salvo nos metadados)
+  auto par = getVetorDeMetadados(tabela);
+  vector<string> metadados = par.first;
+  int ponteiro_head = stoi(metadados[1].substr(0, metadados[1].find('|')));
 
-    if (linha.find('#') != string::npos) { 
-      tam_atual = linha.size();
-      tam_disponivel = tam_atual - tam_inserir;
-
-      pos = anterior.prox;
-      string copia_linha = linha;
-      pos_prox = ponteiroProximo(copia_linha);
-      if (tam_disponivel >= 0 && tam_disponivel <= melhor_tam) {
-        melhor_tam = tam_disponivel;
-        anterior_melhor.tamanho = anterior.tamanho;
-        anterior_melhor.pos = anterior.pos;
-
-        melhor.pos = pos;
-        melhor.tamanho = tam_atual;
-        melhor.prox = pos_prox;
-      }
-      anterior.tamanho = tam_atual;
-      anterior.pos = anterior.prox;
-      anterior.prox = pos_prox;
-      // mover para o proximo removido
-      arquivo.seekg(pos_prox, ios::beg);
-    }  else {
-      pos += linha.size();
+  // se nao existir nenhum espaco removido: leia o arquivo e retorne a posicao do final do arquivo
+  if (ponteiro_head == -1) {
+    while (getline(arquivo, linha)) {
+      percorrido_pos += linha.size();
       qtd_linha++;
-      anterior.prox = pos + (2 * qtd_linha);
-      anterior.pos = anterior.prox;
+    }
+
+  }
+  else {
+    while (getline(arquivo, linha)) {
+      cout << linha << endl;
+      if (linha.find('#') != string::npos) { 
+        tam_atual = linha.size();
+        tam_disponivel = tam_atual - tam_inserir;
+
+        pos = anterior.prox;
+        string copia_linha = linha;
+        pos_prox = ponteiroProximo(copia_linha);
+        if (tam_disponivel >= 0 && tam_disponivel <= melhor_tam) {
+          melhor_tam = tam_disponivel;
+          anterior_melhor.tamanho = anterior.tamanho;
+          anterior_melhor.pos = anterior.pos;
+
+          melhor.pos = pos;
+          melhor.tamanho = tam_atual;
+          melhor.prox = pos_prox;
+        }
+        anterior.tamanho = tam_atual;
+        anterior.pos = anterior.prox;
+        anterior.prox = pos_prox;
+        // mover para o proximo removido
+        arquivo.seekg(pos_prox, ios::beg);
+      }  else {
+        pos += linha.size();
+        qtd_linha++;
+        anterior.prox = pos + (2 * qtd_linha);
+        anterior.pos = anterior.prox;
+      }
     }
   }
   // condicao de best fit falhar, retorne a posicao do final do arquivo
   if (melhor.pos == -1) {
-    melhor.prox = percorrido_global + (2 * qtd_linha_global);
+    melhor.prox = percorrido_pos + (2 * qtd_linha);
   }
 
   arquivo.close();
-  return make_pair(anterior_melhor, melhor);
+  return make_tuple(anterior_melhor, melhor, ponteiro_head);
 }
 
 pair<int, int> Comandos::bestFit(string tabela, vector<string> inserir) {
-  tabela = "./tabelas/" + tabela + "_TAB.txt";
+  string arquivo_tab = "./tabelas/" + tabela + "_TAB.txt";
   // calcula o tamanho da nova insercao
   int tam_inserir = 0;
   for (auto reg : inserir)
@@ -848,8 +880,9 @@ pair<int, int> Comandos::bestFit(string tabela, vector<string> inserir) {
 
   // le o arquivo e verifica se existe algum espaco valido para insercao
   auto par = encontrarOndeInserir(tabela, tam_inserir);
-  Comandos::Removido melhor_anterior = par.first;
-  Comandos::Removido melhor = par.second;
+  Comandos::Removido melhor_anterior = get<0>(par);
+  Comandos::Removido melhor = get<1>(par);
+  int ponteiro_head = get<2>(par);
   // retorna se nao ha espacos validos
   if (melhor.pos == -1) {
     return make_pair(0, melhor.prox);
@@ -857,11 +890,19 @@ pair<int, int> Comandos::bestFit(string tabela, vector<string> inserir) {
   
   // insere no espaco disponivel
   FILE *arquivo;
-  arquivo = fopen(tabela.c_str(), "r+");
+  arquivo = fopen(arquivo_tab.c_str(), "r+");
   // mudar ponteiro da anterior
   fseek(arquivo, melhor_anterior.pos, SEEK_SET);
   melhor_anterior.buffer = to_string(melhor_anterior.tamanho) + '#' + to_string(melhor.prox) + '#';
   fprintf(arquivo, melhor_anterior.buffer.c_str());
+
+  // se o registro inserido for igual ao ponteiro_head
+  // atualize o ponteiro_head
+  if (ponteiro_head == melhor.pos) {
+    ponteiro_head = melhor.prox;
+    alterarPonteiroHead(tabela, ponteiro_head);
+  }
+
   // nova insercao no espaco disponivel
   fseek(arquivo, melhor.pos, SEEK_SET);
   for (auto reg : inserir) {
@@ -915,3 +956,21 @@ pair<vector<string>, vector<string>> Comandos::getVetorDeMetadados(string tabela
   }
   return make_pair(linha_meta_dados, linhas_indice);
 } 
+
+void Comandos::alterarPonteiroHead(string tabela, int ponteiro_head) {
+  string arquivo_meta = "./tabelas/" + tabela + "_META.txt";
+
+  string buffer = to_string(ponteiro_head);
+  // se sobrar espaco no buffer: preencha com '|' pois deve possuir tamanho fixo
+  for (int i = 0; i < (PONTEIRO_HEAD_SIZE - buffer.size()); i++) {
+    buffer.push_back('|');
+  }
+
+  // a posicao do ponteiro_head sempre sera o tamanho do nome da tabela + 1 (;)
+  int pos = tabela.size() + 1;
+  FILE *fp;
+  fp = fopen(arquivo_meta.c_str(), "r+");
+  fseek(fp, pos, SEEK_SET);
+  fprintf(fp, buffer.c_str());
+  fclose(fp);
+}

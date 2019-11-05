@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <vector>
 #include <limits>
+#include <tuple>
 
 using namespace std;
 
@@ -17,6 +18,7 @@ using namespace std;
 #define FINISH_PROGRAM 1
 // FFFFFFFF#FFFFFFFF#
 #define MIN_SIZE 18
+#define PONTEIRO_HEAD_SIZE 10
   
 typedef struct busca{
     string nome_tabela;
@@ -51,10 +53,11 @@ public:
     string conteudo;
   } posicoes;
   vector<busca> buscas;
-  pair<Comandos::Removido, Comandos::Removido> encontrarOndeInserir(string tabela, int tam_inserir);
 private:
   vector<string> parseInsercao(string registro);
   pair<vector<string>, vector<string>> getVetorDeMetadados(string tabela, bool IR=false);
+  void alterarPonteiroHead(string tabela, int ponteiro_head);
+  tuple<Comandos::Removido, Comandos::Removido, int> encontrarOndeInserir(string tabela, int tam_inserir);
 };
 
 #endif
