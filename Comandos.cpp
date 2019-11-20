@@ -340,12 +340,19 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
   unsigned int i = 0;
   int indice_campo; // Armazena a posição do campo que foi encontrado na busca
 
+  // checa se o indice campo_b possui hash. A verificação da hash acontece primeiro pois
+  // é mais eficiente, e decidimos por ser preferencial em relação à árvore.
   if (possuiHash(tabela, campo_b)) {
     cout << "possui hash do indice: " << campo_b << endl;
+    return;
   }
+  // checa se o indice campo_b possui arvore
   else if (possuiArvore(tabela, campo_b)) {
     cout << "possui arvore do indice: " << campo_b << endl;
+    return;
   }
+
+  // caso não tenha hash nem arvore, faz a busca sequencial
 
   //Percorre todos os campos presentes no meta, e ao encontrar o campo necessário pra busca, armazena sua posição em indice_campo
   while (i < quantidade_de_campos) {
