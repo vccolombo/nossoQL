@@ -252,6 +252,26 @@ bool linhaInvalida(string linha) {
   
 }
 
+// Função para verificar se um indice em uma dada tabela possui função hash
+// retorna true se possui, false caso contrário
+bool Comandos::possuiHash(string tabela, string indice) {
+  vector<string> indices = getVetorDeMetadados(tabela, true).second;
+  for (auto &ind: indices) {
+    if (ind.find(indice) != string::npos && ind.find(" H") != string::npos) return true;
+  }
+  return false;
+}
+
+// Função para verificar se um indice uma dada tabela possui arvore
+// retorna true se possui, false caso contrário
+bool Comandos::possuiArvore(string tabela, string indice) {
+  vector<string> indices = getVetorDeMetadados(tabela, true).second;
+  for (auto &ind: indices) {
+    if (ind.find(indice) != string::npos && ind.find(" A") != string::npos) return true;
+  }
+  return false;
+}
+
 void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
   ifstream file; //Leitura do arquivo
   struct busca busca_aux;
@@ -277,6 +297,13 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
   bool existe_campo = false; // Verificador da existência do campo
   unsigned int i = 0;
   int indice_campo; // Armazena a posição do campo que foi encontrado na busca
+
+  if (possuiHash(tabela, campo_b)) {
+    cout << "possui hash do indice: " << campo_b << endl;
+  }
+  else if (possuiArvore(tabela, campo_b)) {
+    cout << "possui arvore do indice: " << campo_b << endl;
+  }
 
   //Percorre todos os campos presentes no meta, e ao encontrar o campo necessário pra busca, armazena sua posição em indice_campo
   while (i < quantidade_de_campos) {
@@ -929,6 +956,11 @@ vector<string> Comandos::parseBuscaMetaDados(string dados_meta){
   return resposta;
 }
 
+// Função para pegar as informações do arquivo de metadados
+// Retorna um par em que o elemento first é a primeira linha do metadados (informações da tabela)
+// o segundo elemento second é um vetor em que cada entrada é uma linha a partir da 2a linha, 
+//  indicando quais indices existem na tabela.
+// Para receber os indices, o argumento IR deve ser setado como true
 pair<vector<string>, vector<string>> Comandos::getVetorDeMetadados(string tabela, bool IR) {
   ifstream file_meta; //Leitura do arquivo
   file_meta.open("tabelas/" + tabela + "_META.txt");
