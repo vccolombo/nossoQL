@@ -376,7 +376,7 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
   string linha_busca;
   vector<string> vetor_linha_busca;
   
-  int indice_no_txt = 0;
+  int pos_do_char = 0; // posição do ponteiro pro fseek
   bool encontrou = false;
   bool existe_nas_buscas = false;
 
@@ -385,10 +385,11 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
          << '\n';
     do {
       getline(file, linha_busca); //Armazena a linha em linha_busca
+      int tamanho_da_linha = linha_busca.length();
       // Ignora linha inválida
       if (linhaInvalida(linha_busca)) { 
         cout << "ignorado" << '\n';
-        indice_no_txt++;
+        pos_do_char += tamanho_da_linha + 1;
         continue;
       } 
 
@@ -398,11 +399,10 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
         if (vetor_linha_busca[indice_campo] == elemento_b) { 
           //Compara o conteúdo do campo com o conteúdo da busca
           encontrou = true;
-          busca_aux.linhas.push_back(indice_no_txt);
-          
+          busca_aux.linhas.push_back(pos_do_char);
         }
       }
-      indice_no_txt++;
+      pos_do_char += tamanho_da_linha + 1;
     } while (!file.eof());
   }
   else if (modifier == "U") {
@@ -411,22 +411,25 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
 
     // Busca até encontrar o primeiro campo igual ao conteúdo da busca
     do {
-      getline(file, linha_busca);
+      getline(file, linha_busca); //Armazena a linha em linha_busca
+      int tamanho_da_linha = linha_busca.length();
       // Ignora linha inválida
       if (linhaInvalida(linha_busca)) { 
         cout << "ignorado" << '\n';
-        indice_no_txt++;
+        pos_do_char += tamanho_da_linha + 1;
         continue;
       } 
-      vetor_linha_busca = parseBuscaMetaDados(linha_busca);
+
+      vetor_linha_busca = parseBuscaMetaDados(linha_busca); //Armazena os campos da linha atual
       //Evita segmentation fault quando pega uma linha vazia.
       if (linha_busca != "") {
-        if (vetor_linha_busca[indice_campo] == elemento_b) {
+        if (vetor_linha_busca[indice_campo] == elemento_b) { 
+          //Compara o conteúdo do campo com o conteúdo da busca
           encontrou = true;
-          busca_aux.linhas.push_back(indice_no_txt);
+          busca_aux.linhas.push_back(pos_do_char);
         }
       }
-      indice_no_txt++;
+      pos_do_char += tamanho_da_linha + 1;
     } while (!file.eof() && !encontrou);
   }
   else { // Modificador incorreto
@@ -462,9 +465,11 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
 
 void Comandos::apresentarRegistrosUltimaBusca(string tabela) {
   
-  ifstream file; //Leitura do arquivo
-  file.open("tabelas/" + tabela + "_TAB.txt");
-  if (file.fail()) {
+  // ifstream file; //Leitura do arquivo
+  // file.open("tabelas/" + tabela + "_TAB.txt");
+  FILE *fp;
+  fp = fopen(("tabelas/" + tabela + "_TAB.txt").c_str(), "r");
+  if (fp == NULL) {
     // TODO o arquivo não existe (a tabela não foi criada)
     std::cout << "Não foi possível encontrar a Tabela." << '\n';
     return;
@@ -500,18 +505,29 @@ void Comandos::apresentarRegistrosUltimaBusca(string tabela) {
   if(existe_busca){
     string resultado;
     i = 0;
-    int j = 0;
-    int k = 0;
-    while(getline(file, resultado) && j < linhas.size()){
-      if(i == linhas[j]){
-        for (k = 0; k < nomes_campos.size(); k++){
-          cout << nomes_campos[k] << ": " << retornaPalavraDeInput(resultado, ';') << " ";
-        }
-        cout << endl;
-        j++;
+    int linhas_restantes = linhas.size();
+    while(linhas_restantes--) {
+      fseek(fp, linhas[i], SEEK_SET);
+      i++; // próximo elemento do vetor de linhas encontradas;
+
+      char tmp[1000000] = {'\n'};
+      fscanf(fp, "%[^\n^|]", tmp); // ler a linha atual até | ou \n
+      resultado = tmp;
+      for (int k = 0; k < nomes_campos.size(); k++){
+        cout << nomes_campos[k] << ": " << retornaPalavraDeInput(resultado, ';') << " ";
       }
-      i++;
+      cout << endl;
     }
+    // while(getline(file, resultado) && j < linhas.size()){
+    //   if(i == linhas[j]){
+    //     for (k = 0; k < nomes_campos.size(); k++){
+    //       cout << nomes_campos[k] << ": " << retornaPalavraDeInput(resultado, ';') << " ";
+    //     }
+    //     cout << endl;
+    //     j++;
+    //   }
+    //   i++;
+    // }
   }
   else{
     cout << "Nenhuma pesquisa referente a essa tabela foi encontrada." << endl;
