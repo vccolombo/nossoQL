@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <cstring>
 #include <string>
+#include <tuple>
 #ifdef WINDOWS
    #include <direct.h>
    #define Define_CurrentDir _getcwd
@@ -23,12 +24,15 @@
    #define Define_CurrentDir getcwd
  #endif
 
+
+
 using namespace std;
 
 #define SUCCESS 0
 #define FINISH_PROGRAM 1
 // FFFFFFFF#FFFFFFFF#
 #define MIN_SIZE 18
+#define PONTEIRO_HEAD_SIZE 10
   
 typedef struct busca{
     string nome_tabela;
@@ -45,7 +49,7 @@ public:
   void inserirRegistro(string tabela, string registro);
   void buscaEmTabela(string modifier, string tabela, string busca);
   void apresentarRegistrosUltimaBusca(string tabela);
-  void removeRegistrosUltimaBusca(string tabela, vector<int> vetor_busca);
+  void removeRegistrosUltimaBusca(string tabela);
   int criaIndice(string modifier, string tabela, string chave);
   void removeIndiceChave(string tabela, string chave);
   void geraNovoIndiceDeTabelaChave(string tabela, string chave);
@@ -63,10 +67,11 @@ public:
     string conteudo;
   } posicoes;
   vector<busca> buscas;
-  pair<Comandos::Removido, Comandos::Removido> encontrarOndeInserir(string tabela, int tam_inserir);
 private:
   vector<string> parseInsercao(string registro);
   pair<vector<string>, vector<string>> getVetorDeMetadados(string tabela, bool IR=false);
+  void alterarPonteiroHead(string tabela, int ponteiro_head);
+  tuple<Comandos::Removido, Comandos::Removido, int> encontrarOndeInserir(string tabela, int tam_inserir);
 };
 
 #endif
