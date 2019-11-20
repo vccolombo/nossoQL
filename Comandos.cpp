@@ -510,9 +510,9 @@ void Comandos::apresentarRegistrosUltimaBusca(string tabela) {
       fseek(fp, linhas[i], SEEK_SET);
       i++; // próximo elemento do vetor de linhas encontradas;
 
-      char tmp[1000000] = {'\n'};
-      fscanf(fp, "%[^\n^|]", tmp); // ler a linha atual até | ou \n
-      resultado = tmp;
+      char tmp[1000000] = {'\n'}; // pode dar problema no tamanho máximo quando tiver o BIN e ele for muito grande.
+      fscanf(fp, "%[^\n^|]", tmp); // ler a linha atual até | ou \n https://www.quora.com/How-can-I-make-scanf-keep-receiving-characters-until-one-particular-character
+      resultado = tmp; // convertendo c string para c++ string https://stackoverflow.com/questions/4764897/converting-a-c-style-string-to-a-c-stdstring
       for (int k = 0; k < nomes_campos.size(); k++){
         cout << nomes_campos[k] << ": " << retornaPalavraDeInput(resultado, ';') << " ";
       }
