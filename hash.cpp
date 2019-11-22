@@ -1,13 +1,16 @@
 #include "hash.h"
 
+#include <iostream> 
+#include <utility> 
+#include <math.h>
 
-bool compare(const std::pair<int, int>&i, const std::pair<int, int>&j)
-{
+
+bool compare(const std::pair<int, int>&i, const std::pair<int, int>&j) {
     return i.first < j.first;
 }
 
 
-void iniciaHash(int quant_reg, std::string tabela, std::string campo){
+void iniciaHash(int quant_reg, std::string tabela, std::string campo) {
     FILE* arquivo;  //ponteiro para arquivo
     int tam = ceil((quant_reg / TAM_BLOCO)/0.6);                    //quant de bloco
     long int pos_bloco = 0;                                         //auxiliar para preencher o arquivo
@@ -30,7 +33,7 @@ void iniciaHash(int quant_reg, std::string tabela, std::string campo){
 
     //escreve os blocos no arquivo e atualiza o vetor hash com a posicao no arquivo de cada bloco
     arquivo = fopen(nome_arq.c_str(), "ab");                     //abre o arquivo com append binario
-    for (int i=0; i<tam;i++){                                    //itera tam vezes:
+    for (int i=0; i<tam;i++) {                                    //itera tam vezes:
         hash[i] = ftell(arquivo);                                //escrevendo em hash[i] a posicao que o bloco sera escrito no arquivo
         fwrite(&block,sizeof(bloco),1,arquivo);                  //escreve bloco aux no arquivo tam vezes
     }
@@ -39,16 +42,14 @@ void iniciaHash(int quant_reg, std::string tabela, std::string campo){
 
     // atualiza os long int com a posicao de cada bloco escrito anteriormente (que esta guardado em hash[i])
     arquivo = fopen(nome_arq.c_str(), "rb+");                       //abre o arquivo
-    for (int i=0; i<tam;i++){                                       //itera tam vezes:
+    for (int i=0; i<tam;i++) {                                       //itera tam vezes:
         fseek(arquivo,sizeof(int) + i*sizeof(long int),SEEK_SET);   //com o offset do primeiro int escrito (linha 19) anda passos de tamanho long int
         fwrite(&hash[i],sizeof(long int),1,arquivo);                //escrevendo no arquivo a posicao que os blocos foram escritos no arquivo
     }
     fclose(arquivo);                                                //fecha o arquivo
-    //*/
-
 }
         
-long int buscaHash(std::string tabela, std::string campo, int chave){
+long int buscaHash(std::string tabela, std::string campo, int chave) {
     FILE* arquivo;
     std::string nome_arq = (tabela + "_" + campo +  "_HASH.bin"); //nome do arquivo
     int tam_hash; //tamanho da hash, necessario para usar no modulo da funcao hash
@@ -69,7 +70,6 @@ long int buscaHash(std::string tabela, std::string campo, int chave){
     fclose(arquivo);
 
     return pos_bloco;
-    
 }
 
 
@@ -83,14 +83,14 @@ void insereHash(std::string tabela, std::string campo, std::pair<int,int> el, lo
     fseek(arquivo,pos_bloco,SEEK_SET);
     fread(&prim_bloco,sizeof(bloco),1,arquivo); //le o bloco apontado por pos_bloco
     
-    if (prim_bloco.num_elem < TAM_BLOCO){               //se o bloco nao estiver cheio
+    if (prim_bloco.num_elem < TAM_BLOCO) {               //se o bloco nao estiver cheio
         prim_bloco.elemento[prim_bloco.num_elem] = el;      //insere o par no vetor
         prim_bloco.num_elem++;                              //atualiza o preenchimento do vetor
         fseek(arquivo,pos_bloco,SEEK_SET);                  //como houve um fread que após a leitura anda com o ponteiro, é preciso voltar novamente ao pos_bloco
         fwrite(&prim_bloco,sizeof(bloco),1,arquivo);        //sobrescreve o bloco com as infos atualizadas
         fclose(arquivo);
     }
-    else if(prim_bloco.prox == -1){                     //se nao tiver um proximo bloco
+    else if(prim_bloco.prox == -1) {                     //se nao tiver um proximo bloco
         bloco novo_bloco;                                   //cria um novo bloco
         fseek(arquivo,0,SEEK_END);                          //vai para o final do arquivo
         prim_bloco.prox = ftell(arquivo);                   //atualiza o bloco.prox do primeiro para apontar para final do arquivo (onde ira ser inserido o proximo bloco)
@@ -102,16 +102,13 @@ void insereHash(std::string tabela, std::string campo, std::pair<int,int> el, lo
         fwrite(&prim_bloco,sizeof(bloco),1,arquivo);        //sobrescreve o primeiro bloco com o novo bloco.prox
         fclose(arquivo);
     }
-    else{                                               //se o bloco esta cheio, e existe um proximo bloco
+    else {                                               //se o bloco esta cheio, e existe um proximo bloco
         insereHash(tabela,campo,el,prim_bloco.prox);        //chamamos a insercao nesse novo bloco
     }
-
-    
-
 }
 
 
-std::vector<bloco> leHash(std::string tabela, std::string campo, int chave){
+std::vector<bloco> leHash(std::string tabela, std::string campo, int chave) {
     FILE* arquivo;
     std::vector<bloco> block;
     bloco aux;
@@ -130,22 +127,18 @@ std::vector<bloco> leHash(std::string tabela, std::string campo, int chave){
         block.push_back(aux);                       //o inserimos para o vector de blocos
     }
 
-    return block;
-    
-    
+    return block;   
 }
 
 
-void removeHash(std::string tabela, std::string campo){
+void removeHash(std::string tabela, std::string campo) {
     std::string nome_arq = (tabela + "_" + campo+  "_HASH.bin"); //nome do arquivo
     int status = remove(nome_arq.c_str());
 
     if (status == 0)
         std::cout << "o arquivo: \"" << nome_arq << "\" foi deletado com sucesso." << std::endl;
     else
-    {
-       std::cout << "Nao foi possivel deletar o arquivo" << std::endl;
-    }
+        std::cout << "Nao foi possivel deletar o arquivo" << std::endl;
 }
 
 
