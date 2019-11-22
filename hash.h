@@ -1,15 +1,16 @@
-#include <iostream> 
-#include <utility> 
+#ifndef HASH_H
+#define HASH_H
+
 #include <vector> 
-#include <math.h>
+#include <string>
 
 #define TAM_BLOCO 13
 
-typedef struct{
+typedef struct {
     int num_elem; // quantidade de elementos presente no bloco
     std::pair<int,int> elemento[TAM_BLOCO]; // <chave,ponteiro da tabela>
     long int prox; // ponteiro para proximo bloco caso o primeiro fique cheio
-}bloco;
+} bloco;
 
 
 /* Essa biblioteca gera um hash dinâmico, isto é, uma hash que pode crescer, uma hash de blocos.
@@ -34,7 +35,7 @@ removeHash - apaga o arquivo da hash
 
 void iniciaHash(int quant_reg, std::string tabela, std::string campo);
 long int buscaHash(std::string tabela, std::string campo, int chave);
-void insereHash(std::string tabela, std::string campo, std::pair<int,int> el, long int pos_bloco );
+void insereHash(std::string tabela, std::string campo, std::pair<int,int> el, long int pos_bloco);
 std::vector<bloco> leHash(std::string tabela, std::string campo, int chave);
 void removeHash(std::string tabela, std::string campo);
 
@@ -46,3 +47,5 @@ long int buscaHash_d(std::string tabela, std::string campo, int chave);
 void insereHash_d(std::string tabela, std::string campo, std::pair<int,int> el, long int pos_bloco );
 std::vector<bloco> leHash_d(std::string tabela, std::string campo, int chave);
 */
+
+#endif
