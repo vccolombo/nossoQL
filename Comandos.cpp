@@ -2,7 +2,16 @@
 #include <vector>
 #include <iostream>
 #include <cstdlib>
+#include "hash.h"
 #define MAXVETOR 100
+
+// verifica o Sistema Operacional para a busca
+// retirado de 
+#ifdef _WIN32
+  #define SO 2
+#elif defined _unix_
+  #define SO 1
+#endif
 
 using namespace std;
 
@@ -339,21 +348,25 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
   bool existe_campo = false; // Verificador da existência do campo
   unsigned int i = 0;
   int indice_campo; // Armazena a posição do campo que foi encontrado na busca
-
-  // checa se o indice campo_b possui hash. A verificação da hash acontece primeiro pois
-  // é mais eficiente, e decidimos por ser preferencial em relação à árvore.
-  if (possuiHash(tabela, campo_b)) {
-    cout << "possui hash do indice: " << campo_b << endl;
-    return;
-  }
-  // checa se o indice campo_b possui arvore
-  else if (possuiArvore(tabela, campo_b)) {
-    cout << "possui arvore do indice: " << campo_b << endl;
-    return;
-  }
-
-  // caso não tenha hash nem arvore, faz a busca sequencial
-
+  
+  // checa se o campo_b é um inteiro, se for, verifique se existe hash ou árvore.
+  // Senão, utilize a busca normal.
+  if (is_number(elemento_b) == true) {
+    int elemento_int = stoi(elemento_b);
+    // checa se o indice campo_b possui hash. A verificação da hash acontece primeiro pois
+    // é mais eficiente, e decidimos por ser preferencial em relação à árvore.
+    if (possuiHash(tabela, campo_b)) {
+      cout << "Possui hash do indice: " << elemento_int << endl;
+      buscaHash(tabela, campo_b, elemento_int);
+      return;
+    }
+    // checa se o indice campo_b possui arvore
+    else if (possuiArvore(tabela, campo_b)) {
+      cout << "possui arvore do indice: " << elemento_int << endl;
+      //return;   REMOVER RETURN PARA FUNCIONAR |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    }
+    // caso não tenha hash nem arvore, faz a busca sequencial
+  } 
   //Percorre todos os campos presentes no meta, e ao encontrar o campo necessário pra busca, armazena sua posição em indice_campo
   while (i < quantidade_de_campos) {
     size_t pos_dois_pontos = linha_meta_dados[3 + i].find(":");
@@ -389,7 +402,7 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
       // Ignora linha inválida
       if (linhaInvalida(linha_busca)) { 
         cout << "ignorado" << '\n';
-        pos_do_char += tamanho_da_linha + 2;
+        pos_do_char += tamanho_da_linha + SO;
         continue;
       } 
 
@@ -402,7 +415,7 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
           busca_aux.linhas.push_back(pos_do_char);
         }
       }
-      pos_do_char += tamanho_da_linha + 2;
+      pos_do_char += tamanho_da_linha + SO;
     } while (!file.eof());
   }
   else if (modifier == "U") {
@@ -416,7 +429,7 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
       // Ignora linha inválida
       if (linhaInvalida(linha_busca)) { 
         cout << "ignorado" << '\n';
-        pos_do_char += tamanho_da_linha + 2;
+        pos_do_char += tamanho_da_linha + SO;
         continue;
       } 
 
@@ -429,7 +442,7 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
           busca_aux.linhas.push_back(pos_do_char);
         }
       }
-      pos_do_char += tamanho_da_linha + 2;
+      pos_do_char += tamanho_da_linha + SO;
     } while (!file.eof() && !encontrou);
   }
   else { // Modificador incorreto
@@ -926,7 +939,6 @@ tuple<Comandos::Removido, Comandos::Removido, int> Comandos::encontrarOndeInseri
   }
   else {
     while (getline(arquivo, linha)) {
-      cout << linha << endl;
       if (linha.find('#') != string::npos) { 
         tam_atual = linha.size();
         tam_disponivel = tam_atual - tam_inserir;
