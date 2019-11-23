@@ -12,7 +12,7 @@ bool compare(const std::pair<int, int>&i, const std::pair<int, int>&j) {
 
 void iniciaHash(int quant_reg, std::string tabela, std::string campo) {
     FILE* arquivo;  //ponteiro para arquivo
-    int tam = ceil((quant_reg / TAM_BLOCO)/0.6);                    //quant de bloco
+    int tam = ceil((1.0*quant_reg / TAM_BLOCO)/0.6);                //quant de bloco
     long int pos_bloco = 0;                                         //auxiliar para preencher o arquivo
     long int hash[tam];                                             //ira guardar o endereco de cada bloco do arquivo
     
@@ -60,9 +60,10 @@ long int buscaHash(std::string tabela, std::string campo, int chave) {
     fseek(arquivo,0,SEEK_SET);
     fread(&tam_hash,sizeof(int),1,arquivo); //le tamanho da hash
     fclose(arquivo);
+    // std::cout << chave << ' ' << tam_hash << '\n';
     pos_hash = (chave * 127) % tam_hash;      //executa a func. hash obtendo a pos do vetor hash 
     
-    //std::cout << "POS_HASH - " << pos_hash;
+    // std::cout << "POS_HASH - " << pos_hash << '\n';
 
     arquivo = fopen(nome_arq.c_str(),"rb");
     fseek(arquivo,sizeof(int) + pos_hash*sizeof(long int),SEEK_SET);    //vai até o endereco pos_ash
@@ -73,11 +74,10 @@ long int buscaHash(std::string tabela, std::string campo, int chave) {
 }
 
 
-void insereHash(std::string tabela, std::string campo, std::pair<int,int> el, long int pos_bloco ){
+void insereHash(std::string tabela, std::string campo, std::pair<int,int> el, long int pos_bloco ) {
     FILE* arquivo;
     bloco prim_bloco;
-    std::string nome_arq = (tabela + "_" + campo +  "_HASH.bin"); //nome do arquivo
-    //std::cout << " POS_BLOCO - " << pos_bloco << std::endl;
+    std::string nome_arq = tabela + "_" + campo +  "_HASH.bin"; //nome do arquivo
     
     arquivo = fopen(nome_arq.c_str(),"rb+"); //abre pra leitura e escrita sem sobrescrever o arquivo
     fseek(arquivo,pos_bloco,SEEK_SET);
