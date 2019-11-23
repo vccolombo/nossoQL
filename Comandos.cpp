@@ -389,7 +389,7 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
       // Ignora linha inválida
       if (linhaInvalida(linha_busca)) { 
         cout << "ignorado" << '\n';
-        pos_do_char += tamanho_da_linha + 1;
+        pos_do_char += tamanho_da_linha + 2;
         continue;
       } 
 
@@ -402,7 +402,7 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
           busca_aux.linhas.push_back(pos_do_char);
         }
       }
-      pos_do_char += tamanho_da_linha + 1;
+      pos_do_char += tamanho_da_linha + 2;
     } while (!file.eof());
   }
   else if (modifier == "U") {
@@ -416,7 +416,7 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
       // Ignora linha inválida
       if (linhaInvalida(linha_busca)) { 
         cout << "ignorado" << '\n';
-        pos_do_char += tamanho_da_linha + 1;
+        pos_do_char += tamanho_da_linha + 2;
         continue;
       } 
 
@@ -429,7 +429,7 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
           busca_aux.linhas.push_back(pos_do_char);
         }
       }
-      pos_do_char += tamanho_da_linha + 1;
+      pos_do_char += tamanho_da_linha + 2;
     } while (!file.eof() && !encontrou);
   }
   else { // Modificador incorreto
@@ -563,7 +563,7 @@ void Comandos::removeRegistrosUltimaBusca(string tabela){
   cout << "a tabela é a" << buscas[tab].nome_tabela << endl;
 
   string arquivo_tab = "tabelas/" + tabela + "_TAB.txt";
-
+  
   for (size_t i = 0; i < buscas[tab].linhas.size(); i++) {
     ifstream arquivo;
     arquivo.open(arquivo_tab);
@@ -578,25 +578,27 @@ void Comandos::removeRegistrosUltimaBusca(string tabela){
     Comandos::Removido atual;
     Comandos::Removido posterior;
     posterior.pos = -1;
-
+    
+    int global_pos = 0; // ponteiro global e equivalente a linha em que a busca deve aparecer
     int qtd_linha = -1;
     string linha;
     while (getline(arquivo, linha) && posterior.pos == -1) {
       qtd_linha++;
-      if (qtd_linha == buscas[tab].linhas[i]) {
+      global_pos = pos + (2 * qtd_linha);
+      if (global_pos == buscas[tab].linhas[i]) {
         atual.pos = pos + (2 * qtd_linha);
         atual.tamanho = linha.size();
         atual.conteudo = linha;
-
+        
         reg_removido.push_back(parseInsercao(linha));
         ponteiro.push_back(pos + 1);
       } else {
-        if (qtd_linha < buscas[tab].linhas[i] && linha.find('#') != string::npos) {
+        if (global_pos < buscas[tab].linhas[i] && linha.find('#') != string::npos) {
           anterior.pos = pos + (2 * qtd_linha);
           anterior.tamanho = linha.size();
           anterior.conteudo = linha;
         }
-        else if (qtd_linha > buscas[tab].linhas[i] && linha.find('#') != string::npos) {
+        else if (global_pos > buscas[tab].linhas[i] && linha.find('#') != string::npos) {
           posterior.pos = pos + (2 * qtd_linha);
           posterior.tamanho = linha.size();
           posterior.conteudo = linha;
