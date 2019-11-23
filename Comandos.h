@@ -72,6 +72,8 @@ private:
   pair<vector<string>, vector<string>> getVetorDeMetadados(string tabela, bool IR=false);
   void alterarPonteiroHead(string tabela, int ponteiro_head);
   tuple<Comandos::Removido, Comandos::Removido, int> encontrarOndeInserir(string tabela, int tam_inserir);
+  bool possuiHash(string tabela, string indice);
+  bool possuiArvore(string tabela, string indice);
 };
 
 #endif

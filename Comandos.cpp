@@ -294,6 +294,26 @@ bool linhaInvalida(string linha) {
   
 }
 
+// Função para verificar se um indice em uma dada tabela possui função hash
+// retorna true se possui, false caso contrário
+bool Comandos::possuiHash(string tabela, string indice) {
+  vector<string> indices = getVetorDeMetadados(tabela, true).second;
+  for (auto &ind: indices) {
+    if (ind.find(indice) != string::npos && ind.find(" H") != string::npos) return true;
+  }
+  return false;
+}
+
+// Função para verificar se um indice uma dada tabela possui arvore
+// retorna true se possui, false caso contrário
+bool Comandos::possuiArvore(string tabela, string indice) {
+  vector<string> indices = getVetorDeMetadados(tabela, true).second;
+  for (auto &ind: indices) {
+    if (ind.find(indice) != string::npos && ind.find(" A") != string::npos) return true;
+  }
+  return false;
+}
+
 void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
   ifstream file; //Leitura do arquivo
   struct busca busca_aux;
@@ -320,6 +340,20 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
   unsigned int i = 0;
   int indice_campo; // Armazena a posição do campo que foi encontrado na busca
 
+  // checa se o indice campo_b possui hash. A verificação da hash acontece primeiro pois
+  // é mais eficiente, e decidimos por ser preferencial em relação à árvore.
+  if (possuiHash(tabela, campo_b)) {
+    cout << "possui hash do indice: " << campo_b << endl;
+    return;
+  }
+  // checa se o indice campo_b possui arvore
+  else if (possuiArvore(tabela, campo_b)) {
+    cout << "possui arvore do indice: " << campo_b << endl;
+    return;
+  }
+
+  // caso não tenha hash nem arvore, faz a busca sequencial
+
   //Percorre todos os campos presentes no meta, e ao encontrar o campo necessário pra busca, armazena sua posição em indice_campo
   while (i < quantidade_de_campos) {
     size_t pos_dois_pontos = linha_meta_dados[3 + i].find(":");
@@ -342,7 +376,7 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
   string linha_busca;
   vector<string> vetor_linha_busca;
   
-  int indice_no_txt = 0;
+  int pos_do_char = 0; // posição do ponteiro pro fseek
   bool encontrou = false;
   bool existe_nas_buscas = false;
 
@@ -351,10 +385,11 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
          << '\n';
     do {
       getline(file, linha_busca); //Armazena a linha em linha_busca
+      int tamanho_da_linha = linha_busca.length();
       // Ignora linha inválida
       if (linhaInvalida(linha_busca)) { 
         cout << "ignorado" << '\n';
-        indice_no_txt++;
+        pos_do_char += tamanho_da_linha + 2;
         continue;
       } 
 
@@ -364,11 +399,10 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
         if (vetor_linha_busca[indice_campo] == elemento_b) { 
           //Compara o conteúdo do campo com o conteúdo da busca
           encontrou = true;
-          busca_aux.linhas.push_back(indice_no_txt);
-          
+          busca_aux.linhas.push_back(pos_do_char);
         }
       }
-      indice_no_txt++;
+      pos_do_char += tamanho_da_linha + 2;
     } while (!file.eof());
   }
   else if (modifier == "U") {
@@ -377,22 +411,25 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
 
     // Busca até encontrar o primeiro campo igual ao conteúdo da busca
     do {
-      getline(file, linha_busca);
+      getline(file, linha_busca); //Armazena a linha em linha_busca
+      int tamanho_da_linha = linha_busca.length();
       // Ignora linha inválida
       if (linhaInvalida(linha_busca)) { 
         cout << "ignorado" << '\n';
-        indice_no_txt++;
+        pos_do_char += tamanho_da_linha + 2;
         continue;
       } 
-      vetor_linha_busca = parseBuscaMetaDados(linha_busca);
+
+      vetor_linha_busca = parseBuscaMetaDados(linha_busca); //Armazena os campos da linha atual
       //Evita segmentation fault quando pega uma linha vazia.
       if (linha_busca != "") {
-        if (vetor_linha_busca[indice_campo] == elemento_b) {
+        if (vetor_linha_busca[indice_campo] == elemento_b) { 
+          //Compara o conteúdo do campo com o conteúdo da busca
           encontrou = true;
-          busca_aux.linhas.push_back(indice_no_txt);
+          busca_aux.linhas.push_back(pos_do_char);
         }
       }
-      indice_no_txt++;
+      pos_do_char += tamanho_da_linha + 2;
     } while (!file.eof() && !encontrou);
   }
   else { // Modificador incorreto
@@ -428,9 +465,11 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
 
 void Comandos::apresentarRegistrosUltimaBusca(string tabela) {
   
-  ifstream file; //Leitura do arquivo
-  file.open("tabelas/" + tabela + "_TAB.txt");
-  if (file.fail()) {
+  // ifstream file; //Leitura do arquivo
+  // file.open("tabelas/" + tabela + "_TAB.txt");
+  FILE *fp;
+  fp = fopen(("tabelas/" + tabela + "_TAB.txt").c_str(), "r");
+  if (fp == NULL) {
     // TODO o arquivo não existe (a tabela não foi criada)
     std::cout << "Não foi possível encontrar a Tabela." << '\n';
     return;
@@ -466,18 +505,29 @@ void Comandos::apresentarRegistrosUltimaBusca(string tabela) {
   if(existe_busca){
     string resultado;
     i = 0;
-    int j = 0;
-    int k = 0;
-    while(getline(file, resultado) && j < linhas.size()){
-      if(i == linhas[j]){
-        for (k = 0; k < nomes_campos.size(); k++){
-          cout << nomes_campos[k] << ": " << retornaPalavraDeInput(resultado, ';') << " ";
-        }
-        cout << endl;
-        j++;
+    int linhas_restantes = linhas.size();
+    while(linhas_restantes--) {
+      fseek(fp, linhas[i], SEEK_SET);
+      i++; // próximo elemento do vetor de linhas encontradas;
+
+      char tmp[1000000] = {'\n'}; // pode dar problema no tamanho máximo quando tiver o BIN e ele for muito grande.
+      fscanf(fp, "%[^\n^|]", tmp); // ler a linha atual até | ou \n https://www.quora.com/How-can-I-make-scanf-keep-receiving-characters-until-one-particular-character
+      resultado = tmp; // convertendo c string para c++ string https://stackoverflow.com/questions/4764897/converting-a-c-style-string-to-a-c-stdstring
+      for (int k = 0; k < nomes_campos.size(); k++){
+        cout << nomes_campos[k] << ": " << retornaPalavraDeInput(resultado, ';') << " ";
       }
-      i++;
+      cout << endl;
     }
+    // while(getline(file, resultado) && j < linhas.size()){
+    //   if(i == linhas[j]){
+    //     for (k = 0; k < nomes_campos.size(); k++){
+    //       cout << nomes_campos[k] << ": " << retornaPalavraDeInput(resultado, ';') << " ";
+    //     }
+    //     cout << endl;
+    //     j++;
+    //   }
+    //   i++;
+    // }
   }
   else{
     cout << "Nenhuma pesquisa referente a essa tabela foi encontrada." << endl;
@@ -513,7 +563,7 @@ void Comandos::removeRegistrosUltimaBusca(string tabela){
   cout << "a tabela é a" << buscas[tab].nome_tabela << endl;
 
   string arquivo_tab = "tabelas/" + tabela + "_TAB.txt";
-
+  
   for (size_t i = 0; i < buscas[tab].linhas.size(); i++) {
     ifstream arquivo;
     arquivo.open(arquivo_tab);
@@ -528,25 +578,27 @@ void Comandos::removeRegistrosUltimaBusca(string tabela){
     Comandos::Removido atual;
     Comandos::Removido posterior;
     posterior.pos = -1;
-
+    
+    int global_pos = 0; // ponteiro global e equivalente a linha em que a busca deve aparecer
     int qtd_linha = -1;
     string linha;
     while (getline(arquivo, linha) && posterior.pos == -1) {
       qtd_linha++;
-      if (qtd_linha == buscas[tab].linhas[i]) {
+      global_pos = pos + (2 * qtd_linha);
+      if (global_pos == buscas[tab].linhas[i]) {
         atual.pos = pos + (2 * qtd_linha);
         atual.tamanho = linha.size();
         atual.conteudo = linha;
-
+        
         reg_removido.push_back(parseInsercao(linha));
         ponteiro.push_back(pos + 1);
       } else {
-        if (qtd_linha < buscas[tab].linhas[i] && linha.find('#') != string::npos) {
+        if (global_pos < buscas[tab].linhas[i] && linha.find('#') != string::npos) {
           anterior.pos = pos + (2 * qtd_linha);
           anterior.tamanho = linha.size();
           anterior.conteudo = linha;
         }
-        else if (qtd_linha > buscas[tab].linhas[i] && linha.find('#') != string::npos) {
+        else if (global_pos > buscas[tab].linhas[i] && linha.find('#') != string::npos) {
           posterior.pos = pos + (2 * qtd_linha);
           posterior.tamanho = linha.size();
           posterior.conteudo = linha;
@@ -971,6 +1023,11 @@ vector<string> Comandos::parseBuscaMetaDados(string dados_meta){
   return resposta;
 }
 
+// Função para pegar as informações do arquivo de metadados
+// Retorna um par em que o elemento first é a primeira linha do metadados (informações da tabela)
+// o segundo elemento second é um vetor em que cada entrada é uma linha a partir da 2a linha, 
+//  indicando quais indices existem na tabela.
+// Para receber os indices, o argumento IR deve ser setado como true
 pair<vector<string>, vector<string>> Comandos::getVetorDeMetadados(string tabela, bool IR) {
   ifstream file_meta; //Leitura do arquivo
   file_meta.open("tabelas/" + tabela + "_META.txt");
