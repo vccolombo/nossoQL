@@ -12,7 +12,7 @@
 // retirado de 
 #ifdef _WIN32
   #define SO 2
-#elif defined _unix_
+#elif defined(__unix__) || defined(unix) || defined(__unix)
   #define SO 1
 #endif
 
@@ -432,7 +432,7 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
       // Ignora linha inválida
       if (linhaInvalida(linha_busca)) { 
         cout << "ignorado" << '\n';
-        pos_do_char += tamanho_da_linha + SO;
+        pos_do_char += tamanho_da_linha + 1;
         continue;
       } 
 
@@ -445,7 +445,7 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
           busca_aux.linhas.push_back(pos_do_char);
         }
       }
-      pos_do_char += tamanho_da_linha + SO;
+      pos_do_char += tamanho_da_linha + 1;
     } while (!file.eof() && !encontrou);
   }
   else { // Modificador incorreto
@@ -581,6 +581,7 @@ void Comandos::removeRegistrosUltimaBusca(string tabela){
   string arquivo_tab = "tabelas/" + tabela + "_TAB.txt";
   
   for (size_t i = 0; i < buscas[tab].linhas.size(); i++) {
+    cout << "PONTEIRO" << buscas[tab].linhas[i];
     ifstream arquivo;
     arquivo.open(arquivo_tab);
     arquivo.seekg(0, ios::beg);
@@ -600,9 +601,9 @@ void Comandos::removeRegistrosUltimaBusca(string tabela){
     string linha;
     while (getline(arquivo, linha) && posterior.pos == -1) {
       qtd_linha++;
-      global_pos = pos + (2 * qtd_linha);
+      global_pos = pos + (SO * qtd_linha);
       if (global_pos == buscas[tab].linhas[i]) {
-        atual.pos = pos + (2 * qtd_linha);
+        atual.pos = pos + (SO * qtd_linha);
         atual.tamanho = linha.size();
         atual.conteudo = linha;
         
@@ -610,12 +611,12 @@ void Comandos::removeRegistrosUltimaBusca(string tabela){
         ponteiro.push_back(pos + 1);
       } else {
         if (global_pos < buscas[tab].linhas[i] && linha.find('#') != string::npos) {
-          anterior.pos = pos + (2 * qtd_linha);
+          anterior.pos = pos + (SO * qtd_linha);
           anterior.tamanho = linha.size();
           anterior.conteudo = linha;
         }
         else if (global_pos > buscas[tab].linhas[i] && linha.find('#') != string::npos) {
-          posterior.pos = pos + (2 * qtd_linha);
+          posterior.pos = pos + (SO * qtd_linha);
           posterior.tamanho = linha.size();
           posterior.conteudo = linha;
         }
@@ -1017,14 +1018,14 @@ tuple<Comandos::Removido, Comandos::Removido, int> Comandos::encontrarOndeInseri
       }  else {
         pos += linha.size();
         qtd_linha++;
-        anterior.prox = pos + (2 * qtd_linha);
+        anterior.prox = pos + (SO * qtd_linha);
         anterior.pos = anterior.prox;
       }
     }
   }
   // condicao de best fit falhar, retorne a posicao do final do arquivo
   if (melhor.pos == -1) {
-    melhor.prox = percorrido_pos + (2 * qtd_linha);
+    melhor.prox = percorrido_pos + (SO * qtd_linha);
   }
 
   arquivo.close();
