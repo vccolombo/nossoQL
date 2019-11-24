@@ -9,7 +9,7 @@
 #define MAXVETOR 100
 
 // verifica o Sistema Operacional para a busca
-// retirado de 
+// retirado de https://stackoverflow.com/questions/142508/how-do-i-check-os-with-a-preprocessor-directive
 #define SO 1
 #ifdef _WIN32
   #define SO 2
