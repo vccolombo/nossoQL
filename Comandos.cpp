@@ -1,8 +1,11 @@
 #include "Comandos.h"
+
 #include <vector>
 #include <iostream>
 #include <cstdlib>
+
 #include "hash.h"
+
 #define MAXVETOR 100
 
 // verifica o Sistema Operacional para a busca
@@ -687,10 +690,10 @@ void Comandos::removeRegistrosUltimaBusca(string tabela){
 }
 
 int Comandos::criaIndice(string modifier, string tabela, string chave) {
-  tabela = "./tabelas/" + tabela + "_META.txt";
+  string meta = "./tabelas/" + tabela + "_META.txt";
   // verificar se a chave e valida
   ifstream arquivo;
-  arquivo.open(tabela);
+  arquivo.open(meta);
   
   // qtd de ";" ate os campos (ate o numero que indica a quantidade de campos)
   int qtd_ate_campos = 2;
@@ -743,16 +746,67 @@ int Comandos::criaIndice(string modifier, string tabela, string chave) {
   
   // insere indice e tipo no arquivo de metadados
   ofstream arquivo_meta;
-  arquivo_meta.open(tabela, ios::app);
+  arquivo_meta.open(meta, ios::app);
   arquivo_meta << campos + ' ' + modifier << endl; 
   arquivo_meta.close();
 
   if (modifier == "A") {
     cout << "Cria um índice estruturado para " << tabela
               << " usando a chave " << chave << '\n';
-  } else if (modifier == "H") {
-    cout << "Cria um índice usando hash para " << tabela
-              << " usando a chave " << chave << '\n';
+  } 
+  else if (modifier == "H") {
+    // https://stackoverflow.com/questions/3482064/counting-the-number-of-lines-in-a-text-file
+    // A Hash recebe como argumento o número de elementos que vão ser adicionados.
+    // Esse trecho conta a quantidade de elementos
+    int number_of_lines = 0;
+    string line;
+    ifstream file("tabelas/" + tabela + "_TAB.txt");
+    while (getline(file, line)) // cada linha é um elemento
+        ++number_of_lines;
+
+    iniciaHash(number_of_lines, "tabelas/" + tabela, chave); // Criar a hash que vamos completar
+
+    // Aqui achamos a posição do campo que vamos indexar
+    // Isso é importante para separarmos o valor da chave que vamos indexar
+    auto par_meta = getVetorDeMetadados(tabela);
+    vector<string> metadados = par_meta.first;
+    size_t quantidade_de_campos = stoi(metadados[2]);
+    int indice_campo;
+    int qtd = 0;
+    while (qtd < quantidade_de_campos) {
+      size_t pos_dois_pontos = metadados[3 + qtd].find(":");
+      string campo = metadados[3 + qtd].substr(pos_dois_pontos + 1);
+      // Se o campo for igual ao campo da busca, armazena a posição
+      if (campo == chave) {
+        indice_campo = qtd;
+      }
+      qtd++;
+    }
+    
+    int tam_das_linhas = 0;
+    // voltar para o começo do arquivo
+    // https://stackoverflow.com/questions/5343173/returning-to-beginning-of-file-after-getline
+    file.clear();
+    file.seekg(0, ios::beg);
+    while(getline(file, line)) {
+      string valor_da_chave_str = line;
+      string line_cortada = line;
+      // Esse for corta apenas o valor da chave do índice que estamos indexando
+      for (size_t j = 0; j < quantidade_de_campos; j++) {
+        if (j == indice_campo)
+          valor_da_chave_str = retornaPalavraDeInput(line_cortada, ';');
+        else
+          retornaPalavraDeInput(line_cortada, ';');
+      }
+    
+      // cout << valor_da_chave_str << ' ' << tam_das_linhas << endl;
+      pair<int, int> a;
+      a.first = stoi(valor_da_chave_str);
+      a.second = tam_das_linhas;
+
+      tam_das_linhas += line.length() + 2;
+      insereHash("tabelas/" + tabela, chave, a, buscaHash("tabelas/" + tabela, chave, a.first));
+    }
   } else {
     cout << "Erro: Modificador não reconhecido: " << modifier << '\n'
 		 << "Utilize A para criar um índice estruturado como árvore de múltiplos caminhos para a tabela, usando chave como chave de busca, atualizando os metadados e  H para criar um índice usando hashing para a tabela, usando chave como chave de busca, atualizando os metadados. \n";
@@ -780,7 +834,7 @@ void Comandos::removeIndiceChave(string tabela, string chave) {
         if (linha.find(" A") != string::npos) {
           cout << "REMOVER ARVORE" << endl;
         } else if (linha.find(" H") != string::npos) {
-          cout << "REMOVER HASH" << endl;
+          removeHash("tabelas/" + tabela, chave);
         }
       } else {
         if (linha.size() != 0) {
