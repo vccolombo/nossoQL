@@ -10,6 +10,7 @@
 
 // verifica o Sistema Operacional para a busca
 // retirado de 
+#define SO 1
 #ifdef _WIN32
   #define SO 2
 #elif defined(__unix__) || defined(unix) || defined(__unix)
@@ -432,7 +433,7 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
       // Ignora linha inválida
       if (linhaInvalida(linha_busca)) { 
         cout << "ignorado" << '\n';
-        pos_do_char += tamanho_da_linha + 1;
+        pos_do_char += tamanho_da_linha + SO;
         continue;
       } 
 
@@ -445,7 +446,7 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
           busca_aux.linhas.push_back(pos_do_char);
         }
       }
-      pos_do_char += tamanho_da_linha + 1;
+      pos_do_char += tamanho_da_linha + SO;
     } while (!file.eof() && !encontrou);
   }
   else { // Modificador incorreto
@@ -581,7 +582,6 @@ void Comandos::removeRegistrosUltimaBusca(string tabela){
   string arquivo_tab = "tabelas/" + tabela + "_TAB.txt";
   
   for (size_t i = 0; i < buscas[tab].linhas.size(); i++) {
-    cout << "PONTEIRO" << buscas[tab].linhas[i];
     ifstream arquivo;
     arquivo.open(arquivo_tab);
     arquivo.seekg(0, ios::beg);
