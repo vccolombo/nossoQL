@@ -355,19 +355,20 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
   
   // checa se o campo_b é um inteiro, se for, verifique se existe hash ou árvore.
   // Senão, utilize a busca normal.
+  bool hash = false;
+  bool arvore = false;
   if (is_number(elemento_b) == true) {
     int elemento_int = stoi(elemento_b);
     // checa se o indice campo_b possui hash. A verificação da hash acontece primeiro pois
     // é mais eficiente, e decidimos por ser preferencial em relação à árvore.
     if (possuiHash(tabela, campo_b)) {
-      cout << "Possui hash do indice: " << elemento_int << endl;
-      buscaHash(tabela, campo_b, elemento_int);
-      return;
+      cout << "Possui hash do indice: " << elemento_int << "." << endl;
+      hash = true;
     }
     // checa se o indice campo_b possui arvore
     else if (possuiArvore(tabela, campo_b)) {
       cout << "possui arvore do indice: " << elemento_int << endl;
-      //return;   REMOVER RETURN PARA FUNCIONAR |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+      arvore = true; 
     }
     // caso não tenha hash nem arvore, faz a busca sequencial
   } 
@@ -400,54 +401,74 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
   if (modifier == "N") {
     cout << "Busca em " << tabela << " todos com critério " << busca
          << '\n';
-    do {
-      getline(file, linha_busca); //Armazena a linha em linha_busca
-      int tamanho_da_linha = linha_busca.length();
-      // Ignora linha inválida
-      if (linhaInvalida(linha_busca)) { 
-        cout << "ignorado" << '\n';
-        pos_do_char += tamanho_da_linha + SO;
-        continue;
-      } 
+    if (hash == false && arvore == false) {
+      // busca no arquivo
+      do {
+        getline(file, linha_busca); //Armazena a linha em linha_busca
+        int tamanho_da_linha = linha_busca.length();
+        // Ignora linha inválida
+        if (linhaInvalida(linha_busca)) { 
+          cout << "ignorado" << '\n';
+          pos_do_char += tamanho_da_linha + SO;
+          continue;
+        } 
 
-      vetor_linha_busca = parseBuscaMetaDados(linha_busca); //Armazena os campos da linha atual
-      //Evita segmentation fault quando pega uma linha vazia.
-      if (linha_busca != "") {
-        if (vetor_linha_busca[indice_campo] == elemento_b) { 
-          //Compara o conteúdo do campo com o conteúdo da busca
-          encontrou = true;
-          busca_aux.linhas.push_back(pos_do_char);
+        vetor_linha_busca = parseBuscaMetaDados(linha_busca); //Armazena os campos da linha atual
+        //Evita segmentation fault quando pega uma linha vazia.
+        if (linha_busca != "") {
+          if (vetor_linha_busca[indice_campo] == elemento_b) { 
+            //Compara o conteúdo do campo com o conteúdo da busca
+            encontrou = true;
+            busca_aux.linhas.push_back(pos_do_char);
+          }
         }
-      }
-      pos_do_char += tamanho_da_linha + SO;
-    } while (!file.eof());
+        pos_do_char += tamanho_da_linha + SO;
+      } while (!file.eof());
+    }
+    else if (hash == true) {
+      // busca na hash
+      cout << "buscando na hash" << endl;
+    }
+    else if (arvore == true) {
+      // busca na arvore
+    }
   }
   else if (modifier == "U") {
     cout << "Busca em " << tabela << " primeiro com critério " << busca
           << '\n';
 
     // Busca até encontrar o primeiro campo igual ao conteúdo da busca
-    do {
-      getline(file, linha_busca); //Armazena a linha em linha_busca
-      int tamanho_da_linha = linha_busca.length();
-      // Ignora linha inválida
-      if (linhaInvalida(linha_busca)) { 
-        cout << "ignorado" << '\n';
-        pos_do_char += tamanho_da_linha + SO;
-        continue;
-      } 
+    if (hash == false && arvore == false) {
+      // busca no arquivo
+      do {
+        getline(file, linha_busca); //Armazena a linha em linha_busca
+        int tamanho_da_linha = linha_busca.length();
+        // Ignora linha inválida
+        if (linhaInvalida(linha_busca)) { 
+          cout << "ignorado" << '\n';
+          pos_do_char += tamanho_da_linha + SO;
+          continue;
+        } 
 
-      vetor_linha_busca = parseBuscaMetaDados(linha_busca); //Armazena os campos da linha atual
-      //Evita segmentation fault quando pega uma linha vazia.
-      if (linha_busca != "") {
-        if (vetor_linha_busca[indice_campo] == elemento_b) { 
-          //Compara o conteúdo do campo com o conteúdo da busca
-          encontrou = true;
-          busca_aux.linhas.push_back(pos_do_char);
+        vetor_linha_busca = parseBuscaMetaDados(linha_busca); //Armazena os campos da linha atual
+        //Evita segmentation fault quando pega uma linha vazia.
+        if (linha_busca != "") {
+          if (vetor_linha_busca[indice_campo] == elemento_b) { 
+            //Compara o conteúdo do campo com o conteúdo da busca
+            encontrou = true;
+            busca_aux.linhas.push_back(pos_do_char);
+          }
         }
-      }
-      pos_do_char += tamanho_da_linha + SO;
-    } while (!file.eof() && !encontrou);
+        pos_do_char += tamanho_da_linha + SO;
+      } while (!file.eof() && !encontrou);
+    }
+    else if (hash == true) {
+      // busca na hash
+      cout << "buscando na hash" << endl;
+    }
+    else if (arvore == true) {
+      // busca na arvore
+    }
   }
   else { // Modificador incorreto
       cout << "Modificador não reconhecido: " << modifier << ". Utilize N para fazer a busca, na tabela, de todos os registros que satisfaçam o critério de busca e U para fazer a busca, na tabela, do primeiro registro que satisfaça o critério. \n";
@@ -582,6 +603,7 @@ void Comandos::removeRegistrosUltimaBusca(string tabela){
   string arquivo_tab = "tabelas/" + tabela + "_TAB.txt";
   
   for (size_t i = 0; i < buscas[tab].linhas.size(); i++) {
+    cout << buscas[tab].linhas[i] << endl;
     ifstream arquivo;
     arquivo.open(arquivo_tab);
     arquivo.seekg(0, ios::beg);
@@ -805,7 +827,7 @@ int Comandos::criaIndice(string modifier, string tabela, string chave) {
       a.first = stoi(valor_da_chave_str);
       a.second = tam_das_linhas;
 
-      tam_das_linhas += line.length() + 2;
+      tam_das_linhas += line.length() + SO;
       insereHash("tabelas/" + tabela, chave, a, buscaHash("tabelas/" + tabela, chave, a.first));
     }
   } else {
