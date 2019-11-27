@@ -503,9 +503,6 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
   else {
     cout << "REGISTRO NÃO ENCONTRADO" << endl;
   }
-  cout << "PRINTANDO" << endl;
-  for (int i = 0; i < busca_aux.linhas.size(); i++)
-    cout << busca_aux.linhas[i] << endl;
   return ;
 }
 
@@ -611,7 +608,6 @@ void Comandos::removeRegistrosUltimaBusca(string tabela){
   string arquivo_tab = "tabelas/" + tabela + "_TAB.txt";
   
   for (size_t i = 0; i < buscas[tab].linhas.size(); i++) {
-    cout << buscas[tab].linhas[i] << endl;
     ifstream arquivo;
     arquivo.open(arquivo_tab);
     arquivo.seekg(0, ios::beg);
