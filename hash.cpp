@@ -57,6 +57,8 @@ long int buscaHash(std::string tabela, std::string campo, int chave) {
     long int pos_bloco; //indica qual posicao a hash aponta
 
     arquivo = fopen(nome_arq.c_str(),"rb"); //abre o arquivo para leitura binaria
+    if (arquivo == NULL)
+        std::cout << "Erro ao abrir o arquivo." << std::endl;
     fseek(arquivo,0,SEEK_SET);
     fread(&tam_hash,sizeof(int),1,arquivo); //le tamanho da hash
     fclose(arquivo);
@@ -141,9 +143,38 @@ void removeHash(std::string tabela, std::string campo) {
         std::cout << "Nao foi possivel deletar o arquivo" << std::endl;
 }
 
+int buscaPonteiroU(std::string tabela, std::string campo, int elemento) {
+    // pega bloco da hash
+    std::vector<bloco> busca = leHash("tabelas/" + tabela, campo, elemento);
+
+    for (int i = 0; i < busca.size(); i++) {
+        for (int j = 0; j < busca[i].num_elem; j++) {
+            if (busca[i].elemento[j].first == elemento) { // encontrou chave
+                return busca[i].elemento[j].second; // retorna ponteiro
+            }
+        }
+    } 
+    return -1;
+}
+
+std::vector<int> buscaPonteiroN(std::string tabela, std::string campo, int elemento) {
+    // pega bloco da hash
+    std::vector<bloco> busca = leHash("tabelas/" + tabela, campo, elemento);
+    std::vector<int> ponteiros; // vector de ponteiros onde a busca foi encontrada
+
+    for (int i = 0; i < busca.size(); i++) {
+        for (int j = 0; j < busca[i].num_elem; j++) {
+            if (busca[i].elemento[j].first == elemento) { // encontrou chave
+                ponteiros.push_back(busca[i].elemento[j].second); // add ponteiro
+            }
+        }
+    }
+    return ponteiros;
+}
 
 
 /*
+
 int main(){
     std::string tab = "tabela";
     std::string camp = "campo";
@@ -163,9 +194,9 @@ int main(){
         std::vector<bloco> blocos;
         blocos = leHash(tab,camp,(i+1)*10);
         for(int j = 0; j<blocos.size();j++){
-            //std::cout << " [CHAVE  " << i << ", BLOCO " << j << "] - ";
+            std::cout << " [CHAVE  " << i << ", BLOCO " << j << "] - ";
             for(int k = 0; k<blocos[j].num_elem;k++){
-                //std::cout << "[" << blocos[j].elemento[k].first << "," << blocos[j].elemento[k].second << "], ";
+                std::cout << "[" << blocos[j].elemento[k].first << "," << blocos[j].elemento[k].second << "], ";
             }
             std::cout << std::endl;
         }

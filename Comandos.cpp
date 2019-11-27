@@ -8,15 +8,6 @@
 
 #define MAXVETOR 100
 
-// verifica o Sistema Operacional para a busca
-// retirado de https://stackoverflow.com/questions/142508/how-do-i-check-os-with-a-preprocessor-directive
-#define SO 1
-#ifdef _WIN32
-  #define SO 2
-#elif defined(__unix__) || defined(unix) || defined(__unix)
-  #define SO 1
-#endif
-
 using namespace std;
 
 Comandos::Comandos() {}
@@ -357,8 +348,9 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
   // Senão, utilize a busca normal.
   bool hash = false;
   bool arvore = false;
+  int elemento_int = stoi(elemento_b);
   if (is_number(elemento_b) == true) {
-    int elemento_int = stoi(elemento_b);
+    elemento_int = stoi(elemento_b);
     // checa se o indice campo_b possui hash. A verificação da hash acontece primeiro pois
     // é mais eficiente, e decidimos por ser preferencial em relação à árvore.
     if (possuiHash(tabela, campo_b)) {
@@ -428,6 +420,14 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
     else if (hash == true) {
       // busca na hash
       cout << "buscando na hash" << endl;
+      // vector com ocorrencias onde a busca foi encontrada
+      vector<int> ponteiro = buscaPonteiroN(tabela, campo_b, elemento_int);
+      if (ponteiro.size() > 0) { // se encontrou pelo menos um
+        encontrou = true;
+        for (int i = 0; i < ponteiro.size(); i++) {
+          busca_aux.linhas.push_back(ponteiro[i]);
+        }
+      }
     }
     else if (arvore == true) {
       // busca na arvore
@@ -464,7 +464,12 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
     }
     else if (hash == true) {
       // busca na hash
-      cout << "buscando na hash" << endl;
+      cout << "buscando na hash" << tabela << campo_b << elemento_int << endl;
+      int ponteiro = buscaPonteiroU(tabela, campo_b, elemento_int);
+      if (ponteiro != -1) {
+        encontrou = true;
+        busca_aux.linhas.push_back(ponteiro);
+      }
     }
     else if (arvore == true) {
       // busca na arvore
@@ -498,6 +503,9 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
   else {
     cout << "REGISTRO NÃO ENCONTRADO" << endl;
   }
+  cout << "PRINTANDO" << endl;
+  for (int i = 0; i < busca_aux.linhas.size(); i++)
+    cout << busca_aux.linhas[i] << endl;
   return ;
 }
 
