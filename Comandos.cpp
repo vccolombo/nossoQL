@@ -348,7 +348,7 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
   // Senão, utilize a busca normal.
   bool hash = false;
   bool arvore = false;
-  int elemento_int = stoi(elemento_b);
+  int elemento_int;
   if (is_number(elemento_b) == true) {
     elemento_int = stoi(elemento_b);
     // checa se o indice campo_b possui hash. A verificação da hash acontece primeiro pois
