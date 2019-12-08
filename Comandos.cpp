@@ -21,6 +21,48 @@ string Comandos::horaatual(){
   return string(asctime(timeinfo));
 }
 
+
+int Comandos::existearquivoindice(string tabela, string tipoindice, string chave){
+//VERIFICANDO SE A TABELA TEM INDICE HASH OU ARVORE PARA IGNORAR
+//COMENTADO ESSA PARTE POIS FOI IMPLEMENTADO QUE O REGISTRO ESTA INSERINDO MSM COM A HASH
+ char LOCAL_DIR[FILENAME_MAX];
+  if (!Define_CurrentDir(LOCAL_DIR, sizeof(LOCAL_DIR))) {
+    string erro = "Erro ao tentar encontrar o local de instalação do programa";
+    cout << erro;
+    return 0;
+  }
+
+  DIR *dir;
+  struct dirent *lsdir;
+  string diretoriolocal = LOCAL_DIR;
+  int i = 0, controleqt = 0;
+  
+  diretoriolocal = diretoriolocal + "/tabelas/";
+  dir = opendir(diretoriolocal.c_str());
+
+  string tabelatemp = tabela + tipoindice + chave; // tabela + 6 de tamanho + chave
+
+  while ( ( lsdir = readdir(dir) ) != NULL ) { 
+      i = 0;
+      controleqt = 0;
+      //cout << lsdir->d_name << endl;
+      while(controleqt++ != int(tabelatemp.length()+1)){
+        if(tabelatemp[i] == lsdir->d_name[i]){
+          if((i+1) == int(tabelatemp.length())){
+            return 1;
+          }
+        }
+        else{
+          break;
+        }
+      i++;
+      }   
+  }
+  closedir(dir);
+  return 0;
+}
+
+
 int Comandos::criarArquivoComNomeTabela(string tabela, string* campos) {
   // verificar se existe tabela com nome igual
   ifstream arquivo_base;
@@ -215,6 +257,44 @@ void Comandos::inserirRegistro(string tabela, string registro) {
     cout << "ERRO IMPOSSÍVEL INSERIR NA TABELA: Quantidade incorreta de campos para inserir\n";
     return;
   }
+
+//VERIFICANDO SE A TABELA TEM INDICE HASH OU ARVORE PARA IGNORAR
+//COMENTADO ESSA PARTE POIS FOI IMPLEMENTADO QUE O REGISTRO ESTA INSERINDO MSM COM A HASH
+ char LOCAL_DIR[FILENAME_MAX];
+  if (!Define_CurrentDir(LOCAL_DIR, sizeof(LOCAL_DIR))) {
+    string erro = "Erro ao tentar encontrar o local de instalação do programa";
+    cout << erro;
+    return;
+  }
+
+  DIR *dir;
+  struct dirent *lsdir;
+  string diretoriolocal = LOCAL_DIR;
+  int i = 0, controleqt = 0;
+  
+  diretoriolocal = diretoriolocal + "/tabelas/";
+  dir = opendir(diretoriolocal.c_str());
+
+  string tabelatemp = tabela + "_HASH_"; // tabela + 6 de tamanho
+
+  while ( ( lsdir = readdir(dir) ) != NULL ) { 
+      i = 0;
+      controleqt = 0;
+      //cout << lsdir->d_name << endl;
+      while(controleqt++ != int(tabelatemp.length()+1)){
+        if(tabelatemp[i] == lsdir->d_name[i]){
+          if((i+1) == int(tabelatemp.length())){
+            return;
+          }
+        }
+        else{
+          break;
+        }
+      i++;
+      }   
+  }
+closedir(dir);
+
 
   // vetor com indices (se houver)
   vector<string> indices;
@@ -556,6 +636,45 @@ void Comandos::removeRegistrosUltimaBusca(string tabela){
   vector<int> campo_indexado;              //indica o(s) campo(s) indexado(s) nessa tabela
   vector<int> ponteiro;
 
+char LOCAL_DIR[FILENAME_MAX];
+  if (!Define_CurrentDir(LOCAL_DIR, sizeof(LOCAL_DIR))) {
+    string erro = "Erro ao tentar encontrar o local de instalação do programa";
+    cout << erro;
+    return;
+  }
+
+//VERIFICANDO SE TEM ARQUIVO HASH PARA IGNORAR A REMOÇÃO
+  DIR *dir;
+  struct dirent *lsdir;
+  string diretoriolocal = LOCAL_DIR;
+  int i = 0, controleqt = 0;
+  
+  diretoriolocal = diretoriolocal + "/tabelas/";
+  dir = opendir(diretoriolocal.c_str());
+
+  string tabelatemp = tabela + "_HASH_"; // tabela + 6 de tamanho
+
+  while ( ( lsdir = readdir(dir) ) != NULL ) { 
+      i = 0;
+      controleqt = 0;
+      //cout << lsdir->d_name << endl;
+      while(controleqt++ != int(tabelatemp.length()+1)){
+        if(tabelatemp[i] == lsdir->d_name[i]){
+          if((i+1) == int(tabelatemp.length())){
+            return;
+          }
+        }
+        else{
+          break;
+        }
+      i++;
+      }   
+  }
+closedir(dir);
+
+
+
+
   int tab=0;
   while(tabela != buscas[tab].nome_tabela || tab == buscas.size())
       tab++;
@@ -842,9 +961,83 @@ void Comandos::removeIndiceChave(string tabela, string chave) {
   }
 }
 
+
+//Utilizado para recriar um indice
 void Comandos::geraNovoIndiceDeTabelaChave(string tabela, string chave) {
-  cout << "Gera novamente o indice de " << tabela << " referente a chave "
-            << chave << '\n';
+
+int existehash = 0;
+int existearvore = 0;
+string tipohash = "_HASH_";
+string tipotree = "_TREE_";
+
+//VERIFICANDO SE A TABELA TEM INDICE HASH OU ARVORE PARA IGNORAR
+//COMENTADO ESSA PARTE POIS FOI IMPLEMENTADO QUE O REGISTRO ESTA INSERINDO MSM COM A HASH
+
+existearvore = existearquivoindice(tabela,tipotree,chave);
+existehash = existearquivoindice(tabela,tipohash,chave);
+
+  if (existearvore == 1) {
+    cout << "Recriando indice arvore de " << chave << " da tabela " << tabela << '\n';
+
+  } 
+  if (existehash == 1) {
+    cout << "Recriando indice hash de " << chave << " da tabela " << tabela << '\n';
+    // https://stackoverflow.com/questions/3482064/counting-the-number-of-lines-in-a-text-file
+    // A Hash recebe como argumento o número de elementos que vão ser adicionados.
+    // Esse trecho conta a quantidade de elementos
+    int number_of_lines = 0;
+    string line;
+    ifstream file("tabelas/" + tabela + "_TAB.txt");
+    while (getline(file, line)) // cada linha é um elemento
+        ++number_of_lines;
+
+    iniciaHash(number_of_lines, "tabelas/" + tabela, chave); // Criar a hash que vamos completar
+
+    // Aqui achamos a posição do campo que vamos indexar
+    // Isso é importante para separarmos o valor da chave que vamos indexar
+    auto par_meta = getVetorDeMetadados(tabela);
+    vector<string> metadados = par_meta.first;
+    size_t quantidade_de_campos = stoi(metadados[2]);
+    int indice_campo;
+    int qtd = 0;
+    while (qtd < quantidade_de_campos) {
+      size_t pos_dois_pontos = metadados[3 + qtd].find(":");
+      string campo = metadados[3 + qtd].substr(pos_dois_pontos + 1);
+      // Se o campo for igual ao campo da busca, armazena a posição
+      if (campo == chave) {
+        indice_campo = qtd;
+      }
+      qtd++;
+    }
+    
+    int tam_das_linhas = 0;
+    // voltar para o começo do arquivo
+    // https://stackoverflow.com/questions/5343173/returning-to-beginning-of-file-after-getline
+    file.clear();
+    file.seekg(0, ios::beg);
+    while(getline(file, line)) {
+      string valor_da_chave_str = line;
+      string line_cortada = line;
+      // Esse for corta apenas o valor da chave do índice que estamos indexando
+      for (size_t j = 0; j < quantidade_de_campos; j++) {
+        if (j == indice_campo)
+          valor_da_chave_str = retornaPalavraDeInput(line_cortada, ';');
+        else
+          retornaPalavraDeInput(line_cortada, ';');
+      }
+    
+      // cout << valor_da_chave_str << ' ' << tam_das_linhas << endl;
+      pair<int, int> a;
+      a.first = stoi(valor_da_chave_str);
+      a.second = tam_das_linhas;
+
+      tam_das_linhas += line.length() + 2;
+      insereHash("tabelas/" + tabela, chave, a, buscaHash("tabelas/" + tabela, chave, a.first));
+    }
+  }
+
+  if(existearvore == 0 && existehash == 0)
+    cout << "Não existe indice para esta chave." << '\n';
 }
 
 // retorna um "ponteiro" para o proximo espaco disponivel
