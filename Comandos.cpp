@@ -343,21 +343,27 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
   bool existe_campo = false; // Verificador da existência do campo
   unsigned int i = 0;
   int indice_campo; // Armazena a posição do campo que foi encontrado na busca
-
-  // checa se o indice campo_b possui hash. A verificação da hash acontece primeiro pois
-  // é mais eficiente, e decidimos por ser preferencial em relação à árvore.
-  if (possuiHash(tabela, campo_b)) {
-    cout << "possui hash do indice: " << campo_b << endl;
-    return;
-  }
-  // checa se o indice campo_b possui arvore
-  else if (possuiArvore(tabela, campo_b)) {
-    cout << "possui arvore do indice: " << campo_b << endl;
-    return;
-  }
-
-  // caso não tenha hash nem arvore, faz a busca sequencial
-
+  
+  // checa se o campo_b é um inteiro, se for, verifique se existe hash ou árvore.
+  // Senão, utilize a busca normal.
+  bool hash = false;
+  bool arvore = false;
+  int elemento_int = stoi(elemento_b);
+  if (is_number(elemento_b) == true) {
+    elemento_int = stoi(elemento_b);
+    // checa se o indice campo_b possui hash. A verificação da hash acontece primeiro pois
+    // é mais eficiente, e decidimos por ser preferencial em relação à árvore.
+    if (possuiHash(tabela, campo_b)) {
+      cout << "Possui hash do indice: " << elemento_int << "." << endl;
+      hash = true;
+    }
+    // checa se o indice campo_b possui arvore
+    else if (possuiArvore(tabela, campo_b)) {
+      cout << "possui arvore do indice: " << elemento_int << endl;
+      arvore = true; 
+    }
+    // caso não tenha hash nem arvore, faz a busca sequencial
+  } 
   //Percorre todos os campos presentes no meta, e ao encontrar o campo necessário pra busca, armazena sua posição em indice_campo
   while (i < quantidade_de_campos) {
     size_t pos_dois_pontos = linha_meta_dados[3 + i].find(":");
@@ -387,54 +393,87 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
   if (modifier == "N") {
     cout << "Busca em " << tabela << " todos com critério " << busca
          << '\n';
-    do {
-      getline(file, linha_busca); //Armazena a linha em linha_busca
-      int tamanho_da_linha = linha_busca.length();
-      // Ignora linha inválida
-      if (linhaInvalida(linha_busca)) { 
-        cout << "ignorado" << '\n';
-        pos_do_char += tamanho_da_linha + 2;
-        continue;
-      } 
+    if (hash == false && arvore == false) {
+      // busca no arquivo
+      do {
+        getline(file, linha_busca); //Armazena a linha em linha_busca
+        int tamanho_da_linha = linha_busca.length();
+        // Ignora linha inválida
+        if (linhaInvalida(linha_busca)) { 
+          cout << "ignorado" << '\n';
+          pos_do_char += tamanho_da_linha + SO;
+          continue;
+        } 
 
-      vetor_linha_busca = parseBuscaMetaDados(linha_busca); //Armazena os campos da linha atual
-      //Evita segmentation fault quando pega uma linha vazia.
-      if (linha_busca != "") {
-        if (vetor_linha_busca[indice_campo] == elemento_b) { 
-          //Compara o conteúdo do campo com o conteúdo da busca
-          encontrou = true;
-          busca_aux.linhas.push_back(pos_do_char);
+        vetor_linha_busca = parseBuscaMetaDados(linha_busca); //Armazena os campos da linha atual
+        //Evita segmentation fault quando pega uma linha vazia.
+        if (linha_busca != "") {
+          if (vetor_linha_busca[indice_campo] == elemento_b) { 
+            //Compara o conteúdo do campo com o conteúdo da busca
+            encontrou = true;
+            busca_aux.linhas.push_back(pos_do_char);
+          }
+        }
+        pos_do_char += tamanho_da_linha + SO;
+      } while (!file.eof());
+    }
+    else if (hash == true) {
+      // busca na hash
+      cout << "buscando na hash" << endl;
+      // vector com ocorrencias onde a busca foi encontrada
+      vector<int> ponteiro = buscaPonteiroN(tabela, campo_b, elemento_int);
+      if (ponteiro.size() > 0) { // se encontrou pelo menos um
+        encontrou = true;
+        for (int i = 0; i < ponteiro.size(); i++) {
+          busca_aux.linhas.push_back(ponteiro[i]);
         }
       }
-      pos_do_char += tamanho_da_linha + 2;
-    } while (!file.eof());
+    }
+    else if (arvore == true) {
+      // busca na arvore
+    }
   }
   else if (modifier == "U") {
     cout << "Busca em " << tabela << " primeiro com critério " << busca
           << '\n';
 
     // Busca até encontrar o primeiro campo igual ao conteúdo da busca
-    do {
-      getline(file, linha_busca); //Armazena a linha em linha_busca
-      int tamanho_da_linha = linha_busca.length();
-      // Ignora linha inválida
-      if (linhaInvalida(linha_busca)) { 
-        cout << "ignorado" << '\n';
-        pos_do_char += tamanho_da_linha + 2;
-        continue;
-      } 
+    if (hash == false && arvore == false) {
+      // busca no arquivo
+      do {
+        getline(file, linha_busca); //Armazena a linha em linha_busca
+        int tamanho_da_linha = linha_busca.length();
+        // Ignora linha inválida
+        if (linhaInvalida(linha_busca)) { 
+          cout << "ignorado" << '\n';
+          pos_do_char += tamanho_da_linha + SO;
+          continue;
+        } 
 
-      vetor_linha_busca = parseBuscaMetaDados(linha_busca); //Armazena os campos da linha atual
-      //Evita segmentation fault quando pega uma linha vazia.
-      if (linha_busca != "") {
-        if (vetor_linha_busca[indice_campo] == elemento_b) { 
-          //Compara o conteúdo do campo com o conteúdo da busca
-          encontrou = true;
-          busca_aux.linhas.push_back(pos_do_char);
+        vetor_linha_busca = parseBuscaMetaDados(linha_busca); //Armazena os campos da linha atual
+        //Evita segmentation fault quando pega uma linha vazia.
+        if (linha_busca != "") {
+          if (vetor_linha_busca[indice_campo] == elemento_b) { 
+            //Compara o conteúdo do campo com o conteúdo da busca
+            encontrou = true;
+            busca_aux.linhas.push_back(pos_do_char);
+          }
         }
+        pos_do_char += tamanho_da_linha + SO;
+      } while (!file.eof() && !encontrou);
+    }
+    else if (hash == true) {
+      // busca na hash
+      cout << "buscando na hash" << tabela << campo_b << elemento_int << endl;
+      int ponteiro = buscaPonteiroU(tabela, campo_b, elemento_int);
+      if (ponteiro != -1) {
+        encontrou = true;
+        busca_aux.linhas.push_back(ponteiro);
       }
-      pos_do_char += tamanho_da_linha + 2;
-    } while (!file.eof() && !encontrou);
+    }
+    else if (arvore == true) {
+      // busca na arvore
+    }
   }
   else { // Modificador incorreto
       cout << "Modificador não reconhecido: " << modifier << ". Utilize N para fazer a busca, na tabela, de todos os registros que satisfaçam o critério de busca e U para fazer a busca, na tabela, do primeiro registro que satisfaça o critério. \n";
@@ -588,9 +627,9 @@ void Comandos::removeRegistrosUltimaBusca(string tabela){
     string linha;
     while (getline(arquivo, linha) && posterior.pos == -1) {
       qtd_linha++;
-      global_pos = pos + (2 * qtd_linha);
+      global_pos = pos + (SO * qtd_linha);
       if (global_pos == buscas[tab].linhas[i]) {
-        atual.pos = pos + (2 * qtd_linha);
+        atual.pos = pos + (SO * qtd_linha);
         atual.tamanho = linha.size();
         atual.conteudo = linha;
         
@@ -598,12 +637,12 @@ void Comandos::removeRegistrosUltimaBusca(string tabela){
         ponteiro.push_back(pos + 1);
       } else {
         if (global_pos < buscas[tab].linhas[i] && linha.find('#') != string::npos) {
-          anterior.pos = pos + (2 * qtd_linha);
+          anterior.pos = pos + (SO * qtd_linha);
           anterior.tamanho = linha.size();
           anterior.conteudo = linha;
         }
         else if (global_pos > buscas[tab].linhas[i] && linha.find('#') != string::npos) {
-          posterior.pos = pos + (2 * qtd_linha);
+          posterior.pos = pos + (SO * qtd_linha);
           posterior.tamanho = linha.size();
           posterior.conteudo = linha;
         }
@@ -792,7 +831,7 @@ int Comandos::criaIndice(string modifier, string tabela, string chave) {
       a.first = stoi(valor_da_chave_str);
       a.second = tam_das_linhas;
 
-      tam_das_linhas += line.length() + 2;
+      tam_das_linhas += line.length() + SO;
       insereHash("tabelas/" + tabela, chave, a, buscaHash("tabelas/" + tabela, chave, a.first));
     }
   } else {
@@ -981,7 +1020,6 @@ tuple<Comandos::Removido, Comandos::Removido, int> Comandos::encontrarOndeInseri
   }
   else {
     while (getline(arquivo, linha)) {
-      cout << linha << endl;
       if (linha.find('#') != string::npos) { 
         tam_atual = linha.size();
         tam_disponivel = tam_atual - tam_inserir;
@@ -1006,14 +1044,14 @@ tuple<Comandos::Removido, Comandos::Removido, int> Comandos::encontrarOndeInseri
       }  else {
         pos += linha.size();
         qtd_linha++;
-        anterior.prox = pos + (2 * qtd_linha);
+        anterior.prox = pos + (SO * qtd_linha);
         anterior.pos = anterior.prox;
       }
     }
   }
   // condicao de best fit falhar, retorne a posicao do final do arquivo
   if (melhor.pos == -1) {
-    melhor.prox = percorrido_pos + (2 * qtd_linha);
+    melhor.prox = percorrido_pos + (SO * qtd_linha);
   }
 
   arquivo.close();

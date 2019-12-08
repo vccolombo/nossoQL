@@ -31,6 +31,10 @@ insereHash - apos executar a busca, obtendo a posicao do bloco, é feita a inser
 leHash - apos executar a busca, obtendo a posicao do bloco, é retornado este bloco e todos blocos sequencialmente conectados a ele, (a partir do bloco.prox)
 
 removeHash - apaga o arquivo da hash
+
+buscaPonteiroU - busca pela primeira ocorrencia com a chave (retorna int (-1 se nao encontrar))
+
+buscaPOnteiroN - busca por todas ocorrencias com a chave (retorna vector com ocorrencias)
 */
 
 void iniciaHash(int quant_reg, std::string tabela, std::string campo);
@@ -38,6 +42,8 @@ long int buscaHash(std::string tabela, std::string campo, int chave);
 void insereHash(std::string tabela, std::string campo, std::pair<int,int> el, long int pos_bloco);
 std::vector<bloco> leHash(std::string tabela, std::string campo, int chave);
 void removeHash(std::string tabela, std::string campo);
+int buscaPonteiroU(std::string tabela, std::string campo, int elemento);
+std::vector<int> buscaPonteiroN(std::string tabela, std::string campo, int elemento);
 
 /* 
 Mesma coisa mas com uns print pra debug (TO DO)

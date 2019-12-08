@@ -16,12 +16,16 @@
 #include <cstring>
 #include <string>
 #include <tuple>
+// verifica o Sistema Operacional para a busca (default LINUX = 1)
+// retirado de https://stackoverflow.com/questions/142508/how-do-i-check-os-with-a-preprocessor-directive
 #ifdef WINDOWS
    #include <direct.h>
    #define Define_CurrentDir _getcwd
+   #define SO 2
 #else
    #include <unistd.h>
    #define Define_CurrentDir getcwd
+   #define SO 1
  #endif
 
 
