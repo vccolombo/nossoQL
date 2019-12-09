@@ -16,7 +16,7 @@ void iniciaHash(int quant_reg, std::string tabela, std::string campo) {
     long int pos_bloco = 0;                                         //auxiliar para preencher o arquivo
     long int hash[tam];                                             //ira guardar o endereco de cada bloco do arquivo
     
-    std::string nome_arq = (tabela + "_" + campo +  "_HASH.bin");   //nome do arquivo - "tabela_campo_HASH.bin"
+    std::string nome_arq = (tabela + "_HASH_" + campo +  ".bin");   //nome do arquivo - "tabela_campo_HASH.bin"
     bloco block;                                                    //bloco auxliar pra preencher arquivo com os blocos iniciais
     block.prox = -1;                                                //-1 indicando a inexistencia de um bloco adicional
     block.num_elem = 0;                                             //0 pois os blocos começam vazios
@@ -51,7 +51,7 @@ void iniciaHash(int quant_reg, std::string tabela, std::string campo) {
         
 long int buscaHash(std::string tabela, std::string campo, int chave) {
     FILE* arquivo;
-    std::string nome_arq = (tabela + "_" + campo +  "_HASH.bin"); //nome do arquivo
+    std::string nome_arq = (tabela + "_HASH_" + campo +  ".bin"); //nome do arquivo
     int tam_hash; //tamanho da hash, necessario para usar no modulo da funcao hash
     int pos_hash; //indica qual posicao a funcao hash retornou
     long int pos_bloco; //indica qual posicao a hash aponta
@@ -77,7 +77,7 @@ long int buscaHash(std::string tabela, std::string campo, int chave) {
 void insereHash(std::string tabela, std::string campo, std::pair<int,int> el, long int pos_bloco ) {
     FILE* arquivo;
     bloco prim_bloco;
-    std::string nome_arq = tabela + "_" + campo +  "_HASH.bin"; //nome do arquivo
+    std::string nome_arq = tabela + "_HASH_" + campo +  ".bin"; //nome do arquivo
     
     arquivo = fopen(nome_arq.c_str(),"rb+"); //abre pra leitura e escrita sem sobrescrever o arquivo
     fseek(arquivo,pos_bloco,SEEK_SET);
@@ -112,7 +112,7 @@ std::vector<bloco> leHash(std::string tabela, std::string campo, int chave) {
     FILE* arquivo;
     std::vector<bloco> block;
     bloco aux;
-    std::string nome_arq = (tabela + "_" + campo+  "_HASH.bin"); //nome do arquivo
+    std::string nome_arq = (tabela + "_HASH_" + campo +  ".bin"); //nome do arquivo
     
     long int pos_bloco = buscaHash(tabela,campo,chave); //pega a pos_bloco referente a chave
     
@@ -132,7 +132,7 @@ std::vector<bloco> leHash(std::string tabela, std::string campo, int chave) {
 
 
 void removeHash(std::string tabela, std::string campo) {
-    std::string nome_arq = (tabela + "_" + campo+  "_HASH.bin"); //nome do arquivo
+    std::string nome_arq = (tabela + "_HASH_" + campo +  ".bin"); //nome do arquivo
     int status = remove(nome_arq.c_str());
 
     if (status == 0)
