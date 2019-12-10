@@ -57,6 +57,8 @@ long int buscaHash(std::string tabela, std::string campo, int chave) {
     long int pos_bloco; //indica qual posicao a hash aponta
 
     arquivo = fopen(nome_arq.c_str(),"rb"); //abre o arquivo para leitura binaria
+    if (arquivo == NULL)
+        std::cout << "Erro ao abrir o arquivo." << std::endl;
     fseek(arquivo,0,SEEK_SET);
     fread(&tam_hash,sizeof(int),1,arquivo); //le tamanho da hash
     fclose(arquivo);
@@ -112,7 +114,7 @@ std::vector<bloco> leHash(std::string tabela, std::string campo, int chave) {
     FILE* arquivo;
     std::vector<bloco> block;
     bloco aux;
-    std::string nome_arq = (tabela + "_HASH_" + campo +  ".bin"); //nome do arquivo
+    std::string nome_arq = tabela + "_HASH_" + campo +  ".bin"; //nome do arquivo
     
     long int pos_bloco = buscaHash(tabela,campo,chave); //pega a pos_bloco referente a chave
     
@@ -132,7 +134,7 @@ std::vector<bloco> leHash(std::string tabela, std::string campo, int chave) {
 
 
 void removeHash(std::string tabela, std::string campo) {
-    std::string nome_arq = (tabela + "_HASH_" + campo +  ".bin"); //nome do arquivo
+    std::string nome_arq = tabela + "_HASH_" + campo +  ".bin"; //nome do arquivo
     int status = remove(nome_arq.c_str());
 
     if (status == 0)
@@ -142,13 +144,41 @@ void removeHash(std::string tabela, std::string campo) {
 }
 
 
+int buscaPonteiroU(std::string tabela, std::string campo, int elemento) {
+    // pega bloco da hash
+    std::vector<bloco> busca = leHash("tabelas/" + tabela, campo, elemento);
+
+    for (int i = 0; i < busca.size(); i++) {
+        for (int j = 0; j < busca[i].num_elem; j++) {
+            if (busca[i].elemento[j].first == elemento) { // encontrou chave
+                return busca[i].elemento[j].second; // retorna ponteiro
+            }
+        }
+    } 
+    return -1;
+}
+
+std::vector<int> buscaPonteiroN(std::string tabela, std::string campo, int elemento) {
+    // pega bloco da hash
+    std::vector<bloco> busca = leHash("tabelas/" + tabela, campo, elemento);
+    std::vector<int> ponteiros; // vector de ponteiros onde a busca foi encontrada
+
+    for (int i = 0; i < busca.size(); i++) {
+        for (int j = 0; j < busca[i].num_elem; j++) {
+            if (busca[i].elemento[j].first == elemento) { // encontrou chave
+                ponteiros.push_back(busca[i].elemento[j].second); // add ponteiro
+            }
+        }
+    }
+    return ponteiros;
+}
+
 
 /*
 int main(){
     std::string tab = "tabela";
     std::string camp = "campo";
     std::vector<bloco> bl;
-
     iniciaHash(20,tab,camp);
     for(int i = 0; i<20;i++){
         std::pair<int, int > a;
@@ -163,16 +193,14 @@ int main(){
         std::vector<bloco> blocos;
         blocos = leHash(tab,camp,(i+1)*10);
         for(int j = 0; j<blocos.size();j++){
-            //std::cout << " [CHAVE  " << i << ", BLOCO " << j << "] - ";
+            std::cout << " [CHAVE  " << i << ", BLOCO " << j << "] - ";
             for(int k = 0; k<blocos[j].num_elem;k++){
-                //std::cout << "[" << blocos[j].elemento[k].first << "," << blocos[j].elemento[k].second << "], ";
+                std::cout << "[" << blocos[j].elemento[k].first << "," << blocos[j].elemento[k].second << "], ";
             }
             std::cout << std::endl;
         }
-
     }
     removeHash(tab,camp);
     return 0;
 }
-
 */

@@ -13,6 +13,7 @@ using namespace std;
 #define MIN_SIZE 18
 #define PONTEIRO_HEAD_SIZE 10
 
+void removeTREE(std::string tabela, std::string campo);
 
 typedef int dtype;
 enum status {InsertNotComplete, Success, DuplicateKey,
@@ -27,14 +28,15 @@ struct node {
 class Btree {
 public:
    Btree();
-   Btree(const char *TreeFileName);
+   Btree(string TreeFileName);
    ~Btree();
 
    void insert(dtype x);
-   void insert(const char *InpFileName, int x, int remocao);
+   void insert(string InpFileName, int x, int opcao);
    void print(){cout << "Conteudo:\n"; pr(root, 0);}
    void DelNode(dtype x);
    void ShowSearch(dtype x);
+
 
 
    

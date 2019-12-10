@@ -384,14 +384,19 @@ closedir(dir);
       string TreeFileName;
 
       //nome do arquivo bin
-      TreeFileName = "./tabelas/" + tabela + "_TREE_" + indices[i] ;
+      TreeFileName = tabela + "_TREE_" + indices[i] ;
       int n = TreeFileName.length(); 
       char char_array[n + 1];
       strcpy(char_array, TreeFileName.c_str()); 
       cout << char_array << endl;
       Btree t(char_array);
       t.insert(char_array, temp, 0);
+      //btree->print();
+      
+      /*Btree t(char_array);
+      if(t.insert(char_array, temp, 0)){
       geraNovoIndiceDeTabelaChave(tabela, indices[i]);
+      }*/
     }
   }
 }
@@ -421,6 +426,8 @@ bool Comandos::possuiArvore(string tabela, string indice) {
   return false;
 }
 
+
+
 void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
   ifstream file; //Leitura do arquivo
   struct busca busca_aux;
@@ -446,12 +453,27 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
   bool existe_campo = false; // Verificador da existência do campo
   unsigned int i = 0;
   int indice_campo; // Armazena a posição do campo que foi encontrado na busca
-
-  // checa se o indice campo_b possui hash. A verificação da hash acontece primeiro pois
-  // é mais eficiente, e decidimos por ser preferencial em relação à árvore.
-
-  // caso não tenha hash nem arvore, faz a busca sequencial
-
+  
+  // checa se o campo_b é um inteiro, se for, verifique se existe hash ou árvore.
+  // Senão, utilize a busca normal.
+  bool hash = false;
+  bool arvore = false;
+  int elemento_int;
+  if (is_number(elemento_b) == true) {
+    elemento_int = stoi(elemento_b);
+    // checa se o indice campo_b possui hash. A verificação da hash acontece primeiro pois
+    // é mais eficiente, e decidimos por ser preferencial em relação à árvore.
+    if (possuiHash(tabela, campo_b)) {
+      cout << "Possui hash do indice: " << campo_b << "." << endl;
+      hash = true;
+    }
+    // checa se o indice campo_b possui arvore
+    else if (possuiArvore(tabela, campo_b)) {
+      cout << "possui arvore do indice: " << campo_b << endl;
+      arvore = true; 
+    }
+    // caso não tenha hash nem arvore, faz a busca sequencial
+  } 
   //Percorre todos os campos presentes no meta, e ao encontrar o campo necessário pra busca, armazena sua posição em indice_campo
   while (i < quantidade_de_campos) {
     size_t pos_dois_pontos = linha_meta_dados[3 + i].find(":");
@@ -481,54 +503,128 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
   if (modifier == "N") {
     cout << "Busca em " << tabela << " todos com critério " << busca
          << '\n';
-    do {
-      getline(file, linha_busca); //Armazena a linha em linha_busca
-      int tamanho_da_linha = linha_busca.length();
-      // Ignora linha inválida
-      if (linhaInvalida(linha_busca)) { 
-        cout << "ignorado" << '\n';
-        pos_do_char += tamanho_da_linha + 2;
-        continue;
-      } 
+    if (hash == false && arvore == false) {
+      // busca no arquivo
+      do {
+        getline(file, linha_busca); //Armazena a linha em linha_busca
+        int tamanho_da_linha = linha_busca.length();
+        // Ignora linha inválida
+        if (linhaInvalida(linha_busca)) { 
+          cout << "ignorado" << '\n';
+          pos_do_char += tamanho_da_linha + SO;
+          continue;
+        } 
 
-      vetor_linha_busca = parseBuscaMetaDados(linha_busca); //Armazena os campos da linha atual
-      //Evita segmentation fault quando pega uma linha vazia.
-      if (linha_busca != "") {
-        if (vetor_linha_busca[indice_campo] == elemento_b) { 
-          //Compara o conteúdo do campo com o conteúdo da busca
-          encontrou = true;
-          busca_aux.linhas.push_back(pos_do_char);
+        vetor_linha_busca = parseBuscaMetaDados(linha_busca); //Armazena os campos da linha atual
+        //Evita segmentation fault quando pega uma linha vazia.
+        if (linha_busca != "") {
+          if (vetor_linha_busca[indice_campo] == elemento_b) { 
+            //Compara o conteúdo do campo com o conteúdo da busca
+            encontrou = true;
+            busca_aux.linhas.push_back(pos_do_char);
+          }
+        }
+        pos_do_char += tamanho_da_linha + SO;
+      } while (!file.eof());
+    }
+    else if (hash == true) {
+      // busca na hash
+      cout << "buscando na hash" << endl;
+      // vector com ocorrencias onde a busca foi encontrada
+      vector<int> ponteiro = buscaPonteiroN(tabela, campo_b, elemento_int);
+      if (ponteiro.size() > 0) { // se encontrou pelo menos um
+        encontrou = true;
+        for (int i = 0; i < ponteiro.size(); i++) {
+          busca_aux.linhas.push_back(ponteiro[i]);
         }
       }
-      pos_do_char += tamanho_da_linha + 2;
-    } while (!file.eof());
+    }
+    else if (arvore == true) {
+      // busca na arvore
+    }
   }
   else if (modifier == "U") {
     cout << "Busca em " << tabela << " primeiro com critério " << busca
           << '\n';
 
     // Busca até encontrar o primeiro campo igual ao conteúdo da busca
-    do {
-      getline(file, linha_busca); //Armazena a linha em linha_busca
-      int tamanho_da_linha = linha_busca.length();
-      // Ignora linha inválida
-      if (linhaInvalida(linha_busca)) { 
-        cout << "ignorado" << '\n';
-        pos_do_char += tamanho_da_linha + 2;
-        continue;
-      } 
+    if (hash == false && arvore == false) {
+      // busca no arquivo
+      do {
+        getline(file, linha_busca); //Armazena a linha em linha_busca
+        int tamanho_da_linha = linha_busca.length();
+        // Ignora linha inválida
+        if (linhaInvalida(linha_busca)) { 
+          cout << "ignorado" << '\n';
+          pos_do_char += tamanho_da_linha + SO;
+          continue;
+        } 
 
-      vetor_linha_busca = parseBuscaMetaDados(linha_busca); //Armazena os campos da linha atual
-      //Evita segmentation fault quando pega uma linha vazia.
-      if (linha_busca != "") {
-        if (vetor_linha_busca[indice_campo] == elemento_b) { 
-          //Compara o conteúdo do campo com o conteúdo da busca
-          encontrou = true;
-          busca_aux.linhas.push_back(pos_do_char);
+        vetor_linha_busca = parseBuscaMetaDados(linha_busca); //Armazena os campos da linha atual
+        //Evita segmentation fault quando pega uma linha vazia.
+        if (linha_busca != "") {
+          if (vetor_linha_busca[indice_campo] == elemento_b) { 
+            //Compara o conteúdo do campo com o conteúdo da busca
+            encontrou = true;
+            busca_aux.linhas.push_back(pos_do_char);
+          }
         }
+        pos_do_char += tamanho_da_linha + SO;
+      } while (!file.eof() && !encontrou);
+    }
+    else if (hash == true) {
+      // busca na hash
+      cout << "buscando na hash" << tabela << campo_b << elemento_int << endl;
+      int ponteiro = buscaPonteiroU(tabela, campo_b, elemento_int);
+      if (ponteiro != -1) {
+        encontrou = true;
+        busca_aux.linhas.push_back(ponteiro);
       }
-      pos_do_char += tamanho_da_linha + 2;
-    } while (!file.eof() && !encontrou);
+    }
+    else if (arvore == true) {
+      // busca na arvore
+      string TreeFileName;
+
+      //nome do arquivo bin
+      TreeFileName = tabela + "_TREE_" + campo_b ;
+      /*
+      int n = TreeFileName.length(); 
+      char char_array[n + 1];
+      strcpy(char_array, TreeFileName.c_str()); 
+      cout << char_array << endl;*/
+      
+
+      Btree t(TreeFileName);
+      //Btree * btree = new Btree(char_array);
+      //btree->ShowSearch(elemento_int);
+      t.ShowSearch(elemento_int);
+
+      //geraNovoIndiceDeTabelaChave(tabela, campo_b);
+
+      // busca no arquivo
+      do {
+        getline(file, linha_busca); //Armazena a linha em linha_busca
+        int tamanho_da_linha = linha_busca.length();
+        // Ignora linha inválida
+        if (linhaInvalida(linha_busca)) { 
+          cout << "ignorado" << '\n';
+          pos_do_char += tamanho_da_linha + SO;
+          continue;
+        } 
+
+        vetor_linha_busca = parseBuscaMetaDados(linha_busca); //Armazena os campos da linha atual
+        //Evita segmentation fault quando pega uma linha vazia.
+        if (linha_busca != "") {
+          if (vetor_linha_busca[indice_campo] == elemento_b) { 
+            //Compara o conteúdo do campo com o conteúdo da busca
+            encontrou = true;
+            busca_aux.linhas.push_back(pos_do_char);
+          }
+        }
+        pos_do_char += tamanho_da_linha + SO;
+      } while (!file.eof() && !encontrou);
+
+    }
   }
   else { // Modificador incorreto
       cout << "Modificador não reconhecido: " << modifier << ". Utilize N para fazer a busca, na tabela, de todos os registros que satisfaçam o critério de busca e U para fazer a busca, na tabela, do primeiro registro que satisfaça o critério. \n";
@@ -558,8 +654,8 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
   else {
     cout << "REGISTRO NÃO ENCONTRADO" << endl;
   }
-  return ;
 }
+
 
 void Comandos::apresentarRegistrosUltimaBusca(string tabela) {
   
@@ -651,9 +747,6 @@ void Comandos::removeRegistrosUltimaBusca(string tabela){
   vector<int> campo_indexado;              //indica o(s) campo(s) indexado(s) nessa tabela
   vector<int> ponteiro;
 
-
-
-
 char LOCAL_DIR[FILENAME_MAX];
   if (!Define_CurrentDir(LOCAL_DIR, sizeof(LOCAL_DIR))) {
     string erro = "Erro ao tentar encontrar o local de instalação do programa";
@@ -690,7 +783,7 @@ char LOCAL_DIR[FILENAME_MAX];
   }
 closedir(dir);
 
-
+/*
 
 
   int tab=0;
@@ -725,23 +818,22 @@ closedir(dir);
     string linha;
     while (getline(arquivo, linha) && posterior.pos == -1) {
       qtd_linha++;
-      global_pos = pos + (2 * qtd_linha);
+      global_pos = pos + (SO * qtd_linha);
       if (global_pos == buscas[tab].linhas[i]) {
-        atual.pos = pos + (2 * qtd_linha);
+        atual.pos = pos + (SO * qtd_linha);
         atual.tamanho = linha.size();
         atual.conteudo = linha;
-        //cout << atual.conteudo << endl;
-
+        
         reg_removido.push_back(parseInsercao(linha));
         ponteiro.push_back(pos + 1);
       } else {
         if (global_pos < buscas[tab].linhas[i] && linha.find('#') != string::npos) {
-          anterior.pos = pos + (2 * qtd_linha);
+          anterior.pos = pos + (SO * qtd_linha);
           anterior.tamanho = linha.size();
           anterior.conteudo = linha;
         }
         else if (global_pos > buscas[tab].linhas[i] && linha.find('#') != string::npos) {
-          posterior.pos = pos + (2 * qtd_linha);
+          posterior.pos = pos + (SO * qtd_linha);
           posterior.tamanho = linha.size();
           posterior.conteudo = linha;
         }
@@ -799,36 +891,37 @@ closedir(dir);
       }
     }
   }
+*/
+//Removendo da arvore
+  string TreeFileName;
+
+  //nome do arquivo bin
+  TreeFileName = tabela + "_TREE_" + indices[i] ;
+  /*
+  int n = TreeFileName.length(); 
+  char char_array[n + 1];
+  strcpy(char_array, TreeFileName.c_str()); 
+  cout << char_array << endl;
+  */
+  Btree t(TreeFileName);
 
 
-  int trigger = 0;
   for(size_t i = 0; i < reg_removido.size(); i++){
     for (size_t j = 0; j < indices.size(); j++) {
-      if (tipos[j] == "A" && trigger == 0) {
+      if (tipos[j] == "A") {
         // remove na arvore
         cout << "Removendo: " << reg_removido[i][campo_indexado[j]] << " com ponteiro " << ponteiro[i] << " na ARVORE de " << indices[j] << "." << endl; 
-        // inserir em arvore
-        /*trigger = 1;
-        int temp = stoi(inserir[index[i]]);
         cout << "Arvore" << endl;
-        cout << "Inserindo: " << inserir[index[i]] << "  na arvore de " << indices[i] << " com ponteiro " << ponteiro << endl;
-        string TreeFileName;
 
-        //nome do arquivo bin
-        TreeFileName = "./tabelas/" + tabela + "_TREE_" + indices[i] ;
-        int n = TreeFileName.length(); 
-        char char_array[n + 1];
-        strcpy(char_array, TreeFileName.c_str()); 
-        cout << char_array << endl;
-        Btree t(char_array);
-        t.insert(char_array, temp, 1);
-        geraNovoIndiceDeTabelaChave(tabela, indices[i]);
-        */
-
+        t.DelNode(stoi(reg_removido[i][campo_indexado[j]]));
+        
+        //geraNovoIndiceDeTabelaChave(tabela, indices[i]);
       }
     }
   }
+  t.print();
 }
+
 
 int Comandos::criaIndice(string modifier, string tabela, string chave) {
   string meta = "./tabelas/" + tabela + "_META.txt";
@@ -892,18 +985,19 @@ int Comandos::criaIndice(string modifier, string tabela, string chave) {
   arquivo_meta.close();
 
   if (modifier == "A") {
+    
     cout << "Cria um índice estruturado para " << tabela
               << " usando a chave " << chave << '\n';
 
     string TreeFileName;
     //nome do arquivo bin
-    TreeFileName = "./tabelas/" + tabela + "_TREE_" + chave;
-    int n = TreeFileName.length(); 
+    TreeFileName =  tabela + "_TREE_" + chave;
+    /*int n = TreeFileName.length(); 
     char char_array[n + 1];
     strcpy(char_array, TreeFileName.c_str()); 
-    
-    Btree t(char_array);
-    
+    */
+    Btree t(TreeFileName);
+
     //INSERIR na arvore
     // https://stackoverflow.com/questions/3482064/counting-the-number-of-lines-in-a-text-file
     // A Hash recebe como argumento o número de elementos que vão ser adicionados.
@@ -930,7 +1024,7 @@ int Comandos::criaIndice(string modifier, string tabela, string chave) {
       }
       qtd++;
     }
-    
+
     int tam_das_linhas = 0;
     // voltar para o começo do arquivo
     // https://stackoverflow.com/questions/5343173/returning-to-beginning-of-file-after-getline
@@ -950,10 +1044,11 @@ int Comandos::criaIndice(string modifier, string tabela, string chave) {
       int valornaarvore = stoi(valor_da_chave_str);
       //INSERINDO NA ARVORE
       t.insert(valornaarvore);
-      t.print();
+     
       // cout << valor_da_chave_str << ' ' << tam_das_linhas << endl;
       tam_das_linhas += line.length() + 2;
     }
+     t.print();
   } 
   else if (modifier == "H") {
     // https://stackoverflow.com/questions/3482064/counting-the-number-of-lines-in-a-text-file
@@ -1034,6 +1129,7 @@ void Comandos::removeIndiceChave(string tabela, string chave) {
       if (linha.find(chave) != string::npos) {
         if (linha.find(" A") != string::npos) {
           cout << "REMOVER ARVORE" << endl;
+          removeTREE("tabelas/" + tabela, chave);
         } else if (linha.find(" H") != string::npos) {
           removeHash("tabelas/" + tabela, chave);
         }
@@ -1074,14 +1170,15 @@ existehash = existearquivoindice(tabela,tipohash,chave);
     cout << "Recriando indice arvore de " << chave << " da tabela " << tabela << '\n';
     string TreeFileName;
     //nome do arquivo bin
-    TreeFileName = "./tabelas/" + tabela + "_TREE_" + chave;
+    TreeFileName = tabela + "_TREE_" + chave;
+    /*
     int n = TreeFileName.length(); 
     char char_array[n + 1];
     strcpy(char_array, TreeFileName.c_str()); 
-    
-    TreeFileName = "/tabelas/" + TreeFileName;
+    */
+    TreeFileName = TreeFileName;
     remove(TreeFileName.c_str());
-    Btree t(char_array);
+    Btree t(TreeFileName);
     
     //INSERIR na arvore
     // https://stackoverflow.com/questions/3482064/counting-the-number-of-lines-in-a-text-file
@@ -1129,11 +1226,11 @@ existehash = existearquivoindice(tabela,tipohash,chave);
       int valornaarvore = stoi(valor_da_chave_str);
       //INSERINDO NA ARVORE
       t.insert(valornaarvore);
-      t.print();
+      
       // cout << valor_da_chave_str << ' ' << tam_das_linhas << endl;
       tam_das_linhas += line.length() + 2;
     }
-
+  t.print();
   } 
   if (existehash == 1) {
     cout << "Recriando indice hash de " << chave << " da tabela " << tabela << '\n';

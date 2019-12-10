@@ -49,13 +49,21 @@ string convertToString(char* a, int size)
 } 
 
 
+void removeTREE(std::string tabela, std::string campo) {
+    std::string nome_arq = tabela + "_TREE_" + campo +  ".bin"; //nome do arquivo
+    int status = remove(nome_arq.c_str());
 
-Btree::Btree(const char *TreeFileName)
-{   
-   string namefile = TreeFileName; 
-   namefile = "./tabelas/" + namefile;
+    if (status == 0)
+        std::cout << "o arquivo: \"" << nome_arq << "\" foi deletado com sucesso." << std::endl;
+    else
+        std::cout << "Nao foi possivel deletar o arquivo" << std::endl;
+}
 
-   ifstream test(namefile.c_str(), ios::in );
+
+Btree::Btree(string TreeFileName)
+{
+   TreeFileName = "./tabelas/"  + TreeFileName;
+   ifstream test(TreeFileName, ios::in);
       // Remove  "| ios::nocreate" if your compiler does not accept it.
    int NewFile = test.fail();
    test.clear(); test.close();
@@ -81,7 +89,7 @@ Btree::Btree(const char *TreeFileName)
       root = start[0]; FreeList = start[1];
       RootNode.n = 0;   // Signal for function ReadNode
       ReadNode(root, RootNode);
-      print();
+      //print();
    }
 }
 
@@ -125,30 +133,18 @@ void Btree::insert(dtype x)
    }
 }
 
-void Btree::insert(const char *InpFileName, int x, int remocao)
-{  
-   string namefile = InpFileName; 
-   namefile = namefile;
-   ifstream InpFile(namefile.c_str(), ios::in );
+void Btree::insert(string InpFileName, int x, int opcao)
+{  ifstream InpFile(InpFileName, ios::in );
    if (InpFile.fail())
    {  cout << "Cannot open input file " << InpFileName 
            << endl;
       return;
    }
    
-   if(remocao == 0){
-      InpFile >> x;
-      insert(x);
-      InpFile.clear();
-      InpFile.close();
-   }
-   else
-   {  
-      DelNode(x);
-      InpFile.clear();
-      InpFile.close();
-   }
-   
+   InpFile >> x;
+   insert(x);
+   InpFile.clear(); 
+   InpFile.close();
 }
 
 status Btree::ins(long r, dtype x, dtype &y, long &q)
