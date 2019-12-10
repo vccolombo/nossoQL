@@ -259,7 +259,7 @@ void Comandos::inserirRegistro(string tabela, string registro) {
   vector<string> metadados = par_meta.first;
   vector<string> indices_meta = par_meta.second;
   size_t quantidade_de_campos = stoi(metadados[2]);
-  cout << "Inserir registro " << registro << " na tabela " << tabela << '\n';
+  // cout << "Inserir registro " << registro << " na tabela " << tabela << '\n';
   // vetor em que cada entrada é um campo da inserção
   vector<string> inserir = parseInsercao(registro);
 
@@ -373,7 +373,7 @@ closedir(dir);
 
   int trigger = 0;
   // inserir nas tabelas de indice
-  cout << "INDICES" << endl;
+  // cout << "INDICES" << endl;
   for (int i = 0; i < indices.size(); i++) {
     if (tipos[i] == "A" && trigger == 0) {
       // inserir em arvore
@@ -469,6 +469,7 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
     }
     // checa se o indice campo_b possui arvore
     else if (possuiArvore(tabela, campo_b)) {
+
       cout << "possui arvore do indice: " << campo_b << endl;
       arvore = true; 
     }
@@ -555,7 +556,7 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
         int tamanho_da_linha = linha_busca.length();
         // Ignora linha inválida
         if (linhaInvalida(linha_busca)) { 
-          cout << "ignorado" << '\n';
+          //cout << "ignorado" << '\n';
           pos_do_char += tamanho_da_linha + SO;
           continue;
         } 
@@ -623,7 +624,6 @@ void Comandos::buscaEmTabela(string modifier, string tabela, string busca) {
         }
         pos_do_char += tamanho_da_linha + SO;
       } while (!file.eof() && !encontrou);
-
     }
   }
   else { // Modificador incorreto
@@ -783,8 +783,6 @@ char LOCAL_DIR[FILENAME_MAX];
   }
 closedir(dir);
 
-/*
-
 
   int tab=0;
   while(tabela != buscas[tab].nome_tabela || tab == buscas.size())
@@ -794,7 +792,6 @@ closedir(dir);
     cout << "erro" << endl;
     return;
   }
-  cout << "a tabela é a" << buscas[tab].nome_tabela << endl;
 
   string arquivo_tab = "tabelas/" + tabela + "_TAB.txt";
   
@@ -802,7 +799,7 @@ closedir(dir);
     ifstream arquivo;
     arquivo.open(arquivo_tab);
     arquivo.seekg(0, ios::beg);
-
+    
     // anterior: registro que esteja antes do removido
     // atual: registro a ser removido
     // posterior: registro que esteja apros o removido
@@ -891,7 +888,7 @@ closedir(dir);
       }
     }
   }
-*/
+  
 //Removendo da arvore
   string TreeFileName;
 
@@ -1100,7 +1097,7 @@ int Comandos::criaIndice(string modifier, string tabela, string chave) {
       a.first = stoi(valor_da_chave_str);
       a.second = tam_das_linhas;
 
-      tam_das_linhas += line.length() + 2;
+      tam_das_linhas += line.length() + SO;
       insereHash("tabelas/" + tabela, chave, a, buscaHash("tabelas/" + tabela, chave, a.first));
     }
   } else {
@@ -1374,17 +1371,17 @@ string* Comandos::parseCampoCT(string input) {
 
 vector<string> Comandos::parseInsercao(string registro) {
   vector<string> insercoes;
-  cout << "Registros a serem inseridos: " << '\n';
+  cout << registro << '\n';
   int campo = 0;
   bool var = false;
   while (registro.length() > 0) {
-    cout << "Campo " << ++campo << ": ";
+    // cout << "Campo " << ++campo << ": ";
     string palavra = retornaPalavraDeInput(registro, ';', var);
-    cout << palavra << "<\n";
+    // cout << palavra << "<\n";
     insercoes.push_back(palavra);
     var = true;
   }
-  cout << '\n';
+  // cout << '\n';
   return insercoes;
 }
 
@@ -1418,15 +1415,17 @@ tuple<Comandos::Removido, Comandos::Removido, int> Comandos::encontrarOndeInseri
 
   // se nao existir nenhum espaco removido: leia o arquivo e retorne a posicao do final do arquivo
   if (ponteiro_head == -1) {
-    while (getline(arquivo, linha)) {
-      percorrido_pos += linha.size();
-      qtd_linha++;
-    }
-
+    arquivo.close();
+    FILE *fp;
+    string nome = "./tabelas/" + tabela + "_TAB.txt";
+    fp = fopen(nome.c_str(), "r+");
+    fseek(fp, 0, SEEK_END);
+    qtd_linha = 0;
+    percorrido_pos = ftell(fp);
+    fclose(fp);
   }
   else {
     while (getline(arquivo, linha)) {
-      cout << linha << endl;
       if (linha.find('#') != string::npos) { 
         tam_atual = linha.size();
         tam_disponivel = tam_atual - tam_inserir;
@@ -1451,14 +1450,14 @@ tuple<Comandos::Removido, Comandos::Removido, int> Comandos::encontrarOndeInseri
       }  else {
         pos += linha.size();
         qtd_linha++;
-        anterior.prox = pos + (2 * qtd_linha);
+        anterior.prox = pos + (SO * qtd_linha);
         anterior.pos = anterior.prox;
       }
     }
   }
   // condicao de best fit falhar, retorne a posicao do final do arquivo
   if (melhor.pos == -1) {
-    melhor.prox = percorrido_pos + (2 * qtd_linha);
+    melhor.prox = percorrido_pos + (SO * qtd_linha);
   }
 
   arquivo.close();

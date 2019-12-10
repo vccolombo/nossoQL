@@ -26,6 +26,7 @@ insereHash - apos executar a busca, obtendo a posicao do bloco, é feita a inser
     se bloco.prox != -1, entao existe um novo bloco, a função insere é chamada de novo recursivamente para esse bloco
 leHash - apos executar a busca, obtendo a posicao do bloco, é retornado este bloco e todos blocos sequencialmente conectados a ele, (a partir do bloco.prox)
 removeHash - apaga o arquivo da hash
+
 buscaPonteiroU - busca pela primeira ocorrencia com a chave (retorna int (-1 se nao encontrar))
 buscaPOnteiroN - busca por todas ocorrencias com a chave (retorna vector com ocorrencias)
 */
