@@ -172,6 +172,35 @@ std::vector<int> buscaPonteiroN(std::string tabela, std::string campo, int eleme
     return ponteiros;
 }
 
+int buscaPonteiroU(std::string tabela, std::string campo, int elemento) {
+    // pega bloco da hash
+    std::vector<bloco> busca = leHash("tabelas/" + tabela, campo, elemento);
+
+    for (int i = 0; i < busca.size(); i++) {
+        for (int j = 0; j < busca[i].num_elem; j++) {
+            if (busca[i].elemento[j].first == elemento) { // encontrou chave
+                return busca[i].elemento[j].second; // retorna ponteiro
+            }
+        }
+    } 
+    return -1;
+}
+
+std::vector<int> buscaPonteiroN(std::string tabela, std::string campo, int elemento) {
+    // pega bloco da hash
+    std::vector<bloco> busca = leHash("tabelas/" + tabela, campo, elemento);
+    std::vector<int> ponteiros; // vector de ponteiros onde a busca foi encontrada
+
+    for (int i = 0; i < busca.size(); i++) {
+        for (int j = 0; j < busca[i].num_elem; j++) {
+            if (busca[i].elemento[j].first == elemento) { // encontrou chave
+                ponteiros.push_back(busca[i].elemento[j].second); // add ponteiro
+            }
+        }
+    }
+    return ponteiros;
+}
+
 
 /*
 
@@ -179,7 +208,6 @@ int main(){
     std::string tab = "tabela";
     std::string camp = "campo";
     std::vector<bloco> bl;
-
     iniciaHash(20,tab,camp);
     for(int i = 0; i<20;i++){
         std::pair<int, int > a;
@@ -200,10 +228,8 @@ int main(){
             }
             std::cout << std::endl;
         }
-
     }
     removeHash(tab,camp);
     return 0;
 }
-
 */

@@ -5,13 +5,14 @@ CXX = g++
 CXXFLAGS = -std=c++11 -Wall
 
 
-OBJECTS = main.o hash.o Comandos.o
+OBJECTS = main.o hash.o Comandos.o btree.o
 
 main: $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -o main.exe $(OBJECTS)
 
 Comandos.o: Comandos.h
 hash.o: hash.h
+btree.o: btree.h
 
 clean:
 	rm *.o *.exe tabelas/*

@@ -26,7 +26,8 @@
    #include <unistd.h>
    #define Define_CurrentDir getcwd
    #define SO 1
- #endif
+#endif
+
 
 
 
@@ -60,6 +61,7 @@ public:
   string retornaPalavraDeInput (string &input, char delimitador, bool removerEspacosAfrente = true);
   string* parseCampoCT(string input);
   string horaatual();
+  string convertToString(char* a, int size);
   int existearquivoindice(string tabela, string tipoindice, string chave);
   vector<string> parseBuscaMetaDados(string dados_meta);
   int ponteiroProximo(string &linha);
